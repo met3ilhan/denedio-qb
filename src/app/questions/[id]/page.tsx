@@ -38,6 +38,11 @@ export default async function QuestionRecordPage({ params }: PageProps) {
         {content ? (
           <p className="text-body mt-4">{content.stem.questionText}</p>
         ) : null}
+        <nav className="mt-4 flex flex-wrap gap-3 text-sm">
+          <a href={`/questions/${question.id}/denedio/map`} className="underline">S17 mapping</a>
+          <a href={`/questions/${question.id}/denedio/dry-run`} className="underline">S18 dry-run</a>
+          <a href="/catalog" className="underline">S16 catalog</a>
+        </nav>
         <section className="mt-6">
           <h2 className="text-title">Version history (S15)</h2>
           <ul className="mt-2 text-sm">

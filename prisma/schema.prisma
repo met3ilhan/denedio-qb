@@ -317,6 +317,8 @@ model GeneratedQuestion {
   createdAt            DateTime                @default(now())
   updatedAt            DateTime                @updatedAt
   versions             QuestionVersion[]
+  denedioMapping       DenedioFieldMapping?
+  exportAttempts       ExportAttempt[]
 
   @@index([status])
 }
@@ -331,4 +333,37 @@ model QuestionVersion {
   createdAt           DateTime          @default(now())
 
   @@unique([generatedQuestionId, versionNumber])
+}
+
+/// S17 curriculum + trap UUID selections (Denedio import mapping).
+model DenedioFieldMapping {
+  id                  String            @id @default(cuid())
+  generatedQuestionId String            @unique
+  generatedQuestion   GeneratedQuestion @relation(fields: [generatedQuestionId], references: [id], onDelete: Cascade)
+  examTypeId          String
+  examSectionId       String
+  subjectId           String
+  topicId             String
+  unitId              String?
+  outcomeId           String?
+  questionArchetypeId String?
+  /// Studio trap slug → Denedio trapType UUID overrides
+  trapTypeMap         Json              @default("{}")
+  /// Cached QuestionImportPayload (schemaVersion + items)
+  payloadCache        Json?
+  updatedAt           DateTime          @updatedAt
+  createdAt           DateTime          @default(now())
+}
+
+/// S18 dry-run audit record.
+model ExportAttempt {
+  id                  String            @id @default(cuid())
+  generatedQuestionId String
+  generatedQuestion   GeneratedQuestion @relation(fields: [generatedQuestionId], references: [id], onDelete: Cascade)
+  passed              Boolean
+  dryRunResult        Json
+  payloadHash         String
+  createdAt           DateTime          @default(now())
+
+  @@index([generatedQuestionId, createdAt])
 }

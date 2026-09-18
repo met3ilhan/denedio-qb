@@ -1,7 +1,10 @@
 import type { MissionPhase } from "@prisma/client";
 import type { ReactNode } from "react";
 
+import type { MissionBlocker } from "@/modules/missions/services/mission-blockers";
+
 import { BlockersPanel } from "./BlockersPanel";
+import { MissionBlockersPanel } from "./MissionBlockersPanel";
 import { CommandPaletteStub } from "./CommandPaletteStub";
 import { PhasePill } from "./PhasePill";
 import { StudioRail } from "./StudioRail";
@@ -12,6 +15,7 @@ type StudioShellProps = {
   missionTitle?: string;
   activePhase?: MissionPhase;
   showBlockers?: boolean;
+  blockers?: MissionBlocker[];
   header?: ReactNode;
 };
 
@@ -21,6 +25,7 @@ export function StudioShell({
   missionTitle,
   activePhase = "INTAKE",
   showBlockers = true,
+  blockers,
   header,
 }: StudioShellProps) {
   return (
@@ -54,7 +59,9 @@ export function StudioShell({
           }`}
         >
           <div className="min-w-0">{children}</div>
-          {showBlockers ? <BlockersPanel /> : null}
+          {showBlockers ? (
+            blockers ? <MissionBlockersPanel blockers={blockers} /> : <BlockersPanel />
+          ) : null}
         </div>
       </div>
 

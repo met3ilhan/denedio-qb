@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { StudioShell } from "@/components/studio/StudioShell";
 import { MISSION_PHASE_LABELS } from "@/modules/missions/domain/mission-phase";
 import { createMissionRepository } from "@/modules/missions/repository/mission-repository";
+import { listMissionBlockers } from "@/modules/missions/services/mission-blockers";
 import { prisma } from "@/shared/db/client";
 
 type MissionPageProps = {
@@ -25,6 +26,7 @@ export default async function MissionPage({ params }: MissionPageProps) {
 
   const repo = createMissionRepository(prisma);
   const mission = await repo.getMissionById(id);
+  const blockers = await listMissionBlockers(prisma, id);
 
   if (!mission) {
     notFound();
@@ -36,6 +38,7 @@ export default async function MissionPage({ params }: MissionPageProps) {
       missionTitle={mission.title}
       activePhase={mission.phase}
       showBlockers
+      blockers={blockers}
       header={
         <>
           <p className="font-mono text-xs text-[var(--qs-text-muted)]">

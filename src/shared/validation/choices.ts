@@ -35,6 +35,7 @@ export function validateChoiceInvariants(
     assetStorageKey?: string;
   }>,
   ctx: z.RefinementCtx,
+  pathPrefix: (string | number)[] = ["choices"],
 ): void {
   const n = choices.length;
   if (n < 2 || n > 5) {
@@ -71,7 +72,7 @@ export function validateChoiceInvariants(
     if (!c.text.trim() && !c.assetStorageKey?.trim()) {
       ctx.addIssue({
         code: "custom",
-        path: ["choices", i, "text"],
+        path: [...pathPrefix, i, "text"],
         message: "each choice requires text or assetStorageKey",
       });
     }

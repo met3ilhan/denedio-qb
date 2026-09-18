@@ -8,7 +8,9 @@ test.describe("Studio shell", () => {
     await expect(rail.getByText("Mechanism")).toBeVisible();
     await expect(rail.getByText("Candidates")).toBeVisible();
     await expect(rail.getByText("Ship")).toBeVisible();
-    await expect(page.getByTestId("blockers-empty")).toBeVisible();
+    const blockersEmpty = page.getByTestId("blockers-empty");
+    const blockersPanel = page.getByTestId("blockers-panel");
+    await expect(blockersEmpty.or(blockersPanel)).toBeVisible();
   });
 
   test("no horizontal overflow at 390px viewport", async ({ page }) => {

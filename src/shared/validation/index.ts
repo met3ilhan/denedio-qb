@@ -10,3 +10,4 @@ export * from "./solver-result";
 export * from "./source-extraction";
 export * from "./trivial-mutation";
 export * from "./verification-result";
+export * from "./question-import-payload";
