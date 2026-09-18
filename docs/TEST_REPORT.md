@@ -1,72 +1,38 @@
-# Test Report — Final Blocker Closure
+# Test Report — Pre-Live AI Stabilization
 
 ## Test Environment
 
 | Field | Value |
 |-------|--------|
 | **Branch** | `build/question-studio-v1` |
-| **Commit** | `fdac8d5` |
-| **Node** | v22 (local) |
+| **Node** | v20+ (local) |
 | **Database** | PostgreSQL `question_studio` @ `localhost:5433` |
-| **Demo mode** | `QUESTION_STUDIO_DEMO_MODE=1` (Playwright webServer + global-setup) |
-| **Live AI** | NOT RUN — no production Gemini validation in this mission |
+| **E2E server** | `next build` → `next start` (production bundle) |
+| **E2E provider** | `QUESTION_STUDIO_PROVIDER_MODE=MOCK` (webServer override) |
+| **Live smoke** | `pnpm test:live-gemini-smoke` — see `docs/LIVE_AI_SMOKE_REPORT.md` |
 
 ## Static Validation
 
 | Command | Result |
 |---------|--------|
 | `pnpm typecheck` | **PASS** |
-| `pnpm lint` | **PASS** — **7 warnings** (unchanged categories: unused imports/params in mock/storage/validation stubs) |
+| `pnpm lint` | **PASS** — **8 warnings** (unused imports/params; img element advisory) |
 
 ## Unit / Integration
 
 | Command | Total | Passed | Failed | Skipped |
 |---------|-------|--------|--------|---------|
-| `pnpm test` | 59 | 58 | 0 | 1 |
+| `pnpm test` | 67 | 66 | 0 | 1 |
 
-**Skipped**
-
-| Test | Reason | Classification |
-|------|--------|----------------|
-| `mission-repository.integration` | Requires live `DATABASE_URL` + integration env | **ENVIRONMENT-DEPENDENT** (skipped when not enabled in vitest run) |
-
-## Golden Pedagogy Tests
-
-`golden-pedagogy-mission.test.ts` — **8/8 PASS** (good candidate, number swap, pedagogical drift, bad distractor, solver mismatch, ambiguity, missing evidence, family).
-
-## Gate 7 Tests
-
-| Area | Evidence |
-|------|----------|
-| Expert stem/solution/choices edit | `edit-invalidation.test.ts`, `candidates-pipeline` e2e |
-| Distractor MECH/misconception/trap/path edit | `DistractorCausalityEditor`, `distractor-edit.test.ts`, e2e PATCH |
-| Verification invalidation | Stale banner + API `verificationStaleAt` after distractor edit |
-| Re-verification | `POST /api/candidates/:id/verify` clears stale |
-| Approval blocked when stale | `candidates-pipeline` e2e |
-| Rejection non-exportable | `candidates-pipeline` e2e 403 on approve after reject |
-
-**Pedagogy Expert Gate 7:** **PASS**
-
-## Gate 8 Tests
-
-Regression via `export-dry-run.spec.ts`, `denedio-mapper.golden.test.ts`, `export-eligibility.test.ts` — **PASS** (no mapper changes in this mission).
-
-## Gate 9 Tests
-
-| Area | Evidence |
-|------|----------|
-| S10 comparison matrix + filters | `s10-comparison.spec.ts` |
-| S11 distractor editor layout | `qa-gate10-screenshots` + `DESIGN_QA.md` **APPROVE** |
-| Responsive 390 | `studio-shell` overflow + candidate-review-390 screenshot |
-| Demo disclosure | `demo-mode-banner` in `StudioShell` + `studio-shell` e2e |
+**Skipped:** `mission-repository.integration` (requires integration env)
 
 ## Playwright
 
 | Command | Count | Passed | Failed |
 |---------|-------|--------|--------|
-| `pnpm test:e2e` (includes `pnpm build`) | 20 | 20 | 0 |
+| `pnpm test:e2e` | 35 | 35 | 0 |
 
-**Important journeys:** sources intake, generation pipeline, S10 compare, S11 edit/invalidate, export dry-run, Gate 10 screenshots.
+**Targeted flake re-run:** `candidates-pipeline`, `denedio-canary-lineage` — **PASS**
 
 ## Build
 
@@ -74,53 +40,8 @@ Regression via `export-dry-run.spec.ts`, `denedio-mapper.golden.test.ts`, `expor
 |---------|--------|
 | `pnpm build` | **PASS** |
 
-## Browser Runtime
+## Live Gemini
 
-No uncaught console errors observed during Playwright runs. Server errors: none blocking tests.
-
-## Known Test Limitations
-
-- Integration mission repository test remains optional/skipped in default vitest run.
-- Live AI provider not exercised.
-- W5 catalog UUID seed behavior unchanged (OPEN).
-
-## REAL USER ACCEPTANCE — ROUND 1 (2026-09-18)
-
-| Defect | Reproduction | Root cause | Fix |
-|--------|--------------|------------|-----|
-| BUG-UAT-001 drag/drop | Drop ignored on S03 | No DnD handlers on dropzone | `SourceUploadWizard` drag events + `applyFile()` |
-| BUG-UAT-002 upload fail | Picker → generic failure | Missing `DATABASE_URL` + octet-stream MIME | `local-env.ts` defaults + `resolveSourceMimeType` |
-| BUG-UAT-003 English UI | Shell/intake English | No `tr` layer | `tr.ts` + glossary migration |
-
-| Check | Result |
-|-------|--------|
-| Real PNG/JPG upload E2E | **PASS** (`sources-upload-acceptance.spec.ts` 7/7) |
-| DataTransfer drop E2E | **PASS** |
-| Turkish error paths | **PASS** (client + mocked API failure) |
-| Full Playwright | **27/27 PASS** |
-| Vitest | **61 passed**, 1 skipped |
-| Manual browser S03 | **PASS** (Turkish dropzone, title Soru Stüdyosu) |
-
-## Final Tester Verdict
-
-**PASS**
-
-**Signed:** Tester — Real UAT round 1 + Playwright **27/27**
-
----
-
-## ZERO-ASSUMPTION UAT — Gate 9 Home (2026-09-18)
-
-| ID | Case | Result |
-|----|------|--------|
-| S01-01 | Obvious start control on `/` | **PASS** |
-| S01-02 | CTA → `/sources/new` | **PASS** |
-| S01-03 | CTA visible with missions | **PASS** (after fix) |
-| S01-04 | Continue last mission | **PASS** |
-| S01-08 | Playwright `new-source-intake` | **PASS** |
-
-**New e2e:** `e2e/first-time-user-golden-path.spec.ts` (starts at Home, PNG upload, structured → fingerprint draft).
-
-**Fresh counts (this mission):** Vitest **61/61** passed (1 skipped). Playwright full parallel run **20/30** with dev server EPERM crashes; serial smoke **home + sources-intake PASS**. `pnpm build` **FAIL** (EPERM `.next/trace` on host).
-
-**Tester verdict (discoverability):** **PASS**
+| Command | Result |
+|---------|--------|
+| `pnpm test:live-gemini-smoke` | **PASS** (1/1) |

@@ -2,6 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./e2e",
+  testIgnore: [/live-gemini-smoke\.spec\.ts/],
   globalSetup: "./e2e/global-setup.ts",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
@@ -14,18 +15,20 @@ export default defineConfig({
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    command: process.env.CI
-      ? "pnpm start"
-      : "pnpm exec next dev --turbopack -p 3000",
+    // test:e2e runs `pnpm build` first — production server avoids Turbopack instability under parallel workers.
+    command: "pnpm exec next start -p 3000",
     url: "http://127.0.0.1:3000",
     reuseExistingServer: !process.env.PLAYWRIGHT_FORCE_NEW_SERVER,
-    timeout: 120_000,
+    timeout: 180_000,
     env: {
       DATABASE_URL:
         process.env.DATABASE_URL ??
         "postgresql://question_studio:question_studio@localhost:5433/question_studio",
-      QUESTION_STUDIO_DEMO_MODE: process.env.QUESTION_STUDIO_DEMO_MODE ?? "1",
-      NEXT_PUBLIC_QUESTION_STUDIO_DEMO_MODE: process.env.QUESTION_STUDIO_DEMO_MODE ?? "1",
+      // Deterministic mock analyst for regression — never inherit LIVE from developer .env.local.
+      QUESTION_STUDIO_PROVIDER_MODE: "MOCK",
+      QUESTION_STUDIO_DEMO_MODE: "1",
+      NEXT_PUBLIC_QUESTION_STUDIO_DEMO_MODE: "1",
+      QUESTION_STUDIO_GEMINI_API_KEY: "",
     },
   },
 });
