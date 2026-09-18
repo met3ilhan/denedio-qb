@@ -1,0 +1,2 @@
+Synthetic practice sheet (demo)
+Question 1: Kayak rental rate problem placeholder for extraction pipeline.

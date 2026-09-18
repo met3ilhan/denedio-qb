@@ -2,6 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./e2e",
+  globalSetup: "./e2e/global-setup.ts",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
@@ -17,5 +18,11 @@ export default defineConfig({
     url: "http://127.0.0.1:3000",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
+    env: {
+      DATABASE_URL:
+        process.env.DATABASE_URL ??
+        "postgresql://question_studio:question_studio@localhost:5433/question_studio",
+      QUESTION_STUDIO_DEMO_MODE: process.env.QUESTION_STUDIO_DEMO_MODE ?? "1",
+    },
   },
 });

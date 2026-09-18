@@ -41,3 +41,6 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# local object storage (Gate 2 uploads)
+.data/

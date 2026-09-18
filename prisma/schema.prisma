@@ -16,6 +16,26 @@ enum MissionPhase {
   SHIP
 }
 
+enum ExtractionJobStatus {
+  PENDING
+  RUNNING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+}
+
+enum SourceExtractionReviewStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum FingerprintPipelineState {
+  NOT_STARTED
+  DRAFT
+  LOCKED
+}
+
 /// Stub user for ownership and provenance actor references (auth later).
 model User {
   id               String             @id @default(cuid())
@@ -38,6 +58,7 @@ model Mission {
   createdAt    DateTime             @default(now())
   updatedAt    DateTime             @updatedAt
   events       ProvenanceEvent[]
+  sourceFiles  SourceFile[]
 
   @@index([phase])
   @@index([ownerId])
@@ -55,4 +76,69 @@ model ProvenanceEvent {
   createdAt DateTime @default(now())
 
   @@index([missionId, createdAt])
+}
+
+model SourceFile {
+  id               String                   @id @default(cuid())
+  missionId        String
+  mission          Mission                  @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  originalFilename String
+  storageKey       String                   @unique
+  mimeType         String
+  sizeBytes        Int
+  checksumSha256   String
+  subjectHint      String?
+  languageHint     String?
+  notes            String?
+  fingerprintState FingerprintPipelineState @default(NOT_STARTED)
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @updatedAt
+  extractionJobs   ExtractionJob[]
+  sourceQuestions  SourceQuestion[]
+
+  @@index([missionId])
+  @@index([createdAt])
+}
+
+model ExtractionJob {
+  id           String              @id @default(cuid())
+  sourceFileId String
+  sourceFile   SourceFile          @relation(fields: [sourceFileId], references: [id], onDelete: Cascade)
+  status       ExtractionJobStatus @default(PENDING)
+  attempt      Int                 @default(1)
+  priority     Int                 @default(0)
+  /// Expert-readable log lines: { at, level, message }
+  logs         Json                @default("[]")
+  /// Parsed SourceExtractionSchema JSON
+  result       Json?
+  /// Analyst envelope: block layers, provider metadata
+  analystMeta  Json?
+  errorCode    String?
+  errorMessage String?
+  providerId   String?
+  modelId      String?
+  startedAt    DateTime?
+  finishedAt   DateTime?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  sourceQuestions SourceQuestion[]
+
+  @@index([sourceFileId, createdAt])
+  @@index([status])
+}
+
+model SourceQuestion {
+  id              String                       @id @default(cuid())
+  sourceFileId    String
+  sourceFile      SourceFile                   @relation(fields: [sourceFileId], references: [id], onDelete: Cascade)
+  extractionJobId String
+  extractionJob   ExtractionJob                @relation(fields: [extractionJobId], references: [id], onDelete: Cascade)
+  structured      Json
+  reviewStatus    SourceExtractionReviewStatus @default(PENDING)
+  defectTags      String[]                     @default([])
+  createdAt       DateTime                     @default(now())
+  updatedAt       DateTime                     @updatedAt
+
+  @@index([sourceFileId])
 }
