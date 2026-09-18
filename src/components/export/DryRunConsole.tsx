@@ -125,11 +125,13 @@ export function DryRunConsole({
                 <span className="font-mono text-xs">{issue.level}</span> · {issue.message}
                 {issue.remediationScreen === "S17" ? (
                   <Link className="ml-2 text-xs underline" href={`/questions/${generatedQuestionId}/denedio/map`}>
-                    S17
+                    {tr.export.mappingLink}
                   </Link>
                 ) : null}
                 {issue.remediationScreen === "S16" ? (
-                  <Link className="ml-2 text-xs underline" href="/catalog">S16</Link>
+                  <Link className="ml-2 text-xs underline" href="/catalog">
+                    {tr.export.catalogLink}
+                  </Link>
                 ) : null}
               </li>
             ))

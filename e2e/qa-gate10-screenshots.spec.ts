@@ -87,8 +87,8 @@ test.describe("Gate 10 QA screenshot capture", () => {
     await expect(page.getByRole("heading", { name: "Görev akışı" })).toBeVisible();
     await shot(page, "home-1440");
 
-    await page.goto(`/sources/${sourceFileId}/structured`);
-    await expect(page.getByTestId("review-layer-visible_fact")).toBeVisible({ timeout: 15_000 });
+    await page.goto(`/sources/${sourceFileId}/review`);
+    await expect(page.getByTestId("source-expert-review")).toBeVisible({ timeout: 15_000 });
     await shot(page, "source-analysis-1440");
 
     await page.goto(`/fingerprint/${versionId}`);

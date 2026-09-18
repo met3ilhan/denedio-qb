@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 
-import { buildSampleMutationPlan } from "@/modules/generation/domain/mutation-plan-template";
 import { createGenerationRepository, GenerationBlockedError } from "@/modules/generation/repository/generation-repository";
+import { proposeMutationPlanForFingerprintVersion } from "@/modules/generation/services/mutation-plan-proposal";
 import { createFingerprintRepository } from "@/modules/fingerprints/repository/fingerprint-repository";
+import { resolveProviderMode } from "@/shared/ai/provider-mode";
 import { mutationPlanSchema } from "@/shared/validation/mutation-plan";
 import { previewTrivialMutationFlags } from "@/shared/validation/trivial-mutation";
 import { prisma } from "@/shared/db/client";
@@ -16,17 +17,28 @@ export async function GET(_request: Request, { params }: Params) {
   const fingerprints = createFingerprintRepository(prisma);
   const locked = await fingerprints.getLockedVersionForMission(missionId);
   if (!locked) {
-    return NextResponse.json({ error: "Lock a fingerprint on this mission first (S07)" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Üretime geçmeden önce pedagojik parmak izini kilitleyin." },
+      { status: 400 },
+    );
   }
 
-  const sample = buildSampleMutationPlan(locked.id);
-  const flags = previewTrivialMutationFlags(sample);
+  try {
+    const proposed = await proposeMutationPlanForFingerprintVersion(prisma, locked.id);
+    const flags = previewTrivialMutationFlags(proposed.plan);
 
-  return NextResponse.json({
-    fingerprintVersionId: locked.id,
-    samplePlan: sample,
-    flags,
-  });
+    return NextResponse.json({
+      fingerprintVersionId: locked.id,
+      samplePlan: proposed.plan,
+      flags,
+      plannerProviderId: proposed.plannerProviderId,
+      plannerModelId: proposed.plannerModelId,
+      providerMode: resolveProviderMode(),
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Mutasyon planı oluşturulamadı";
+    return NextResponse.json({ error: message }, { status: 502 });
+  }
 }
 
 export async function POST(request: Request, { params }: Params) {
@@ -48,15 +60,19 @@ export async function POST(request: Request, { params }: Params) {
     throw error;
   }
 
-  const planInput =
-    body.plan ??
-    buildSampleMutationPlan(body.fingerprintVersionId);
-
   let plan;
   try {
-    plan = mutationPlanSchema.parse(planInput);
+    if (body.plan) {
+      plan = mutationPlanSchema.parse(body.plan);
+    } else {
+      const proposed = await proposeMutationPlanForFingerprintVersion(
+        prisma,
+        body.fingerprintVersionId,
+      );
+      plan = proposed.plan;
+    }
   } catch {
-    return NextResponse.json({ error: "Mutation plan failed schema validation" }, { status: 400 });
+    return NextResponse.json({ error: "Mutasyon planı şema doğrulamasından geçemedi" }, { status: 400 });
   }
 
   if (body.action === "preview") {

@@ -76,7 +76,7 @@ export function ExtractionJobPanel({ sourceId }: { sourceId: string }) {
 
   useEffect(() => {
     if (job?.status === "SUCCEEDED") {
-      router.replace(`/sources/${sourceId}/structured`);
+      router.replace(`/sources/${sourceId}/review`);
     }
   }, [job?.status, router, sourceId]);
 

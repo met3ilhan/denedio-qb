@@ -51,7 +51,7 @@ test.describe("Controlled live Gemini source extraction", () => {
 
     await expect(page.getByTestId("goto-structured-review")).toBeVisible({ timeout: 120_000 });
     await page.getByTestId("goto-structured-review").click();
-    await expect(page).toHaveURL(/\/structured/, { timeout: 30_000 });
+    await expect(page).toHaveURL(/\/review/, { timeout: 30_000 });
 
     await expect(page.getByTestId("structured-source-image")).toBeVisible();
     await expect(page.getByText(/Canlı AI/i)).toBeVisible();

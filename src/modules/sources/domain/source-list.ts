@@ -40,7 +40,7 @@ export function resolveSourceRowHref(sourceFileId: string, input: SourceRowHrefI
     return `/sources/${sourceFileId}/fingerprint/draft`;
   }
   if (input.extractionState === "succeeded") {
-    return `/sources/${sourceFileId}/structured`;
+    return `/sources/${sourceFileId}/review`;
   }
   return `/sources/${sourceFileId}/extraction`;
 }

@@ -26,10 +26,10 @@ test.describe("First-time user golden path", () => {
     await page.getByTestId("subject-hint").fill("UAT altın yol");
     await page.getByTestId("submit-upload").click();
 
-    await expect(page).toHaveURL(/\/sources\/[^/]+\/structured/, { timeout: 90_000 });
-    await page.getByTestId("accept-extraction").click();
-    await expect(page).toHaveURL(/\/fingerprint\/draft/, { timeout: 30_000 });
-    await expect(page.getByTestId("open-fingerprint-studio")).toBeVisible({ timeout: 45_000 });
+    await expect(page).toHaveURL(/\/sources\/[^/]+\/review/, { timeout: 90_000 });
+    await expect(page.getByTestId("approve-analysis-generate")).toBeVisible();
+    await page.getByTestId("approve-analysis-generate").click();
+    await expect(page).toHaveURL(/\/generate\/setup/, { timeout: 60_000 });
   });
 
   test("mobile home primary CTA is visible at 390px", async ({ page }) => {

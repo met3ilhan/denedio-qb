@@ -230,6 +230,17 @@ export function isFingerprintVersionImmutable(status: FingerprintVersionStatus):
   return status === "LOCKED";
 }
 
+export const EXPERT_DRAFT_EDITABLE_KEYS = new Set([
+  "measured_skill",
+  "learning_objective",
+  "cognitive_operation",
+  "reasoning_pattern",
+  "hidden_constraint",
+  "information_order",
+  "mutable_surface_notes",
+  "difficulty_factors",
+]);
+
 export function mergeMutableFingerprintUpdate(
   current: PedagogicalFingerprint,
   patch: Partial<PedagogicalFingerprint>,
@@ -239,6 +250,22 @@ export function mergeMutableFingerprintUpdate(
     if (value === undefined) continue;
     if (INVARIANT_FIELD_KEYS.has(key)) {
       throw new Error(`Cannot mutate invariant field ${key} without new version workflow`);
+    }
+    (next as Record<string, unknown>)[key] = value;
+  }
+  return pedagogicalFingerprintSchema.parse(next);
+}
+
+/** Expert may refine AI draft text fields before lock — not post-lock invariants. */
+export function mergeExpertDraftFingerprintUpdate(
+  current: PedagogicalFingerprint,
+  patch: Partial<PedagogicalFingerprint>,
+): PedagogicalFingerprint {
+  const next = { ...current };
+  for (const [key, value] of Object.entries(patch)) {
+    if (value === undefined) continue;
+    if (!EXPERT_DRAFT_EDITABLE_KEYS.has(key)) {
+      throw new Error(`Field ${key} is not expert-editable on draft`);
     }
     (next as Record<string, unknown>)[key] = value;
   }

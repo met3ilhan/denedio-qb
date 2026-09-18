@@ -5,9 +5,9 @@ import { useCallback, useEffect, useState } from "react";
 import { tr } from "@/shared/copy/tr";
 
 const STUB_SCREENS = [
-  { id: "S01", label: tr.commandPalette.screens.missionBoard, href: "/" },
-  { id: "S03", label: tr.commandPalette.screens.sourceUpload, href: "/sources/new" },
-  { id: "S07", label: tr.commandPalette.screens.fingerprintStudio, href: "/fingerprint" },
+  { id: "mission-board", label: tr.commandPalette.screens.missionBoard, href: "/" },
+  { id: "source-upload", label: tr.commandPalette.screens.sourceUpload, href: "/sources/new" },
+  { id: "fingerprint-studio", label: tr.commandPalette.screens.fingerprintStudio, href: "/fingerprint" },
 ];
 
 export function CommandPaletteStub() {

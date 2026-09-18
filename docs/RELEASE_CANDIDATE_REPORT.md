@@ -1,39 +1,21 @@
-# Release Candidate Report — Question Studio Rescue
+# Release Candidate Report
 
-**Date:** 2026-09-19  
 **Branch:** `build/question-studio-v1`  
-**Verdict:** **CONDITIONAL YES** — P0 fingerprint lineage fixed and regression green; generation LIVE and full unified edit workspace remain follow-ups.
+**Date:** 2026-09-19
 
-## User acceptance criteria (mission §59)
+## Verdict
 
-| Criterion | Status |
-|-----------|--------|
-| Correct source identity downstream | PASS (canary + e2e lineage) |
-| LIVE extraction | PASS (when key + LIVE mode) |
-| LIVE fingerprint, source-correct | PASS (Gemini provider + v2 mock domain) |
-| No fixture leakage on history path | PASS |
-| Turkish UI (core intake/review/fingerprint) | PASS (partial Sxx codes elsewhere) |
-| BLOCKER/HIGH from P0 | 0 open for fingerprint contamination |
+**CONDITIONAL** — Architecture completes LIVE pipeline wiring; controlled LIVE Gemini acceptance must be run locally with API key before production UAT sign-off.
 
-## Agent office sign-off (this rescue pass)
+## Evidence
 
-| Role | Status | Notes |
-|------|--------|-------|
-| Orchestrator | Coordinated | See `docs/ORCHESTRATOR_LOG.md` 2026-09-19 entry |
-| Implementer | Complete | Fingerprint analyst v2, UX routing, tests |
-| Tester | PASS | 36/36 Playwright + 77 unit |
-| Denedio contract reader | Complete | HANDOFF for field mapping |
-| Designer | CONDITIONAL | Flow improved; full single-workspace deferred |
-| Pedagogy expert | PASS (history mock/live path) | History archetype `AR_HISTORY_CONTEXT_FACT` |
-| Verifier | CONDITIONAL APPROVE | Re-run after user LIVE smoke |
+- `GeminiGenerationProvider` calls Gemini directly.
+- Mutation planner, distractor, solver use namespaced `createStageProvider` + LIVE/MOCK split.
+- Unified expert review at `/sources/[id]/review`.
+- MOCK regression: 80 unit, 36 Playwright.
 
-## Recommended user verification
+## Before full RC
 
-1. `pnpm db:up && pnpm db:migrate && pnpm dev`
-2. LIVE: set `QUESTION_STUDIO_PROVIDER_MODE=LIVE` and Gemini key in `.env.local`
-3. Upload real history image → **Kaynak soru analizi** → onay → **Pedagojik profil** must **not** show piecewise/kayak English template
-4. Optional: `pnpm test:live-gemini-smoke`
-
-## Commits
-
-Git safe-directory blocked automated commit in agent shell; user should commit locally after review.
+1. Run `pnpm exec playwright test --config=playwright.live.config.ts` with history + one quantitative source.
+2. Pedagogy sign-off on LIVE artifacts.
+3. Designer browser pass on review workspace at 1440/390.

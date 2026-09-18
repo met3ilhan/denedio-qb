@@ -31,6 +31,7 @@ export async function GET(_request: Request, { params }: Params) {
     jobStatus: job.status,
     source: {
       id: source.id,
+      missionId: source.missionId,
       originalFilename: source.originalFilename,
       mimeType: source.mimeType,
       checksumSha256: source.checksumSha256,
@@ -47,6 +48,7 @@ export async function POST(request: Request, { params }: Params) {
   const body = (await request.json()) as {
     action: "accept" | "reject";
     defectTags?: string[];
+    extraction?: unknown;
   };
 
   const repo = createSourceRepository(prisma);
@@ -56,7 +58,7 @@ export async function POST(request: Request, { params }: Params) {
   }
 
   if (body.action === "accept") {
-    const extraction = sourceExtractionSchema.parse(job.result);
+    const extraction = sourceExtractionSchema.parse(body.extraction ?? job.result);
     const record = await repo.acceptExtraction(id, job.id, extraction);
     return NextResponse.json({ sourceQuestion: record });
   }

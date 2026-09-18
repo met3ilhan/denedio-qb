@@ -17,10 +17,9 @@ test.describe("Sources intake (Gate 2)", () => {
     await page.getByTestId("subject-hint").fill("Synthetic math demo");
     await page.getByTestId("submit-upload").click();
 
-    await expect(page).toHaveURL(/\/sources\/[^/]+\/structured/, { timeout: 90_000 });
-    await expect(page.getByTestId("review-layer-visible_fact")).toBeVisible();
-    await expect(page.getByTestId("review-layer-inference")).toBeVisible();
-    await expect(page.getByTestId("accept-extraction")).toBeVisible();
+    await expect(page).toHaveURL(/\/sources\/[^/]+\/review/, { timeout: 90_000 });
+    await expect(page.getByTestId("source-expert-review")).toBeVisible();
+    await expect(page.getByTestId("approve-analysis-generate")).toBeVisible();
   });
 
   test("sources library lists uploaded source", async ({ page }) => {

@@ -22,7 +22,7 @@ export async function POST(_request: Request, { params }: Params) {
 
   const accepted = await fingerprints.getAcceptedSourceQuestionForFile(sourceFileId);
   if (!accepted) {
-    return NextResponse.json({ error: "Accept structured extraction first (S05)" }, { status: 400 });
+    return NextResponse.json({ error: "Önce kaynak analizini onaylayın." }, { status: 400 });
   }
 
   const extraction = sourceExtractionSchema.parse(accepted.structured);

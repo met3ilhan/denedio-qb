@@ -15,7 +15,7 @@ async function uploadCanary(
   await page.getByRole("button", { name: "Devam et" }).click();
   await page.getByTestId("subject-hint").fill(subjectHint);
   await page.getByTestId("submit-upload").click();
-  await expect(page).toHaveURL(/\/sources\/[^/]+\/structured/, { timeout: 90_000 });
+  await expect(page).toHaveURL(/\/sources\/[^/]+\/review/, { timeout: 90_000 });
 }
 
 test.describe("P0 source lineage canaries", () => {
@@ -60,7 +60,7 @@ test.describe("P0 source lineage canaries", () => {
     await page.getByRole("button", { name: "Devam et" }).click();
     await page.getByTestId("subject-hint").fill("PNG canary");
     await page.getByTestId("submit-upload").click();
-    await expect(page).toHaveURL(/\/sources\/[^/]+\/structured/, { timeout: 90_000 });
+    await expect(page).toHaveURL(/\/sources\/[^/]+\/review/, { timeout: 90_000 });
     await expect(page.getByTestId("structured-stem-preview")).toContainText("DENEDIO-CANARY-7391", {
       timeout: 15_000,
     });

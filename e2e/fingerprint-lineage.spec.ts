@@ -9,7 +9,7 @@ async function uploadHistoryCanary(page: import("@playwright/test").Page) {
   await page.getByRole("button", { name: "Devam et" }).click();
   await page.getByTestId("subject-hint").fill("Tarih canary fingerprint");
   await page.getByTestId("submit-upload").click();
-  await expect(page).toHaveURL(/\/sources\/[^/]+\/structured/, { timeout: 45_000 });
+  await expect(page).toHaveURL(/\/sources\/[^/]+\/review/, { timeout: 45_000 });
 }
 
 test.describe("Fingerprint lineage — history stem", () => {
@@ -17,14 +17,14 @@ test.describe("Fingerprint lineage — history stem", () => {
     test.setTimeout(120_000);
     await uploadHistoryCanary(page);
     await expect(page.getByTestId("structured-stem-preview")).toContainText("DENEDIO-CANARY-7391");
-    await page.getByRole("button", { name: /Analizi onayla/i }).click();
-    await expect(page).toHaveURL(/\/fingerprint\/draft/, { timeout: 30_000 });
-    await expect(page.getByTestId("open-fingerprint-studio")).toBeVisible({ timeout: 30_000 });
 
     const pageText = (await page.locator("body").innerText()).toLowerCase();
     expect(pageText).not.toContain("piecewise rate structure");
     expect(pageText).not.toContain("decompose_intervals_then_aggregate");
     expect(pageText).not.toContain("first hour from each additional");
     expect(pageText).not.toContain("kayak");
+
+    await page.getByTestId("approve-analysis-generate").click();
+    await expect(page).toHaveURL(/\/generate\/setup/, { timeout: 60_000 });
   });
 });
