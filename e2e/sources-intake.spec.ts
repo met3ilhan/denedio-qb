@@ -21,9 +21,10 @@ test.describe("Sources intake (Gate 2)", () => {
     await expect(page.getByTestId("extraction-timeline")).toBeVisible();
 
     await expect(page.getByTestId("goto-structured-review")).toBeVisible({ timeout: 30_000 });
-    await page.getByTestId("goto-structured-review").click();
-
-    await expect(page).toHaveURL(/\/structured/);
+    await Promise.all([
+      page.waitForURL(/\/structured/, { timeout: 30_000 }),
+      page.getByTestId("goto-structured-review").click(),
+    ]);
     await expect(page.getByTestId("review-layer-visible_fact")).toBeVisible();
     await expect(page.getByTestId("review-layer-inference")).toBeVisible();
     await expect(page.getByTestId("accept-extraction")).toBeVisible();

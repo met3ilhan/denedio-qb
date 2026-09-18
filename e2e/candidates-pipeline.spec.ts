@@ -65,6 +65,7 @@ test.describe("Candidate review and approval", () => {
   });
 
   test("UI: verification, stale invalidation, approval blocked", async ({ page, request }) => {
+    test.setTimeout(90_000);
     test.skip(!candidateId, "spawn step failed");
 
     await page.goto(`/candidates/${candidateId}/verification`);

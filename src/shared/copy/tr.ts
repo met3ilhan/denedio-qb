@@ -19,7 +19,38 @@ export const tr = {
   demo: {
     badge: "ÖRNEK / DEMO",
     body:
-      "Deterministik örnek veriler kullanılıyor — canlı yapay zeka çıktısı değildir. Gerçek sağlayıcı için QUESTION_STUDIO_DEMO_MODE kapatın.",
+      "Deterministik örnek veriler kullanılıyor — canlı yapay zeka çıktısı değildir.",
+  },
+  providerMode: {
+    MOCK: {
+      badge: "MOCK · Yerel",
+      body:
+        "Canlı yapay zeka kapalı. Çıkarım dosya özüne bağlı mock/yer tutucudur; yüklediğiniz görseli inceleme ekranında karşılaştırın.",
+    },
+    DEMO: {
+      badge: "ÖRNEK / DEMO",
+      body: "Yalnızca demo adlı kaynaklar deterministik örnek soruya eşlenir.",
+    },
+    MANUAL: {
+      badge: "MANUEL",
+      body: "Otomatik çıkarım kapalı; alanları uzman doldurur.",
+    },
+  },
+  blockType: {
+    stem: "Soru kökü",
+    choice: "Seçenek",
+    figure: "Şekil",
+    table: "Tablo",
+    solution: "Çözüm",
+    metadata: "Meta veri",
+    other: "Diğer",
+  },
+  jobStatus: {
+    PENDING: "Kuyrukta",
+    RUNNING: "Çalışıyor",
+    SUCCEEDED: "Tamamlandı",
+    FAILED: "Başarısız",
+    CANCELLED: "İptal",
   },
   nav: {
     railLabel: "Stüdyo menüsü",
@@ -245,7 +276,8 @@ export const tr = {
   },
   extraction: {
     timeline: "Çıkarma zaman çizelgesi",
-    steps: ["Kuyrukta", "Çalışıyor", "Doğrulanıyor", "Tamamlandı"],
+    steps: ["Görsel yüklendi", "Soru okunuyor", "İçerik yapılandırılıyor", "İncelemeye hazır"],
+    technicalDetails: "Teknik ayrıntılar",
     openStructured: "Yapılandırılmış incelemeyi aç",
     inspector: "Denetçi",
     attempt: (n: number | string) => `Deneme ${n} · normal öncelik`,
@@ -256,8 +288,14 @@ export const tr = {
     },
   },
   structured: {
-    previewTitle: "Kaynak önizleme",
-    previewHint: "Sayfa 1 · metin önizleme (tam görüntüleyici sonraki aşamada)",
+    previewTitle: "Yüklenen kaynak",
+    previewHint: "Görseli çıkarılan metinle karşılaştırın",
+    executionMode: "Çalıştırma modu",
+    fileName: "Dosya",
+    uploadedAt: "Yüklenme",
+    checksum: "SHA256",
+    technicalDetails: "Teknik ayrıntılar",
+    providerLabel: "Sağlayıcı",
     loading: "Yapılandırılmış çıkarma yükleniyor…",
     blocksTitle: "Yapılandırılmış bloklar",
     layers: {

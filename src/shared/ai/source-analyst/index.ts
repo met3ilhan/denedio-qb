@@ -1,17 +1,38 @@
-import { hasGeminiApiKey, isDemoMode } from "../demo";
+import { hasGeminiApiKey, resolveProviderMode } from "../provider-mode";
 import { GeminiSourceAnalystProvider } from "./gemini-provider";
+import { ManualSourceAnalystProvider } from "./manual-provider";
 import { MockSourceAnalystProvider } from "./mock-provider";
+import { UnconfiguredLiveSourceAnalystProvider } from "./unconfigured-live-provider";
 import type { ISourceAnalystProvider } from "./types";
 
 let provider: ISourceAnalystProvider | undefined;
+let testOverride: ISourceAnalystProvider | undefined;
+
+/** Test-only: spy / fake provider at the provider boundary. */
+export function setSourceAnalystProviderForTests(next: ISourceAnalystProvider | undefined): void {
+  testOverride = next;
+  provider = undefined;
+}
+
+export function resetSourceAnalystProviderCache(): void {
+  provider = undefined;
+}
 
 export function getSourceAnalystProvider(): ISourceAnalystProvider {
+  if (testOverride) {
+    return testOverride;
+  }
   if (provider) {
     return provider;
   }
 
-  if (!isDemoMode() && hasGeminiApiKey()) {
-    provider = new GeminiSourceAnalystProvider(process.env.QUESTION_STUDIO_GEMINI_API_KEY!);
+  const mode = resolveProviderMode();
+  if (mode === "LIVE") {
+    provider = hasGeminiApiKey()
+      ? new GeminiSourceAnalystProvider(process.env.QUESTION_STUDIO_GEMINI_API_KEY!)
+      : new UnconfiguredLiveSourceAnalystProvider();
+  } else if (mode === "MANUAL") {
+    provider = new ManualSourceAnalystProvider();
   } else {
     provider = new MockSourceAnalystProvider();
   }

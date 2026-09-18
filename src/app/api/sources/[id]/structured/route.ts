@@ -29,6 +29,16 @@ export async function GET(_request: Request, { params }: Params) {
     analystMeta,
     jobId: job.id,
     jobStatus: job.status,
+    source: {
+      id: source.id,
+      originalFilename: source.originalFilename,
+      mimeType: source.mimeType,
+      checksumSha256: source.checksumSha256,
+      createdAt: source.createdAt.toISOString(),
+      assetUrl: `/api/sources/${source.id}/asset`,
+    },
+    providerId: job.providerId,
+    modelId: job.modelId,
   });
 }
 

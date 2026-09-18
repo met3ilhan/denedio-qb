@@ -1,11 +1,11 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("Studio shell", () => {
-  test("demo mode banner visible when QUESTION_STUDIO_DEMO_MODE=1", async ({ page }) => {
+  test("provider mode banner visible in local MOCK mode", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { name: "Görev akışı" })).toBeVisible();
-    await expect(page.getByTestId("demo-mode-banner")).toBeVisible();
-    await expect(page.getByTestId("demo-mode-banner")).toContainText(/ÖRNEK|DEMO/i);
+    await expect(page.getByTestId("provider-mode-banner")).toBeVisible();
+    await expect(page.getByTestId("provider-mode-banner")).toContainText(/MOCK|ÖRNEK|DEMO|MANUEL/i);
   });
 
   test("rail shows workflow phases on mission board", async ({ page }) => {

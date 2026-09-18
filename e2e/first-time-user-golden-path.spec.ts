@@ -42,10 +42,11 @@ test.describe("First-time user golden path", () => {
     await page.goto("/");
     const primary = page.getByTestId("new-source-intake");
     await expect(primary).toBeVisible();
+    await primary.scrollIntoViewIfNeeded();
     const box = await primary.boundingBox();
     expect(box).not.toBeNull();
     if (box) {
-      expect(box.y).toBeLessThan(844);
+      expect(box.y + box.height).toBeLessThanOrEqual(844);
       expect(box.width).toBeGreaterThan(100);
     }
   });

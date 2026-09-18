@@ -1,10 +1,8 @@
 import { createHash } from "node:crypto";
 
-import type { GeneratedQuestion } from "@/shared/validation/generated-question";
 import { generatedQuestionSchema } from "@/shared/validation/generated-question";
 import { SCHEMA_VERSION } from "@/shared/validation/primitives";
 
-import { isDemoMode } from "../demo";
 import type { GenerationInput, IGenerationProvider } from "./types";
 
 export class MockGenerationProvider implements IGenerationProvider {
@@ -22,13 +20,17 @@ export class MockGenerationProvider implements IGenerationProvider {
       input.plan.surface_mutations.find((m) => m.dimension === "context")?.description ??
       "Alternate scenario";
 
-    const demoKayak = isDemoMode();
+    const fingerprintBlob = JSON.stringify(input.fingerprint).toLowerCase();
+    const demoKayak =
+      fingerprintBlob.includes("kayak") || fingerprintBlob.includes("12 coins for the first hour");
+
     const stem = demoKayak
       ? `A kayak rental shop charges 12 coins for the first hour and 8 coins for each additional hour. ` +
         `${contextLabel} (variant ${digest}). Mira rents a kayak for 5 hours. How many coins does she pay?`
-      : `A workshop rents equipment using the same interval pricing mechanism as the locked fingerprint. ` +
-        `${contextLabel} (variant ${digest}). ` +
-        `The first 2 hours cost 18 credits and each additional hour costs 7 credits. How many credits for 5 hours?`;
+      :
+      `A workshop rents equipment using the same interval pricing mechanism as the locked fingerprint. ` +
+      `${contextLabel} (variant ${digest}). ` +
+      `The first 2 hours cost 18 credits and each additional hour costs 7 credits. How many credits for 5 hours?`;
 
     const output = generatedQuestionSchema.parse({
       schemaVersion: SCHEMA_VERSION,

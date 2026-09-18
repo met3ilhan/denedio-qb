@@ -2,10 +2,10 @@ import type { MissionPhase } from "@prisma/client";
 import type { ReactNode } from "react";
 
 import type { MissionBlocker } from "@/modules/missions/services/mission-blockers";
-import { isDemoMode } from "@/shared/ai/demo";
 import { tr } from "@/shared/copy/tr";
 
 import { BlockersPanel } from "./BlockersPanel";
+import { ProviderModeBanner } from "./ProviderModeBanner";
 import { MissionBlockersPanel } from "./MissionBlockersPanel";
 import { CommandPaletteStub } from "./CommandPaletteStub";
 import { PhasePill } from "./PhasePill";
@@ -41,16 +41,7 @@ export function StudioShell({
       />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        {isDemoMode() ? (
-          <div
-            className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-950 sm:px-6"
-            data-testid="demo-mode-banner"
-            role="status"
-          >
-            <span className="font-semibold">{tr.demo.badge}</span>
-            <span className="ml-2 text-amber-900">{tr.demo.body}</span>
-          </div>
-        ) : null}
+        <ProviderModeBanner />
         <header
           className="flex min-w-0 flex-wrap items-center justify-between gap-3 border-b border-[var(--qs-border)] bg-[var(--qs-surface)] px-4 py-4 sm:px-6"
         >
