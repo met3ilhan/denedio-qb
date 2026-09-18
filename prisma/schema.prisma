@@ -36,6 +36,17 @@ enum FingerprintPipelineState {
   LOCKED
 }
 
+enum FingerprintVersionStatus {
+  DRAFT
+  LOCKED
+}
+
+enum GenerationRunStatus {
+  SETUP
+  READY
+  CANCELLED
+}
+
 /// Stub user for ownership and provenance actor references (auth later).
 model User {
   id               String             @id @default(cuid())
@@ -59,6 +70,7 @@ model Mission {
   updatedAt    DateTime             @updatedAt
   events       ProvenanceEvent[]
   sourceFiles  SourceFile[]
+  generationRuns GenerationRun[]
 
   @@index([phase])
   @@index([ownerId])
@@ -139,6 +151,74 @@ model SourceQuestion {
   defectTags      String[]                     @default([])
   createdAt       DateTime                     @default(now())
   updatedAt       DateTime                     @updatedAt
+  pedagogicalFingerprint PedagogicalFingerprint?
 
   @@index([sourceFileId])
+}
+
+model PedagogicalFingerprint {
+  id               String           @id @default(cuid())
+  sourceQuestionId String           @unique
+  sourceQuestion   SourceQuestion   @relation(fields: [sourceQuestionId], references: [id], onDelete: Cascade)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  versions         PedagogicalFingerprintVersion[]
+}
+
+model PedagogicalFingerprintVersion {
+  id              String                   @id @default(cuid())
+  fingerprintId   String
+  fingerprint     PedagogicalFingerprint   @relation(fields: [fingerprintId], references: [id], onDelete: Cascade)
+  versionNumber   Int
+  status          FingerprintVersionStatus @default(DRAFT)
+  payload         Json
+  lockedAt        DateTime?
+  lockedById      String?
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+  evidence        FingerprintEvidence[]
+  generationRuns  GenerationRun[]
+  mutationPlans   MutationPlan[]
+
+  @@unique([fingerprintId, versionNumber])
+  @@index([status])
+}
+
+model FingerprintEvidence {
+  id           String                        @id @default(cuid())
+  versionId    String
+  version      PedagogicalFingerprintVersion   @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  dimensionKey String
+  evidenceType String
+  pointer      Json
+  excerpt      String
+  createdAt    DateTime                      @default(now())
+
+  @@index([versionId])
+}
+
+model GenerationRun {
+  id                   String                        @id @default(cuid())
+  missionId            String
+  mission              Mission                       @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  fingerprintVersionId String
+  fingerprintVersion   PedagogicalFingerprintVersion @relation(fields: [fingerprintVersionId], references: [id])
+  status               GenerationRunStatus           @default(SETUP)
+  createdAt            DateTime                      @default(now())
+  updatedAt            DateTime                      @updatedAt
+  mutationPlans        MutationPlan[]
+
+  @@index([missionId])
+}
+
+model MutationPlan {
+  id                   String                        @id @default(cuid())
+  generationRunId      String
+  generationRun        GenerationRun                 @relation(fields: [generationRunId], references: [id], onDelete: Cascade)
+  fingerprintVersionId String
+  fingerprintVersion   PedagogicalFingerprintVersion @relation(fields: [fingerprintVersionId], references: [id])
+  payload              Json
+  createdAt            DateTime                      @default(now())
+
+  @@index([generationRunId])
 }
