@@ -20,6 +20,9 @@ export class MockDistractorAnalysisProvider implements IDistractorAnalysisProvid
       const mechanism_id = regen?.mechanism_id ?? "MECH_ARITH";
       const misconception_id = regen?.misconception_id ?? `misc_${choice.label.toLowerCase()}`;
       const produces_value = choice.text;
+      const student_action =
+        regen?.parameter_notes?.trim() ||
+        `Replay ${mechanism_id} path for choice ${choice.label} (${choice.text})`;
       return {
         choice_label: choice.label,
         mechanism_id,
@@ -28,7 +31,7 @@ export class MockDistractorAnalysisProvider implements IDistractorAnalysisProvid
         steps: [
           {
             order: 1,
-            student_action: regen?.parameter_notes ?? "Applies partial interval sum",
+            student_action,
           },
         ],
         produces_value,

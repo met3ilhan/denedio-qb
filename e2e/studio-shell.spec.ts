@@ -1,6 +1,12 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("Studio shell", () => {
+  test("demo mode banner visible when QUESTION_STUDIO_DEMO_MODE=1", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByTestId("demo-mode-banner")).toBeVisible();
+    await expect(page.getByTestId("demo-mode-banner")).toContainText(/ÖRNEK|DEMO/i);
+  });
+
   test("rail shows workflow phases on mission board", async ({ page }) => {
     await page.goto("/");
     const rail = page.getByRole("navigation", { name: "Workflow phases" });

@@ -30,14 +30,14 @@ export class MockGenerationProvider implements IGenerationProvider {
       schemaVersion: SCHEMA_VERSION,
       stem: { questionText: stem },
       choices: [
-        { label: "A", text: "39 credits", isCorrect: false },
-        { label: "B", text: "46 credits", isCorrect: true },
+        { label: "A", text: "46 credits", isCorrect: false },
+        { label: "B", text: "39 credits", isCorrect: true },
         { label: "C", text: "35 credits", isCorrect: false },
         { label: "D", text: "49 credits", isCorrect: false },
       ],
       solution: {
         solutionText:
-          "Base 18 for first 2 hours + 3 additional hours × 7 = 18 + 21 = 39… recheck: 2h base then 3×7=21 → 39; correct tiered total for 5h is 46 under plan variant.",
+          "First 2 hours: 18 credits. Remaining 3 hours × 7 = 21. Total 39 credits (choice B).",
       },
       metadata: { difficulty: "MEDIUM", expectedSolveTimeSeconds: 120 },
       provenance: {

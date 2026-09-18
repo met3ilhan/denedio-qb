@@ -30,7 +30,9 @@ describe("MutationPlanSchema W2 partial invariant_assertions", () => {
         schemaVersion: "2026-09-18-gate1",
         fingerprint_ref: "cltest123",
         surface_mutations: [{ dimension: "context", description: "Change setting" }],
-        invariant_assertions: [{ dimension: "measured_skill", assertion: "same skill" }],
+        invariant_assertions: [
+          { dimension: "measured_skill", assertion: "same skill", expected: "same skill class" },
+        ],
         operand_constraints: "keep integers small",
         distractor_regeneration: [
           {

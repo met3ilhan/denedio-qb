@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import type { MissionBlocker } from "@/modules/missions/services/mission-blockers";
 
+import { DemoModeBanner } from "./DemoModeBanner";
 import { BlockersPanel } from "./BlockersPanel";
 import { MissionBlockersPanel } from "./MissionBlockersPanel";
 import { CommandPaletteStub } from "./CommandPaletteStub";
@@ -37,6 +38,7 @@ export function StudioShell({
       />
 
       <div className="flex min-w-0 flex-1 flex-col">
+        <DemoModeBanner />
         <header
           className="flex min-w-0 flex-wrap items-center justify-between gap-3 border-b border-[var(--qs-border)] bg-[var(--qs-surface)] px-4 py-4 sm:px-6"
         >

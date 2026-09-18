@@ -310,3 +310,25 @@ If TESTER FAIL or Architect blocks layout: **implementer** fix → re-test → r
 **Deliverable:** `docs/OVERNIGHT_BUILD_REPORT.md`
 
 **Next:** Golden pedagogy sample + adversarial solver tests → Tester golden mission → Verifier P26 re-run.
+
+---
+
+## 2026-09-18 — QUALITY RECOVERY MISSION (Gates 3–6 pedagogical core)
+
+**Owner:** Orchestrator  
+**Scope:** Repair pedagogical core only; Gate 10 deferred until 3–6 accepted + regression.  
+**Evidence anchor:** `docs/BUILD_LOG.md` § QUALITY RECOVERY — INITIAL FAILURE ANALYSIS  
+**Implementer rule:** No self-approval; every wave ends Tester → Verifier.
+
+### Wave plan (ordered)
+
+| Wave | Agent(s) | Deliverable | Gates |
+|------|----------|-------------|-------|
+| **Q0** | pedagogy-expert | Golden suite spec + river/Turkish/science fixtures list; distractor error-path tables; fidelity checklist | 3, 5 |
+| **Q1** | architect (conditional) | Schema deltas: `dimension_evidence`, `invariant_assertions` completeness, solver firewall types | 3, 4, 6 |
+| **Q2** | implementer | Rule-engine UNKNOWN default; fidelity engine; draft-inference + mock providers; pedagogy fixtures | 3–6 |
+| **Q3** | tester | New unit/e2e + `docs/TEST_REPORT.md`; adversarial solver/distractor tests | 3–6, regression |
+| **Q4** | verifier | Gate 3–6 sample APPROVE/REJECT; update `VERIFICATION_REPORT.md` | 3–6 |
+| **Q5** | orchestrator | Doc rollup; `.project-state.md` gate table; optional Gate 10 re-entry | — |
+
+**Status:** Q0 **NOT STARTED** (await parent delegation).

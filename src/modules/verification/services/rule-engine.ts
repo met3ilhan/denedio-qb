@@ -13,10 +13,14 @@ import type { SolverResult } from "@/shared/validation/solver-result";
 import { previewTrivialMutationFlags } from "@/shared/validation/trivial-mutation";
 import type { VerificationResult, VerifierFinding } from "@/shared/validation/verification-result";
 import { verificationResultSchema } from "@/shared/validation/verification-result";
-import { CORE_INVARIANT_ASSERTION_DIMENSIONS } from "@/shared/validation/pedagogical-fingerprint";
 import { SCHEMA_VERSION } from "@/shared/validation/primitives";
 
-const CORE_DIMENSION_KEYS = CORE_INVARIANT_ASSERTION_DIMENSIONS;
+import { verifyDistractorCausality } from "./distractor-causality";
+import {
+  buildFingerprintChecklistRows,
+  evaluatePlanInvariantAssertions,
+  overallFingerprintFidelityLevel,
+} from "./fingerprint-fidelity";
 
 export type VerificationInput = {
   candidateId: string;
@@ -104,7 +108,35 @@ export function runVerificationEngine(input: VerificationInput): VerificationRes
           "Similarity",
           "T6: sibling mutation signature collision in run.",
           { remediationScreen: "S08" },
-      ),
+        ),
+      );
+    }
+  }
+
+  const invariantEvals = evaluatePlanInvariantAssertions(
+    input.plan,
+    input.question.stem.questionText,
+  );
+  for (const inv of invariantEvals) {
+    if (inv.status === "DRIFTED") {
+      findings.push(
+        finding(
+          "REJECT_MECHANISM",
+          "FAIL",
+          "Fingerprint",
+          `Invariant ${inv.dimension} drifted: ${inv.observed}`,
+          { dimensionKey: inv.dimension, remediationScreen: "S07" },
+        ),
+      );
+    } else if (inv.status === "UNKNOWN") {
+      findings.push(
+        finding(
+          "FINGERPRINT_UNVERIFIED",
+          "WARNING",
+          "Fingerprint",
+          `Invariant ${inv.dimension} — evidence insufficient (${inv.observed}).`,
+          { dimensionKey: inv.dimension, remediationScreen: "S07" },
+        ),
       );
     }
   }
@@ -131,9 +163,51 @@ export function runVerificationEngine(input: VerificationInput): VerificationRes
         );
       }
     }
+
+    const causality = verifyDistractorCausality(input.question, input.distractor);
+    for (const row of causality) {
+      if (row.state === "CONTRADICTED") {
+        findings.push(
+          finding(
+            "REJECT_DISTRACTOR",
+            "FAIL",
+            "Distractor",
+            `Choice ${row.choice_label}: ${row.message}`,
+            { remediationScreen: "S11" },
+          ),
+        );
+      } else if (row.state === "UNVERIFIED") {
+        const level =
+          /decorative|T4|no replayable/i.test(row.message) ? "FAIL" : "WARNING";
+        findings.push(
+          finding(
+            "REJECT_DISTRACTOR",
+            level,
+            "Distractor",
+            `Choice ${row.choice_label}: ${row.message}`,
+            { remediationScreen: "S11" },
+          ),
+        );
+      }
+    }
+
+    const decorative = input.distractor.decorative_distractor_flags?.length ?? 0;
+    if (decorative > 0) {
+      findings.push(
+        finding(
+          "REJECT_DISTRACTOR",
+          "FAIL",
+          "Distractor",
+          "Decorative distractor flagged in analysis.",
+          { remediationScreen: "S11" },
+        ),
+      );
+    }
   }
 
   const expected = correctChoiceLabel(input.question);
+  let solutionSupported = false;
+
   if (input.solver) {
     if (!input.solver.is_unique || input.solver.selected_label === null) {
       findings.push(
@@ -152,9 +226,22 @@ export function runVerificationEngine(input: VerificationInput): VerificationRes
         ),
       );
     } else {
-      findings.push(
-        finding("SOLVER_MISMATCH", "PASS", "Solver", "Solver agrees with keyed correct answer."),
-      );
+      solutionSupported = solverReasoningSupportsAnswer(input.solver, expected);
+      if (!solutionSupported) {
+        findings.push(
+          finding(
+            "SOLVER_MISMATCH",
+            "FAIL",
+            "Solver",
+            `Answer label matches ${expected} but reasoning trace does not support the selection.`,
+            { remediationScreen: "S11" },
+          ),
+        );
+      } else {
+        findings.push(
+          finding("SOLVER_MISMATCH", "PASS", "Solver", "Solver agrees with keyed correct answer."),
+        );
+      }
     }
   } else {
     findings.push(
@@ -164,46 +251,52 @@ export function runVerificationEngine(input: VerificationInput): VerificationRes
     );
   }
 
-  const dimensionRows =
-    input.fingerprint.dimension_evidence?.length
-      ? input.fingerprint.dimension_evidence
-      : CORE_DIMENSION_KEYS.map((key) => ({
-          dimensionKey: key,
-          verdict: "PRESERVED" as const,
-          evidence: [],
-        }));
+  const checklistRows = buildFingerprintChecklistRows(input.fingerprint);
+  const fidelityOverall = overallFingerprintFidelityLevel(checklistRows);
 
-  const fingerprint_checklist = dimensionRows.map((dim) => {
-    const verdict = dim.verdict ?? "UNVERIFIED";
-    const level = verdict === "PRESERVED" || verdict === "NOT_APPLICABLE" ? "PASS" : "WARNING";
-    if (verdict === "DRIFT") {
+  for (const row of checklistRows) {
+    if (row.verdict === "DRIFT") {
       findings.push(
         finding(
           "FINGERPRINT_DRIFT",
           "FAIL",
           "Fingerprint",
-          `Dimension ${dim.dimensionKey} drifted from locked fingerprint.`,
-          { dimensionKey: dim.dimensionKey, fingerprintVerdict: verdict, remediationScreen: "S07" },
+          `Dimension ${row.dimensionKey} drifted from locked fingerprint.`,
+          { dimensionKey: row.dimensionKey, fingerprintVerdict: row.verdict, remediationScreen: "S07" },
         ),
       );
     }
-    if (verdict === "UNVERIFIED") {
+    if (row.verdict === "UNVERIFIED") {
       findings.push(
         finding(
           "FINGERPRINT_UNVERIFIED",
           "WARNING",
           "Fingerprint",
-          `Dimension ${dim.dimensionKey} unverified post-generation.`,
-          { dimensionKey: dim.dimensionKey, fingerprintVerdict: verdict, remediationScreen: "S07" },
+          `Dimension ${row.dimensionKey} unverified — missing or weak evidence.`,
+          { dimensionKey: row.dimensionKey, fingerprintVerdict: row.verdict, remediationScreen: "S07" },
         ),
       );
     }
-    return {
-      dimensionKey: dim.dimensionKey,
-      verdict,
-      level,
-    };
-  });
+  }
+
+  if (fidelityOverall === "FAIL") {
+    findings.push(
+      finding(
+        "FINGERPRINT_DRIFT",
+        "FAIL",
+        "Fingerprint",
+        "Fingerprint fidelity bundle failed — one or more dimensions drifted.",
+        { remediationScreen: "S07" },
+      ),
+    );
+  }
+
+  const fingerprint_checklist = checklistRows.map((row) => ({
+    dimensionKey: row.dimensionKey,
+    verdict: row.verdict,
+    level: row.level,
+    evidence: row.evidence,
+  }));
 
   const hasFail = findings.some((f) => f.level === "FAIL");
   const hasWarning = findings.some((f) => f.level === "WARNING");
@@ -226,6 +319,14 @@ export function runVerificationEngine(input: VerificationInput): VerificationRes
     aggregate_recommendation,
     quality_gate,
   });
+}
+
+function solverReasoningSupportsAnswer(solver: SolverResult, expectedLabel: string): boolean {
+  const trace = solver.reasoning_trace.map((t) => t.description.toLowerCase()).join(" ");
+  if (trace.includes(`select choice ${expectedLabel.toLowerCase()}`)) return true;
+  if (trace.includes(`select ${expectedLabel.toLowerCase()}`)) return true;
+  if (trace.includes(`choice ${expectedLabel.toLowerCase()}`) && trace.includes("select")) return true;
+  return solver.confidence_band === "high" && solver.is_unique;
 }
 
 function finding(

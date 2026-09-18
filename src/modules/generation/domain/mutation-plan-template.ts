@@ -21,6 +21,7 @@ export function buildSampleMutationPlan(fingerprintVersionId: string) {
     invariant_assertions: CORE_INVARIANT_ASSERTION_DIMENSIONS.map((dimension) => ({
       dimension,
       assertion: `${dimension} preserved by class — see locked fingerprint vN`,
+      expected: `${dimension} structural class unchanged vs locked fingerprint`,
     })),
     operand_constraints:
       "Keep additional-interval count logic identical; operands remain small integers under 20.",
@@ -39,7 +40,7 @@ export function buildSampleMutationPlan(fingerprintVersionId: string) {
       },
       {
         choice_slot: "D",
-        mechanism_id: "MECH_ARITH",
+        mechanism_id: "MECH_BOUNDARY",
         misconception_id: "misc_partial_sum_d",
         parameter_notes: "Treat all hours at additional rate",
       },

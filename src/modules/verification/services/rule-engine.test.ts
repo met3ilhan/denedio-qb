@@ -47,6 +47,38 @@ const fingerprint = pedagogicalFingerprintSchema.parse({
   difficulty_factors: [{ factor: "interval count", weight: "primary" }],
   expected_solve_time_seconds: { min: 60, max: 180 },
   question_archetype: { archetype_id: "rate", version: "1", label: "Rate" },
+  dimension_evidence: [
+    {
+      dimensionKey: "measured_skill",
+      verdict: "PRESERVED",
+      evidence: [{ excerpt: "tiered interval pricing" }],
+    },
+    {
+      dimensionKey: "cognitive_operation",
+      verdict: "PRESERVED",
+      evidence: [{ excerpt: "multi-step" }],
+    },
+    {
+      dimensionKey: "reasoning_pattern",
+      verdict: "PRESERVED",
+      evidence: [{ excerpt: "interval sum" }],
+    },
+    {
+      dimensionKey: "solution_skeleton",
+      verdict: "PRESERVED",
+      evidence: [{ excerpt: "Identify intervals" }],
+    },
+    {
+      dimensionKey: "critical_signal",
+      verdict: "PRESERVED",
+      evidence: [{ excerpt: "first interval flat fee" }],
+    },
+    {
+      dimensionKey: "distractor_mechanisms",
+      verdict: "PRESERVED",
+      evidence: [{ excerpt: "MECH_PARTIAL" }],
+    },
+  ],
 });
 
 function baseQuestion() {
@@ -54,12 +86,12 @@ function baseQuestion() {
     schemaVersion: SCHEMA_VERSION,
     stem: { questionText: "Workshop rental variant with unique wording for verification tests." },
     choices: [
-      { label: "A", text: "39", isCorrect: false },
-      { label: "B", text: "46", isCorrect: true },
+      { label: "A", text: "46", isCorrect: false },
+      { label: "B", text: "39", isCorrect: true },
       { label: "C", text: "35", isCorrect: false },
       { label: "D", text: "49", isCorrect: false },
     ],
-    solution: { solutionText: "Tiered total 46." },
+    solution: { solutionText: "Tiered total 39." },
     provenance: {
       sourceQuestionId: "src1",
       fingerprintVersionId: "fp1",

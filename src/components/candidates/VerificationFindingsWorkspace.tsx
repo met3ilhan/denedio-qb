@@ -80,13 +80,15 @@ export function VerificationFindingsWorkspace({
               <tr className="text-left text-[var(--qs-text-muted)]">
                 <th className="py-1">Dimension</th>
                 <th>Verdict</th>
+                <th>Level</th>
               </tr>
             </thead>
             <tbody>
               {verification.fingerprint_checklist.map((row) => (
                 <tr key={row.dimensionKey} data-testid={`fp-row-${row.dimensionKey}`}>
                   <td className="py-1 font-mono">{row.dimensionKey}</td>
-                  <td>{row.verdict}</td>
+                  <td data-testid={`fp-verdict-${row.dimensionKey}`}>{row.verdict}</td>
+                  <td>{row.level}</td>
                 </tr>
               ))}
             </tbody>

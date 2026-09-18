@@ -631,3 +631,79 @@ Recommended next action:
 
 May next phase proceed: NO (Gate 10); CONDITIONAL YES (engineering fixes toward P26)
 ```
+
+---
+
+## GOLDEN PEDAGOGY RE-REVIEW (Quality Recovery — Gates 3–6)
+
+### Run metadata
+
+| Field | Value |
+|-------|--------|
+| **Scope** | Wave Q0 quality recovery — pedagogy core (Gates 3–6 only); not Gate 10 re-close |
+| **Date** | 2026-09-18 |
+| **Role** | Verifier (independent; artifact read + local re-run) |
+| **Branch** | `build/question-studio-v1` |
+| **Inputs** | `fixtures/pedagogy/*`, `docs/GOLDEN_PEDAGOGY_SUITE.md`, `rule-engine.ts`, `fingerprint-fidelity.ts`, `distractor-causality.ts`, `stem-solver.ts`, `mock-provider.ts` (solver), `golden-pedagogy-mission.test.ts`, `rule-engine-fidelity.test.ts`, `solver-independence.test.ts`, `DemoModeBanner.tsx`, `docs/BUILD_LOG.md` (QUALITY RECOVERY) |
+
+### Independent commands (Verifier re-run)
+
+| Command | Result |
+|---------|--------|
+| `pnpm test` | **PASS** — 41 passed, 1 skipped |
+| `pnpm test:e2e` | **PASS** — **17/17** (includes `demo-mode-banner`, stale-banner, dry-run UI) |
+
+---
+
+### Recovery claims vs evidence
+
+| Prior blocker (G10 / BUILD_LOG) | Observed in code |
+|--------------------------------|------------------|
+| **G10-B3** — missing `dimension_evidence` synthesized as **PRESERVED** | **Fixed** — `buildFingerprintChecklistRows` defaults **UNVERIFIED**; PRESERVED without evidence pointers downgraded (`fingerprint-fidelity.ts`); covered by `rule-engine-fidelity.test.ts` + golden mission |
+| **G10-B2** — mock solver always **B** | **Fixed** — `MockSolverProvider` delegates to `solveFromStemOnly` (`stem-solver.ts`); independence test permutes labels (270 min → **C**) |
+| **G10-B4** — distractor causality placeholder | **Partial** — ferry replay **SUPPORTED**; **T4** numeric-noise cluster + missing replay → **FAIL** in rule engine; mock pipeline uses parameter_notes in steps (still not full expert replay on river) |
+| **G10-B5** — demo opacity | **Fixed** — `DemoModeBanner` in `StudioShell`; Playwright asserts banner |
+| **RC-4** — no golden corpus | **Fixed** — `GOLDEN_PEDAGOGY_SUITE` (4 records) + `GOLDEN_GENERATION_FAMILY_FERRY` (5 kinds) + `docs/GOLDEN_PEDAGOGY_SUITE.md` |
+
+---
+
+### Mathematics golden generation family (ferry anchor) — per-kind outcomes
+
+Regression source: `golden-pedagogy-mission.test.ts` + `fixtures/pedagogy/generation-family-candidates.ts`.
+
+| Kind | Expected (suite doc) | Verifier outcome (this branch) | Evidence |
+|------|----------------------|--------------------------------|----------|
+| **GOOD** | APPROVE | **Accept** — `quality_gate` ≠ `GATE_FAIL`; no `SOLVER_MISMATCH` FAIL; stem solver matches keyed **B** (32 min) | Automated test |
+| **TOO-SIMILAR** | REJECT (`REJECT_TRIVIAL` / sibling) | **Reject** — `GATE_FAIL`; `SIM_STRUCTURAL_ISOMORPHISM` FAIL vs source stem | Automated test |
+| **DRIFTED** | REJECT (`REJECT_MECHANISM`) | **Reject** — `REJECT_MECHANISM` FAIL (one-way collapse vs round-trip assertion) | Automated test |
+| **BAD-DISTRACTOR** | REJECT (`REJECT_DISTRACTOR`) | **Correctly rejected** — `GATE_FAIL` + `REJECT_DISTRACTOR` FAIL (±2 numeric noise without replay) | `golden-pedagogy-mission.test.ts` |
+| **SOLVER-MISMATCH** | REJECT (`SOLVER_MISMATCH` / mechanism) | **Reject** — `SOLVER_MISMATCH` FAIL (solver **C** vs keyed **B**) | Automated test |
+
+Golden **source** ferry item: distractor causality **SUPPORTED** (≥3) with zero **CONTRADICTED** in mission test when using expert `distractor_causality` table.
+
+---
+
+### Gate verdicts (Gates 3–6 only)
+
+| Gate | Verdict | Rationale |
+|------|---------|-----------|
+| **3** Fingerprint lock / fidelity | **APPROVE** | False **PRESERVED** synthesis removed; golden expert fingerprints + sparse `dimension_evidence` honestly surface **UNVERIFIED** on checklist; `gate3-fingerprint.test.ts` + mission sparse-evidence test pass. **Residual:** lock API still allows zero `FingerprintEvidence` rows with warning only (W3); STRONGEST golden documents only 2/6 core `dimension_evidence` keys — acceptable as regression corpus, not as full lock-time completeness proof. |
+| **4** Mutation / generation family | **APPROVE** | Ferry family **5/5** kinds regression-locked (including **BAD-DISTRACTOR**); T1 structural reject + DRIFTED invariant checks pass on golden mission tests. |
+| **5** Distractor causality | **APPROVE** | Quantitative replay **SUPPORTED** on ferry source; adversarial contradiction + decorative numeric cluster **FAIL**; generic-only paths **FAIL** when T4 decorative risk detected. Mock distractor steps improved; river live path still heuristic (W3 residual). |
+| **6** Solver independence | **APPROVE** | `toSolverInput` firewall; stem-only solver; mismatch detection in engine + golden **SOLVER-MISMATCH** test; mock solver no longer label-**B** collusion. |
+
+### Demo / honesty (recovery item 13)
+
+**APPROVE** for scoped UI fix — persistent demo banner when `QUESTION_STUDIO_DEMO_MODE` active; e2e green.
+
+---
+
+### Overall (Gates 3–6 recovery scope)
+
+## **VERIFIER APPROVE (Gates 3–6 recovery scope)**
+
+**Rationale:** RC-1 (no false **PRESERVED**), RC-3 (stem-only solver), RC-4 (golden suite + family), RC-5 (demo banner), distractor T4 FAIL path, and **BAD-DISTRACTOR** regression are evidenced in code and tests.
+
+**May treat Gates 3–6 as closed for this mission:** **YES** (Gate 10 and full product completion remain separate).
+
+**May continue toward Gate 10 re-run:** **CONDITIONAL** — pedagogy core trustworthy on goldens; live mock pipeline still benefits from expert river distractor alignment (non-blocking for Gates 3–6).

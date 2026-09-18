@@ -39,6 +39,8 @@ export const mutationPlanSchema = z
         .object({
           dimension: nonEmptyTrimmed,
           assertion: nonEmptyTrimmed,
+          /** Machine-checkable expectation — not a substitute for evidence at lock time. */
+          expected: nonEmptyTrimmed,
         })
         .strict(),
     ),

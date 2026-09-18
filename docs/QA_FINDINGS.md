@@ -187,3 +187,39 @@ Verdict:
 
 Next: Orchestrator — reconcile .project-state; Implementer — G10-B2–B5; Verifier — re-run P26 golden mission after pedagogy fixes; wire Playwright into CI when stable on Ubuntu.
 ```
+
+---
+
+## GOLDEN PEDAGOGY MISSION (Quality Recovery — 2026-09-18)
+
+| Field | Value |
+|-------|--------|
+| **Scope** | Gates 3–6 pedagogy core: golden suite, fingerprint fidelity, distractor causality, solver firewall, adversarial fixtures, demo disclosure |
+| **Branch** | `build/question-studio-v1` |
+
+### Commands
+
+| Command | Result |
+|---------|--------|
+| `pnpm typecheck` | **PASS** |
+| `pnpm lint` | **PASS** (warnings only) |
+| `pnpm test` | **PASS** — **41/41** (1 integration skipped) |
+| `pnpm build` | **PASS** |
+| `pnpm test:e2e` | **PASS** — **17/17** (demo banner spec added) |
+
+### Golden mission evidence
+
+| Check | Result |
+|-------|--------|
+| Good candidate accepted | **YES** — ferry **GOOD** family → not `GATE_FAIL` |
+| Number-swap / too-similar rejected | **YES** — `SIM_STRUCTURAL_ISOMORPHISM` FAIL |
+| Pedagogical-drift candidate rejected | **YES** — `REJECT_MECHANISM` FAIL |
+| Bad distractor detected | **YES** — `REJECT_DISTRACTOR` FAIL (T4 numeric noise) |
+| Solver mismatch detected | **YES** — `SOLVER_MISMATCH` FAIL |
+| Ambiguity path | **YES** — `solver-independence.test.ts` |
+| Missing evidence → UNKNOWN not PRESERVED | **YES** — `rule-engine-fidelity.test.ts` |
+| Demo disclosure visible | **YES** — `data-testid="demo-mode-banner"` |
+
+### Tester verdict (golden mission)
+
+**PASS**

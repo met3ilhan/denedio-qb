@@ -42,5 +42,7 @@ export const fingerprintDimensionVerdict = z.enum([
   "UNVERIFIED",
 ]);
 
+export type FingerprintDimensionVerdict = z.infer<typeof fingerprintDimensionVerdict>;
+
 export type MechanismId = z.infer<typeof mechanismId>;
 export type TrapTypeId = z.infer<typeof trapTypeId>;

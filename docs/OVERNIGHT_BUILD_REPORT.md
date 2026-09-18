@@ -133,6 +133,28 @@ pnpm test:e2e
 14. P26 verifier re-run checklist  
 15. Designer Pass B typography/spacing audit  
 
+## QUALITY RECOVERY MISSION (2026-09-18)
+
+| Item | Status |
+|------|--------|
+| Golden pedagogy suite (`fixtures/pedagogy/`, `docs/GOLDEN_PEDAGOGY_SUITE.md`) | **Delivered** |
+| Fingerprint fidelity (no false PRESERVED) | **Fixed** — `fingerprint-fidelity.ts` |
+| Invariant assertions (`expected` on mutation plan) | **Extended** |
+| Similarity / trivial (W1, T1) | **Tested** on golden TOO-SIMILAR |
+| Distractor causality engine | **Delivered** — replay + T4 cluster FAIL |
+| Mock solver redesign + firewall | **Delivered** — `stem-solver.ts` |
+| Adversarial golden family (5 kinds) | **Regression tests** |
+| Demo disclosure | **Delivered** — `DemoModeBanner` |
+| Tester golden mission | **PASS** (41 unit, 17 e2e) |
+| Verifier Gates 3–6 | **APPROVE** (see `VERIFICATION_REPORT.md` GOLDEN PEDAGOGY RE-REVIEW) |
+| Gate 3 | **PASS** |
+| Gate 4 | **PASS** |
+| Gate 5 | **PASS** |
+| Gate 6 | **PASS** |
+| Gate 10 | **Still FAIL** (out of scope) |
+| Live AI smoke | **NOT RUN** |
+| Denedio integrity | **VERIFIED** (`cab8643…`) |
+
 ## What Was Deliberately Not Built
 
 Denedio publish, production deploy, student/teacher portals, billing, live Denedio DB, copyrighted question banks.
