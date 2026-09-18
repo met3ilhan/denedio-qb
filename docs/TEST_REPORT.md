@@ -5,7 +5,7 @@
 | Field | Value |
 |-------|--------|
 | **Branch** | `build/question-studio-v1` |
-| **Commit** | (see git `HEAD` at sign-off) |
+| **Commit** | `fdac8d5` |
 | **Node** | v22 (local) |
 | **Database** | PostgreSQL `question_studio` @ `localhost:5433` |
 | **Demo mode** | `QUESTION_STUDIO_DEMO_MODE=1` (Playwright webServer + global-setup) |
