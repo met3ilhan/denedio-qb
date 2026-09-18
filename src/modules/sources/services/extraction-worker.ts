@@ -1,3 +1,4 @@
+import { formatExtractionFailure } from "@/shared/ai/source-analyst/extraction-failure-messages";
 import { getSourceAnalystProvider } from "@/shared/ai/source-analyst";
 import { getObjectStorage } from "@/shared/storage";
 import { sourceAnalystEnvelopeSchema } from "@/shared/validation/source-extraction";
@@ -97,13 +98,13 @@ export class InProcessExtractionWorker {
         appendLogLine([], "info", "Extraction validated against SourceExtractionSchema"),
       );
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Unknown extraction error";
+      const { userMessage, technicalMessage } = formatExtractionFailure(error);
       await repo.transitionJob(jobId, "FAILED", {
         finishedAt: new Date(),
         errorCode: "EXTRACTION_FAILED",
-        errorMessage: message,
+        errorMessage: userMessage,
       });
-      await repo.appendJobLogs(jobId, appendLogLine([], "error", message));
+      await repo.appendJobLogs(jobId, appendLogLine([], "error", technicalMessage));
     }
   }
 }

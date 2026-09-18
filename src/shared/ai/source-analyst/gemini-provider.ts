@@ -6,6 +6,7 @@ import {
 } from "@/shared/validation/source-extraction";
 
 import { buildBlockLayers } from "./layering";
+import { normalizeGeminiExtractionBlocks } from "./normalize-gemini-extraction";
 import type { ISourceAnalystProvider, SourceAnalystInput } from "./types";
 import type { SourceExtraction } from "@/shared/validation/source-extraction";
 
@@ -49,7 +50,8 @@ export class GeminiSourceAnalystProvider implements ISourceAnalystProvider {
     const prompt =
       "You are a source analyst for Turkish exam questions. Return ONLY valid JSON (no markdown) matching " +
       "this shape: { schemaVersion, sourceQuestionKey, language, stemText, choices (2-5 with labels A-D consecutive), " +
-      "solutionText optional, blocks (stem + choice blocks with blockId, type, text, confidence 0-1, page), " +
+      "solutionText optional, blocks (stem + choice blocks with blockId, type one of stem|choice|figure|table|solution|metadata|other, text, confidence 0-1, page as positive integer). " +
+      "For a single uploaded image use page: 1 on every block; never use null. " +
       "extractionWarnings optional }. schemaVersion must be exactly " +
       SCHEMA_VERSION +
       ". Document filename: " +
@@ -132,6 +134,8 @@ export class GeminiSourceAnalystProvider implements ISourceAnalystProvider {
         stemText,
         choices: choices as SourceExtraction["choices"],
       });
+    } else if (blocks.length > 0) {
+      blocks = normalizeGeminiExtractionBlocks(blocks);
     }
 
     const extraction = {

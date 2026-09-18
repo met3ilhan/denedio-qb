@@ -131,6 +131,15 @@ export function ExtractionJobPanel({ sourceId }: { sourceId: string }) {
               </li>
             ))}
           </ol>
+          {job?.status === "FAILED" && job.errorMessage ? (
+            <p
+              className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-900"
+              data-testid="extraction-user-error"
+              role="alert"
+            >
+              {job.errorMessage}
+            </p>
+          ) : null}
           <button
             type="button"
             className="text-xs underline text-[var(--qs-text-muted)]"
@@ -148,11 +157,13 @@ export function ExtractionJobPanel({ sourceId }: { sourceId: string }) {
                   [{line.level}] {line.message}
                 </p>
               ))}
-              {job?.errorMessage ? (
-                <p className="text-red-600" data-testid="extraction-error">
-                  {job.errorMessage}
-                </p>
-              ) : null}
+              {(job?.logs ?? [])
+                .filter((line) => line.level === "error")
+                .map((line, i) => (
+                  <p key={`err-${i}`} className="text-red-600" data-testid="extraction-error">
+                    {line.message}
+                  </p>
+                ))}
             </div>
           ) : null}
           {job?.status === "SUCCEEDED" ? (

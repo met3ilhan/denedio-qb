@@ -282,6 +282,12 @@ export const tr = {
     inspector: "Denetçi",
     attempt: (n: number | string) => `Deneme ${n} · normal öncelik`,
     retry: "Çıkarmayı yeniden dene",
+    schemaShapeError:
+      "Yapay zekâ soruyu okudu ancak sonuç beklenen biçime dönüştürülemedi. Tekrar deneyebilir veya teknik ayrıntıları inceleyebilirsiniz.",
+    providerUnavailableError:
+      "Canlı yapay zekâ hizmetine şu anda ulaşılamadı. Biraz sonra tekrar deneyin veya teknik ayrıntıları inceleyin.",
+    genericFailureError:
+      "Çıkarma tamamlanamadı. Tekrar deneyebilir veya teknik ayrıntıları inceleyebilirsiniz.",
     page: {
       screen: "S04 · Çıkarma Kuyruğu",
       title: "Çıkarma işi",
