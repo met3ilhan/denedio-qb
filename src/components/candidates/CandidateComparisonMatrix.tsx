@@ -4,10 +4,15 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import type { ComparisonRow } from "@/modules/candidates/services/sibling-comparison";
+import {
+  rowHasMechanismDelta,
+  rowMatchesVerificationFilter,
+} from "@/modules/candidates/services/sibling-comparison";
 
 type CandidateComparisonMatrixProps = {
   missionId: string;
   runId: string;
+  fingerprintVersionLabel?: string;
   rows: ComparisonRow[];
   candidateLabels: Record<string, string>;
   stemExcerpts: Record<string, string>;
@@ -24,6 +29,7 @@ const statusGlyph: Record<string, string> = {
 export function CandidateComparisonMatrix({
   missionId,
   runId,
+  fingerprintVersionLabel,
   rows,
   candidateLabels,
   stemExcerpts,
@@ -39,6 +45,20 @@ export function CandidateComparisonMatrix({
 
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [previewRow, setPreviewRow] = useState<ComparisonRow | null>(null);
+  const [mechanismDeltasOnly, setMechanismDeltasOnly] = useState(false);
+  const [verificationFilter, setVerificationFilter] = useState<"all" | "fail_warn" | "fingerprint_drift">(
+    "all",
+  );
+  const [distractorQualityOnly, setDistractorQualityOnly] = useState(false);
+
+  const visibleRows = useMemo(() => {
+    return rows.filter((row) => {
+      if (mechanismDeltasOnly && !rowHasMechanismDelta(row)) return false;
+      if (!rowMatchesVerificationFilter(row, verificationFilter)) return false;
+      if (distractorQualityOnly && row.rowKey !== "distractor") return false;
+      return true;
+    });
+  }, [rows, mechanismDeltasOnly, verificationFilter, distractorQualityOnly]);
 
   function toggle(id: string) {
     setSelected((prev) => {
@@ -50,17 +70,63 @@ export function CandidateComparisonMatrix({
   }
 
   return (
-    <div data-testid="candidate-comparison-matrix" className="space-y-4">
-      <p className="text-mono text-sm text-[var(--qs-text-muted)]">
-        Mission {missionId.slice(0, 8)}… · Run {runId.slice(0, 8)}…
-      </p>
+    <div data-testid="candidate-comparison-matrix" className="space-y-6">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <p className="text-mono text-sm text-[var(--qs-text-muted)]" data-testid="compare-run-header">
+          Run {runId.slice(0, 8)}…
+          {fingerprintVersionLabel ? ` · fingerprint ${fingerprintVersionLabel}` : ""}
+          <span className="ml-2 text-xs">Mission {missionId.slice(0, 8)}…</span>
+        </p>
+        <div className="flex flex-wrap gap-3 text-sm" data-testid="compare-filters">
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={mechanismDeltasOnly}
+              onChange={(e) => setMechanismDeltasOnly(e.target.checked)}
+              data-testid="compare-filter-mechanism-deltas"
+            />
+            Mechanism deltas only
+          </label>
+          <label className="flex items-center gap-2">
+            <span className="text-xs text-[var(--qs-text-muted)]">Quality</span>
+            <select
+              className="rounded-md border border-[var(--qs-border)] px-2 py-1 text-sm"
+              value={verificationFilter}
+              onChange={(e) =>
+                setVerificationFilter(e.target.value as "all" | "fail_warn" | "fingerprint_drift")
+              }
+              data-testid="compare-filter-verification"
+            >
+              <option value="all">All rows</option>
+              <option value="fail_warn">FAIL / WARNING only</option>
+              <option value="fingerprint_drift">Fingerprint drift</option>
+            </select>
+          </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={distractorQualityOnly}
+              onChange={(e) => setDistractorQualityOnly(e.target.checked)}
+              data-testid="compare-filter-distractor"
+            />
+            Distractor row only
+          </label>
+        </div>
+      </div>
+
       <div className="overflow-x-auto rounded-lg border border-[var(--qs-border)]">
-        <table className="min-w-full text-sm">
-          <thead>
-            <tr className="bg-[var(--qs-canvas)] text-left">
-              <th className="px-3 py-2 font-medium">Dimension</th>
+        <table
+          className="min-w-full text-body"
+          role="grid"
+          aria-label="Candidate fingerprint comparison matrix"
+        >
+          <thead className="sticky top-0 z-20 bg-[var(--qs-canvas)]">
+            <tr className="text-left">
+              <th scope="col" className="sticky left-0 z-30 bg-[var(--qs-canvas)] px-3 py-3 font-medium">
+                Dimension
+              </th>
               {candidateIds.map((id) => (
-                <th key={id} className="px-3 py-2 font-medium">
+                <th key={id} scope="col" className="px-3 py-3 font-medium">
                   <label className="flex items-center gap-2">
                     <input
                       type="checkbox"
@@ -75,27 +141,39 @@ export function CandidateComparisonMatrix({
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
+            {visibleRows.map((row) => (
               <tr
                 key={row.rowKey}
                 className="border-t border-[var(--qs-border)] hover:bg-[var(--qs-canvas)]"
               >
-                <td className="px-3 py-2">
+                <th
+                  scope="row"
+                  className="sticky left-0 z-10 bg-[var(--qs-surface)] px-3 py-3 text-left font-normal"
+                >
                   <button
                     type="button"
-                    className="text-left underline"
+                    className="min-h-11 text-left underline"
                     onClick={() => setPreviewRow(row)}
                     data-testid={`compare-row-${row.rowKey}`}
+                    aria-label={`${row.label} comparison row`}
                   >
                     {row.label}
                   </button>
-                </td>
+                </th>
                 {candidateIds.map((id) => {
                   const cell = row.cells.find((c) => c.candidateId === id);
+                  const tone =
+                    cell?.status === "fail"
+                      ? "text-[var(--qs-severity-blocker)]"
+                      : cell?.status === "warn"
+                        ? "text-[var(--qs-severity-major)]"
+                        : cell?.status === "pass"
+                          ? "text-[var(--qs-severity-pass)]"
+                          : "";
                   return (
-                    <td key={id} className="px-3 py-2 font-mono text-xs">
+                    <td key={id} className={`px-3 py-3 text-mono ${tone}`}>
                       {cell ? (
-                        <span title={cell.detail}>
+                        <span title={cell.detail} data-status={cell.status}>
                           {statusGlyph[cell.status]} {cell.detail}
                         </span>
                       ) : (
@@ -134,6 +212,13 @@ export function CandidateComparisonMatrix({
               </li>
             ))}
           </ul>
+          <button
+            type="button"
+            className="mt-3 text-sm underline"
+            onClick={() => setPreviewRow(null)}
+          >
+            Close preview
+          </button>
         </aside>
       ) : null}
 

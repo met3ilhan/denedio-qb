@@ -46,3 +46,6 @@ export type FingerprintDimensionVerdict = z.infer<typeof fingerprintDimensionVer
 
 export type MechanismId = z.infer<typeof mechanismId>;
 export type TrapTypeId = z.infer<typeof trapTypeId>;
+
+export const MECHANISM_IDS = mechanismId.options;
+export const TRAP_TYPE_IDS = trapTypeId.options;

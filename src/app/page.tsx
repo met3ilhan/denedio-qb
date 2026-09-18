@@ -3,6 +3,8 @@ import { MissionStreamHome } from "@/components/studio/MissionStreamHome";
 import { listHomeMissionSummaries } from "@/modules/missions/services/mission-blockers";
 import { prisma } from "@/shared/db/client";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const missions = process.env.DATABASE_URL
     ? await listHomeMissionSummaries(prisma)

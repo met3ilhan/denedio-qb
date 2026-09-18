@@ -16,7 +16,7 @@ P01 scaffold QA executed 2026-09-18 on branch `build/question-studio-v1`.
 
 ## TESTER PASS
 
-**P25 final regression (2026-09-18):** **ISSUED** — full `pnpm` quality bar + Playwright suite green (16 tests incl. screenshot harness); see **Gate 10 regression QA** below.
+**P25 final regression (2026-09-18):** **PASS** — `docs/TEST_REPORT.md`; vitest **58/58** (+1 skipped integration); Playwright **20/20** (`pnpm test:e2e` includes production build); S10 + distractor e2e added.
 
 **Gate 10 / release readiness:** **FAIL** (Tester does not override Verifier **REJECT** or P27 prerequisites; see final section).
 

@@ -56,6 +56,7 @@ export default async function CandidateComparisonPage({ params, searchParams }: 
       return {
         id: c.id,
         siblingIndex: c.siblingIndex,
+        pipelineStatus: c.status,
         draft: generatedQuestionSchema.parse(bundle.draft),
         distractorAnalysis: bundle.distractorAnalysis
           ? distractorAnalysisSchema.parse(bundle.distractorAnalysis)
@@ -90,6 +91,7 @@ export default async function CandidateComparisonPage({ params, searchParams }: 
       <CandidateComparisonMatrix
         missionId={missionId}
         runId={run.id}
+        fingerprintVersionLabel={`v${run.fingerprintVersion?.versionNumber ?? "?"}`}
         rows={rows}
         candidateLabels={candidateLabels}
         stemExcerpts={stemExcerpts}

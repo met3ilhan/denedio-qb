@@ -74,4 +74,11 @@ body {
     font-size: 13px;
     line-height: 20px;
   }
+
+  .text-stem {
+    font-family: "STIX Two Text", "Times New Roman", serif;
+    font-size: 17px;
+    line-height: 28px;
+    font-weight: 400;
+  }
 }

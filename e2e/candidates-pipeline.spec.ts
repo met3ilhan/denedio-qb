@@ -74,7 +74,7 @@ test.describe("Candidate review and approval", () => {
     await page.goto(`/candidates/${candidateId}`);
     const stem = page.locator("textarea").first();
     await stem.fill(`${"Edited stem for invalidation test. ".repeat(3)}`);
-    await page.getByRole("button", { name: "Save edits" }).click();
+    await page.getByTestId("expert-save-edits").click();
     await expect(page.getByTestId("verification-stale-banner")).toBeVisible();
 
     await page.goto(`/candidates/${candidateId}/approve`);
@@ -84,6 +84,30 @@ test.describe("Candidate review and approval", () => {
     expect(reverify.ok()).toBeTruthy();
     await page.goto(`/candidates/${candidateId}`);
     await expect(page.getByTestId("verification-stale-banner")).not.toBeVisible();
+
+    const distractorRes = await request.get(`/api/candidates/${candidateId}`);
+    const bundle = (await distractorRes.json()) as {
+      distractorAnalysis?: { wrong_choices: { choice_label: string }[] };
+    };
+    if (bundle.distractorAnalysis?.wrong_choices?.length) {
+      await page.getByTestId(/^distractor-rail-/).first().click();
+      await page.getByTestId("distractor-field-misconception").fill("E2E misconception edit");
+      await page.getByTestId("expert-save-edits").click();
+      await expect(page.getByTestId("verification-stale-banner")).toBeVisible();
+      const after = await request.get(`/api/candidates/${candidateId}`);
+      const afterBody = (await after.json()) as {
+        distractorAnalysis: { wrong_choices: { misconception_id: string }[] };
+        verificationStaleAt: string | null;
+      };
+      const edited = afterBody.distractorAnalysis.wrong_choices.some((w) =>
+        w.misconception_id.includes("E2E"),
+      );
+      expect(edited).toBe(true);
+      expect(afterBody.verificationStaleAt).toBeTruthy();
+      await request.post(`/api/candidates/${candidateId}/verify`, { data: {} });
+      await page.reload();
+      await expect(page.getByTestId("verification-stale-banner")).not.toBeVisible();
+    }
   });
 
   test("rejected candidate cannot export", async ({ request }) => {

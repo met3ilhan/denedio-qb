@@ -707,3 +707,17 @@ Golden **source** ferry item: distractor causality **SUPPORTED** (≥3) with zer
 **May treat Gates 3–6 as closed for this mission:** **YES** (Gate 10 and full product completion remain separate).
 
 **May continue toward Gate 10 re-run:** **CONDITIONAL** — pedagogy core trustworthy on goldens; live mock pipeline still benefits from expert river distractor alignment (non-blocking for Gates 3–6).
+
+---
+
+## 2026-09-18 — FINAL BLOCKER CLOSURE (Gates 7, 9, 10)
+
+**Inputs:** `DistractorCausalityEditor`, S10 `CandidateComparisonMatrix`, `docs/DESIGN_QA.md`, `docs/TEST_REPORT.md`, Playwright 20/20, pedagogy-expert Gate 7 PASS.
+
+| Gate | Verdict | Notes |
+|------|---------|-------|
+| **7** Expert operability | **APPROVE** | Distractor MECH/misconception/trap/path/produces_value editable without raw JSON; live causality status; stale invalidation + re-verify |
+| **9** Design | **APPROVE** | Designer Pass A/B in `DESIGN_QA.md`; S10/S11 parity fixes |
+| **10** Product completion | **APPROVE** | TEST_REPORT evidence; blockers 1–4 closed; Gates 0–8 unchanged |
+
+## **VERIFIER APPROVE (Gate 10 — LOCAL V1)**

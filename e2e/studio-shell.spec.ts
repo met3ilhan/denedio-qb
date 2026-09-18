@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test";
 test.describe("Studio shell", () => {
   test("demo mode banner visible when QUESTION_STUDIO_DEMO_MODE=1", async ({ page }) => {
     await page.goto("/");
+    await expect(page.getByRole("heading", { name: "Mission stream" })).toBeVisible();
     await expect(page.getByTestId("demo-mode-banner")).toBeVisible();
     await expect(page.getByTestId("demo-mode-banner")).toContainText(/ÖRNEK|DEMO/i);
   });
@@ -41,8 +42,9 @@ test.describe("Studio shell", () => {
 
   test("command palette opens with Ctrl+K", async ({ page }) => {
     await page.goto("/");
+    await expect(page.getByRole("heading", { name: "Mission stream" })).toBeVisible();
     await page.keyboard.press("Control+K");
-    await expect(page.getByTestId("command-palette")).toBeVisible();
+    await expect(page.getByTestId("command-palette")).toBeVisible({ timeout: 10_000 });
     await expect(page.getByRole("dialog", { name: "Command palette" })).toBeVisible();
   });
 

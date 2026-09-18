@@ -12,7 +12,8 @@ type Params = { params: Promise<{ id: string }> };
 
 export async function POST(request: Request, { params }: Params) {
   const { id } = await params;
-  const body = (await request.json()) as {
+  const raw = await request.text();
+  const body = (raw ? JSON.parse(raw) : {}) as {
     checklist?: Record<string, boolean>;
     comment?: string;
   };

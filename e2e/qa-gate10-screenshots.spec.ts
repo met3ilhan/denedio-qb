@@ -99,9 +99,16 @@ test.describe("Gate 10 QA screenshot capture", () => {
     await expect(page.getByTestId("generation-setup")).toBeVisible({ timeout: 15_000 });
     await shot(page, "candidate-family-1440");
 
+    await page.goto(`/missions/${missionId}/candidates/compare?runId=${runId}`);
+    await expect(page.getByTestId("candidate-comparison-matrix")).toBeVisible({ timeout: 15_000 });
+    await shot(page, "candidate-comparison-1440");
+
     await page.goto(`/candidates/${candidateId}`);
     await expect(page.getByTestId("candidate-inspector")).toBeVisible({ timeout: 15_000 });
+    await page.getByTestId(/^distractor-rail-/).first().click();
     await shot(page, "candidate-review-1440");
+    await shot(page, "distractor-editor-1440");
+    await shot(page, "expert-editor-1440");
 
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(`/candidates/${candidateId}`);

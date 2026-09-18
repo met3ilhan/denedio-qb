@@ -346,3 +346,22 @@ If TESTER FAIL or Architect blocks layout: **implementer** fix → re-test → r
 **Gate status:** 7 FAIL · 8 PASS · 9 FAIL · 10 FAIL
 
 **Next:** S11 editable distractor metadata + S10 UX/e2e parity → Designer sign-off → Verifier Gate 10 re-run
+
+---
+
+## 2026-09-18 — FINAL BLOCKER CLOSURE (Gates 7, 9, 10)
+
+**Owner:** Orchestrator  
+**Baseline:** `c99d2c3` → closure commits on `build/question-studio-v1`  
+**Denedio:** READ ONLY verified (`cab8643698943c365203b483f138e285ac5be82a`)
+
+| Wave | Agent | Deliverable | Result |
+|------|--------|-------------|--------|
+| 1 | pedagogy-expert | S11 distractor edit contract + Gate 7 **PASS** | Complete |
+| 2a | implementer | `DistractorCausalityEditor`, PATCH distractor, invalidation | Complete |
+| 2b | implementer | S10 fingerprint rows, filters, sticky table | Complete |
+| 3 | designer | `docs/DESIGN_QA.md` Pass A/B **APPROVE** | Complete |
+| 4 | tester | `docs/TEST_REPORT.md`, vitest 58/58+1 skip, Playwright **20/20** | **PASS** |
+| 5 | verifier | Gate 7/9/10 **APPROVE** (see `VERIFICATION_REPORT.md`) | Complete |
+
+**Acceptance:** LOCAL V1 gate table updated in `.project-state.md`.
