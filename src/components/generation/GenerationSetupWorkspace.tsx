@@ -70,7 +70,11 @@ export function GenerationSetupWorkspace({
         setMessage(data.error);
         return;
       }
-      setMessage(`Run ${data.runId} saved with mutation plan (generation not started).`);
+      if (data.runId) {
+        window.location.href = `/missions/${missionId}/generate/run/${data.runId}`;
+        return;
+      }
+      setMessage("Run saved.");
     } catch {
       setMessage("Invalid JSON in mutation plan.");
     } finally {

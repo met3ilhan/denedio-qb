@@ -64,8 +64,37 @@ export async function POST(request: Request, { params }: Params) {
   }
 
   const run = await generation.createSetupRun(missionId, body.fingerprintVersionId);
-  const saved = await generation.persistMutationPlan(run.id, body.fingerprintVersionId, plan);
+  const siblingCount = Math.min(Math.max(Number((body as { siblingCount?: number }).siblingCount ?? 1), 1), 4);
+  const savedPlans = [];
+  for (let i = 0; i < siblingCount; i++) {
+    const siblingPlan =
+      i === 0
+        ? plan
+        : mutationPlanSchema.parse({
+            ...plan,
+            sibling_group_id: `family-${run.id}`,
+            surface_mutations: [
+              ...plan.surface_mutations,
+              {
+                dimension: "wording_structure",
+                description: `Sibling ${i + 1} wording variant for question family.`,
+              },
+            ],
+          });
+    const saved = await generation.persistMutationPlan(
+      run.id,
+      body.fingerprintVersionId,
+      siblingPlan,
+      i,
+    );
+    savedPlans.push(saved);
+  }
   await generation.markRunReady(run.id);
 
-  return NextResponse.json({ runId: run.id, planId: saved.id, flags: previewTrivialMutationFlags(plan) });
+  return NextResponse.json({
+    runId: run.id,
+    planIds: savedPlans.map((p) => p.id),
+    flags: previewTrivialMutationFlags(plan),
+    siblingCount,
+  });
 }
