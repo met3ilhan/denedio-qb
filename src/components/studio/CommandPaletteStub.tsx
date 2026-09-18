@@ -2,10 +2,12 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { tr } from "@/shared/copy/tr";
+
 const STUB_SCREENS = [
-  { id: "S01", label: "Mission Board", href: "/" },
-  { id: "S03", label: "Source Upload", href: "/sources/new" },
-  { id: "S07", label: "Fingerprint Studio", href: "/fingerprint" },
+  { id: "S01", label: tr.commandPalette.screens.missionBoard, href: "/" },
+  { id: "S03", label: tr.commandPalette.screens.sourceUpload, href: "/sources/new" },
+  { id: "S07", label: tr.commandPalette.screens.fingerprintStudio, href: "/fingerprint" },
 ];
 
 export function CommandPaletteStub() {
@@ -29,7 +31,7 @@ export function CommandPaletteStub() {
   if (!open) {
     return (
       <p className="sr-only" data-testid="command-palette-closed">
-        Command palette closed. Press Control+K to open.
+        {tr.commandPalette.closedHint}
       </p>
     );
   }
@@ -39,14 +41,14 @@ export function CommandPaletteStub() {
       className="fixed inset-0 z-50 flex items-start justify-center bg-[rgba(15,23,42,0.4)] px-4 pt-[20vh]"
       role="dialog"
       aria-modal="true"
-      aria-label="Command palette"
+      aria-label={tr.commandPalette.aria}
       data-testid="command-palette"
     >
       <div
         className="w-full max-w-md rounded-lg border border-[var(--qs-border)] bg-[var(--qs-surface)] p-2 shadow-[0_8px_24px_rgba(15,23,42,0.08)]"
       >
         <p className="px-2 py-1 font-mono text-xs text-[var(--qs-text-muted)]">
-          Jump to screen (stub)
+          {tr.commandPalette.jumpStub}
         </p>
         <ul className="mt-1 flex flex-col gap-0.5">
           {STUB_SCREENS.map((screen) => (

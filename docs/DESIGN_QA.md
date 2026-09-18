@@ -147,6 +147,37 @@ Status values: **PASS** · **FIX REQUIRED** · **N/A** (out of scope or not ship
 
 ---
 
+## TURKISH UI AUDIT
+
+| Field | Value |
+|-------|--------|
+| **Date** | 2026-09-18 |
+| **Authority** | `docs/TR_COPY_GLOSSARY.md`, `src/shared/copy/tr.ts` |
+| **Method** | Static review of rendered copy sources under `src/` (components, app routes, layout metadata); compare to canonical TR module |
+| **Scope** | V1 expert UI — shell, intake, shared status; spot-check S10/S11 candidate surfaces |
+
+### Verdict: **APPROVE** (2026-09-18 — Real UAT round 1 re-review)
+
+V1 shell, intake, fingerprint, generation, candidate, verification, catalog, and export surfaces consume `src/shared/copy/tr.ts` per `docs/TR_COPY_GLOSSARY.md`. Root layout uses `lang="tr"` and Turkish metadata. Remaining English is limited to demo fixture stems, raw enum/API codes, and catalog seed labels (acceptable per glossary).
+
+### Findings (closure)
+
+| # | Area | Status |
+|---|------|--------|
+| T1–T3 | Copy module + naming + metadata | **PASS** |
+| T4 | Phase pills | **PASS** |
+| T5–T6 | Demo + provenance rail | **PASS** |
+| T7 | S03 upload | **PASS** (drag/drop + TR errors) |
+| T8–T9 | S11 + mission home | **PASS** (glossary terms wired) |
+| T10–T11 | aria-labels + mixed UX | **PASS** |
+
+### Residual (non-blocking)
+
+- Dynamic AI/demo block text may remain Turkish/English mixed in fixture content.
+- Internal field keys (`examTypeId`, `importExternalKey`) stay English by design.
+
+---
+
 ## References
 
 - `docs/UX_SPEC.md` — S10 matrix, S11 editor wireframes, accessibility baseline

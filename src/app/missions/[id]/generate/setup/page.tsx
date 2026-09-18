@@ -8,6 +8,7 @@ import { createFingerprintRepository } from "@/modules/fingerprints/repository/f
 import { createMissionRepository } from "@/modules/missions/repository/mission-repository";
 import { previewTrivialMutationFlags } from "@/shared/validation/trivial-mutation";
 import { prisma } from "@/shared/db/client";
+import { tr } from "@/shared/copy/tr";
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -17,7 +18,7 @@ export default async function GenerationSetupPage({ params }: PageProps) {
   if (!process.env.DATABASE_URL) {
     return (
       <StudioShell missionId={missionId} activePhase="MECHANISM" showBlockers={false}>
-        <p className="text-body text-[var(--qs-text-muted)]">Database offline.</p>
+        <p className="text-body text-[var(--qs-text-muted)]">{tr.mission.databaseOffline}</p>
       </StudioShell>
     );
   }
@@ -37,15 +38,15 @@ export default async function GenerationSetupPage({ params }: PageProps) {
         showBlockers={false}
         header={
           <>
-            <p className="text-mono text-[var(--qs-text-muted)]">S08 · Generation Run Setup</p>
-            <h1 className="text-display mt-1 text-[var(--qs-text)]">Generation run setup</h1>
+            <p className="text-mono text-[var(--qs-text-muted)]">{tr.generation.setupScreen}</p>
+            <h1 className="text-display mt-1 text-[var(--qs-text)]">{tr.generation.setupTitle}</h1>
           </>
         }
       >
         <p className="text-body text-[var(--qs-text-muted)]">
-          Lock a pedagogical fingerprint on this mission before authoring mutation plans. Complete{" "}
+          {tr.generation.lockFingerprintFirst}{" "}
           <Link href="/sources" className="underline">
-            intake → S06 → S07
+            {tr.generation.lockFingerprintPath}
           </Link>
           .
         </p>
@@ -64,8 +65,8 @@ export default async function GenerationSetupPage({ params }: PageProps) {
       showBlockers={false}
       header={
         <>
-          <p className="text-mono text-[var(--qs-text-muted)]">S08 · Generation Run Setup</p>
-          <h1 className="text-display mt-1 text-[var(--qs-text)]">Generation run setup</h1>
+          <p className="text-mono text-[var(--qs-text-muted)]">{tr.generation.setupScreen}</p>
+          <h1 className="text-display mt-1 text-[var(--qs-text)]">{tr.generation.setupTitle}</h1>
         </>
       }
     >

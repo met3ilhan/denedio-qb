@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 
+import { tr } from "@/shared/copy/tr";
 import type { TrivialMutationFlag } from "@/shared/validation/trivial-mutation";
 
 type GenerationSetupWorkspaceProps = {
@@ -45,9 +46,9 @@ export function GenerationSetupWorkspace({
         return;
       }
       setFlags(data.flags ?? []);
-      setMessage("Preview updated.");
+      setMessage(tr.generation.previewUpdated);
     } catch {
-      setMessage("Invalid JSON in mutation plan.");
+      setMessage(tr.generation.invalidPlanJson);
     } finally {
       setBusy(false);
     }
@@ -74,9 +75,9 @@ export function GenerationSetupWorkspace({
         window.location.href = `/missions/${missionId}/generate/run/${data.runId}`;
         return;
       }
-      setMessage("Run saved.");
+      setMessage(tr.generation.runSaved);
     } catch {
-      setMessage("Invalid JSON in mutation plan.");
+      setMessage(tr.generation.invalidPlanJson);
     } finally {
       setBusy(false);
     }
@@ -88,9 +89,10 @@ export function GenerationSetupWorkspace({
       data-testid="generation-setup"
     >
       <section className="min-w-0 rounded-lg border border-[var(--qs-border)] bg-[var(--qs-surface)] p-4">
-        <h2 className="text-title text-[var(--qs-text)]">Mutation plan</h2>
+        <h2 className="text-title text-[var(--qs-text)]">{tr.generation.mutationPlan}</h2>
         <p className="text-body mt-1 text-[var(--qs-text-muted)]">
-          Fingerprint version <span className="font-mono">{fingerprintVersionId}</span>
+          {tr.generation.fingerprintVersion}{" "}
+          <span className="font-mono">{fingerprintVersionId}</span>
         </p>
         <textarea
           className="text-mono mt-4 min-h-[360px] w-full rounded-md border border-[var(--qs-border)] bg-[var(--qs-canvas)] p-3"
@@ -105,7 +107,7 @@ export function GenerationSetupWorkspace({
             onClick={previewGuards}
             className="rounded-md border border-[var(--qs-border)] px-3 py-2 text-sm"
           >
-            Preview trivial-mutation guards
+            {tr.generation.previewGuards}
           </button>
           <button
             type="button"
@@ -113,23 +115,21 @@ export function GenerationSetupWorkspace({
             onClick={persistPlan}
             className="rounded-md bg-[var(--qs-phase-candidates)] px-3 py-2 text-sm font-medium text-white"
           >
-            Save plan to run
+            {tr.generation.savePlanToRun}
           </button>
         </div>
         {message ? <p className="text-body mt-3 text-[var(--qs-text-muted)]">{message}</p> : null}
       </section>
 
       <section className="min-w-0 rounded-lg border border-[var(--qs-border)] bg-[var(--qs-surface)] p-4">
-        <h2 className="text-title text-[var(--qs-text)]">Trivial mutation preview</h2>
-        <p className="text-body mt-1 text-[var(--qs-text-muted)]">
-          Heuristic flags for QUESTION_GENERATION_RULES T1–T6 (not Verifier approval).
-        </p>
+        <h2 className="text-title text-[var(--qs-text)]">{tr.generation.trivialPreview}</h2>
+        <p className="text-body mt-1 text-[var(--qs-text-muted)]">{tr.generation.trivialHint}</p>
         {flags.length === 0 ? (
           <p
             className="mt-4 rounded-md border border-dashed border-[var(--qs-border)] bg-[var(--qs-canvas)] px-3 py-6 text-center text-sm text-[var(--qs-text-muted)]"
             data-testid="trivial-guards-clear"
           >
-            No trivial-mutation flags for this plan.
+            {tr.generation.noTrivialFlags}
           </p>
         ) : (
           <ul className="mt-4 space-y-2" data-testid="trivial-guard-flags">

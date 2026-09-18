@@ -9,6 +9,7 @@ import { generatedQuestionSchema } from "@/shared/validation/generated-question"
 import { mutationPlanSchema } from "@/shared/validation/mutation-plan";
 import { distractorAnalysisSchema } from "@/shared/validation/distractor-analysis";
 import { prisma } from "@/shared/db/client";
+import { tr } from "@/shared/copy/tr";
 
 type PageProps = { params: Promise<{ id: string }>; searchParams: Promise<{ runId?: string }> };
 
@@ -83,8 +84,8 @@ export default async function CandidateComparisonPage({ params, searchParams }: 
       activePhase="CANDIDATES"
       header={
         <>
-          <p className="text-mono text-[var(--qs-text-muted)]">S10 · Candidate comparison</p>
-          <h1 className="text-display mt-1">Mechanism matrix</h1>
+          <p className="text-mono text-[var(--qs-text-muted)]">{tr.candidates.compareScreen}</p>
+          <h1 className="text-display mt-1">{tr.candidates.compareTitle}</h1>
         </>
       }
     >

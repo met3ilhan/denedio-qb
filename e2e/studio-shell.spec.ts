@@ -3,18 +3,18 @@ import { expect, test } from "@playwright/test";
 test.describe("Studio shell", () => {
   test("demo mode banner visible when QUESTION_STUDIO_DEMO_MODE=1", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: "Mission stream" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Görev akışı" })).toBeVisible();
     await expect(page.getByTestId("demo-mode-banner")).toBeVisible();
     await expect(page.getByTestId("demo-mode-banner")).toContainText(/ÖRNEK|DEMO/i);
   });
 
   test("rail shows workflow phases on mission board", async ({ page }) => {
     await page.goto("/");
-    const rail = page.getByRole("navigation", { name: "Workflow phases" });
-    await expect(rail.getByText("Intake")).toBeVisible();
-    await expect(rail.getByText("Mechanism")).toBeVisible();
-    await expect(rail.getByText("Candidates")).toBeVisible();
-    await expect(rail.getByText("Ship")).toBeVisible();
+    const rail = page.getByRole("navigation", { name: "İş akışı aşamaları" });
+    await expect(rail.getByText("Alım")).toBeVisible();
+    await expect(rail.getByText("Mekanizma")).toBeVisible();
+    await expect(rail.getByText("Adaylar")).toBeVisible();
+    await expect(rail.getByText("Yayın")).toBeVisible();
     const blockersEmpty = page.getByTestId("blockers-empty");
     const blockersPanel = page.getByTestId("blockers-panel");
     await expect(blockersEmpty.or(blockersPanel)).toBeVisible();
@@ -33,7 +33,7 @@ test.describe("Studio shell", () => {
     await page.goto("/");
     await page.keyboard.press("Tab");
     const first = await page.evaluate(() => document.activeElement?.textContent?.trim());
-    expect(first).toMatch(/Pedagogy Signal Lab|New source intake/i);
+    expect(first).toMatch(/Pedagoji Sinyal Laboratuvarı|Yeni kaynak alımı/i);
 
     await page.keyboard.press("Tab");
     const second = await page.evaluate(() => document.activeElement?.textContent?.trim());
@@ -42,15 +42,15 @@ test.describe("Studio shell", () => {
 
   test("command palette opens with Ctrl+K", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: "Mission stream" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Görev akışı" })).toBeVisible();
     await page.keyboard.press("Control+K");
     await expect(page.getByTestId("command-palette")).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByRole("dialog", { name: "Command palette" })).toBeVisible();
+    await expect(page.getByRole("dialog", { name: "Komut paleti" })).toBeVisible();
   });
 
   test("/studio redirects to mission board", async ({ page }) => {
     await page.goto("/studio");
     await expect(page).toHaveURL("/");
-    await expect(page.getByRole("heading", { name: "Mission stream" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Görev akışı" })).toBeVisible();
   });
 });

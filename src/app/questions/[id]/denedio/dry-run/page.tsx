@@ -6,6 +6,7 @@ import { StudioShell } from "@/components/studio/StudioShell";
 import { createExportRepository } from "@/modules/export/repository/export-repository";
 import { listMissionBlockers } from "@/modules/missions/services/mission-blockers";
 import { prisma } from "@/shared/db/client";
+import { tr } from "@/shared/copy/tr";
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -32,14 +33,14 @@ export default async function DryRunPage({ params }: PageProps) {
       blockers={blockers}
       header={
         <>
-          <p className="font-mono text-xs text-[var(--qs-text-muted)]">S18 · Dry run & export gate</p>
-          <h1 className="mt-1 text-xl font-semibold">Import validation</h1>
+          <p className="font-mono text-xs text-[var(--qs-text-muted)]">{tr.export.dryRunScreen}</p>
+          <h1 className="mt-1 text-xl font-semibold">{tr.export.dryRunTitle}</h1>
         </>
       }
     >
       <nav className="mb-4 flex gap-3 text-sm">
-        <Link href={`/questions/${id}/denedio/map`} className="underline">S17 mapping</Link>
-        <Link href="/catalog" className="underline">S16 catalog</Link>
+        <Link href={`/questions/${id}/denedio/map`} className="underline">{tr.export.mappingLink}</Link>
+        <Link href="/catalog" className="underline">{tr.export.catalogLink}</Link>
       </nav>
       <DryRunConsole
         generatedQuestionId={question.id}

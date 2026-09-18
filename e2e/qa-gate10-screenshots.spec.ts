@@ -84,7 +84,7 @@ test.describe("Gate 10 QA screenshot capture", () => {
     await page.setViewportSize({ width: 1440, height: 900 });
 
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: "Mission stream" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Görev akışı" })).toBeVisible();
     await shot(page, "home-1440");
 
     await page.goto(`/sources/${sourceFileId}/structured`);

@@ -1,4 +1,5 @@
 import { isDemoMode } from "@/shared/ai/demo";
+import { tr } from "@/shared/copy/tr";
 
 export function DemoModeBanner() {
   if (!isDemoMode()) return null;
@@ -9,11 +10,8 @@ export function DemoModeBanner() {
       data-testid="demo-mode-banner"
       role="status"
     >
-      <span className="font-semibold">ÖRNEK / DEMO</span>
-      <span className="ml-2 text-amber-900">
-        Deterministic mock fixtures — not live AI output. Disable{" "}
-        <code className="font-mono text-xs">QUESTION_STUDIO_DEMO_MODE</code> for provider generation.
-      </span>
+      <span className="font-semibold">{tr.demo.badge}</span>
+      <span className="ml-2 text-amber-900">{tr.demo.body}</span>
     </div>
   );
 }

@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
+import { extractionStateLabel, tr } from "@/shared/copy/tr";
+
 type SourceListItem = {
   id: string;
   originalFilename: string;
@@ -39,7 +41,7 @@ export function SourcesLibraryTable() {
       <div className="flex flex-wrap gap-2">
         <input
           className="min-w-[200px] flex-1 rounded-md border border-[var(--qs-border)] px-3 py-2 text-sm"
-          placeholder="Filter by name or subject"
+          placeholder={tr.sources.filterPlaceholder}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           data-testid="sources-filter-query"
@@ -50,18 +52,18 @@ export function SourcesLibraryTable() {
           onChange={(e) => setExtraction(e.target.value)}
           data-testid="sources-filter-extraction"
         >
-          <option value="any">All extraction states</option>
-          <option value="PENDING">Queued</option>
-          <option value="RUNNING">Running</option>
-          <option value="SUCCEEDED">Succeeded</option>
-          <option value="FAILED">Failed</option>
+          <option value="any">{tr.sources.allExtractionStates}</option>
+          <option value="PENDING">{tr.sources.extractionQueued}</option>
+          <option value="RUNNING">{tr.sources.extractionRunning}</option>
+          <option value="SUCCEEDED">{tr.sources.extractionSucceeded}</option>
+          <option value="FAILED">{tr.sources.extractionFailed}</option>
         </select>
         <button
           type="button"
           className="rounded-md border border-[var(--qs-border)] px-3 py-2 text-sm"
           onClick={() => void load()}
         >
-          Apply
+          {tr.common.apply}
         </button>
       </div>
 
@@ -69,24 +71,24 @@ export function SourcesLibraryTable() {
         <table className="w-full min-w-[640px] text-left text-sm">
           <thead className="border-b border-[var(--qs-border)] bg-[var(--qs-canvas)] font-mono text-[10px] uppercase tracking-wide text-[var(--qs-text-muted)]">
             <tr>
-              <th className="px-3 py-2">Name</th>
-              <th className="px-3 py-2">Subject</th>
-              <th className="px-3 py-2">Extraction</th>
-              <th className="px-3 py-2">Fingerprint</th>
-              <th className="px-3 py-2">Mission</th>
+              <th className="px-3 py-2">{tr.sources.colName}</th>
+              <th className="px-3 py-2">{tr.sources.colSubject}</th>
+              <th className="px-3 py-2">{tr.sources.colExtraction}</th>
+              <th className="px-3 py-2">{tr.sources.colFingerprint}</th>
+              <th className="px-3 py-2">{tr.sources.colMission}</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={5} className="px-3 py-6 text-[var(--qs-text-muted)]">Loading…</td>
+                <td colSpan={5} className="px-3 py-6 text-[var(--qs-text-muted)]">{tr.common.loading}</td>
               </tr>
             ) : items.length === 0 ? (
               <tr>
                 <td colSpan={5} className="px-3 py-6 text-[var(--qs-text-muted)]">
-                  No sources yet.{" "}
+                  {tr.sources.noSources}{" "}
                   <Link href="/sources/new" className="text-[var(--qs-phase-intake)] underline">
-                    Upload
+                    {tr.common.upload}
                   </Link>
                 </td>
               </tr>
@@ -103,9 +105,9 @@ export function SourcesLibraryTable() {
                     </Link>
                   </td>
                   <td className="px-3 py-2 text-[var(--qs-text-muted)]">
-                    {row.subjectHint ?? "—"}
+                    {row.subjectHint ?? tr.common.none}
                   </td>
-                  <td className="px-3 py-2 font-mono text-xs">{row.extractionState}</td>
+                  <td className="px-3 py-2 font-mono text-xs">{extractionStateLabel(row.extractionState)}</td>
                   <td className="px-3 py-2 font-mono text-xs">{row.fingerprintState}</td>
                   <td className="px-3 py-2 text-xs text-[var(--qs-text-muted)]">{row.mission.title}</td>
                 </tr>

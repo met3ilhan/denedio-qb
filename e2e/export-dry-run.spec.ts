@@ -103,7 +103,7 @@ test.describe("S18 dry-run export gate", () => {
     ]);
     const failBody = (await failResponse[0].json()) as { passed: boolean };
     expect(failBody.passed).toBe(false);
-    await expect(page.getByTestId("dry-run-banner")).toContainText(/FAIL|not run/);
+    await expect(page.getByTestId("dry-run-banner")).toContainText(/BAŞARISIZ|çalıştırılmadı/i);
     await expect(page.getByTestId("export-download")).toBeDisabled();
 
     await request.put(`/api/questions/${generatedQuestionId}/denedio/mapping`, {
@@ -125,7 +125,7 @@ test.describe("S18 dry-run export gate", () => {
     ]);
     const passBody = (await passResponse[0].json()) as { passed: boolean; issues?: unknown[] };
     expect(passBody.passed, JSON.stringify(passBody.issues)).toBe(true);
-    await expect(page.getByTestId("dry-run-banner")).toContainText("PASS");
+    await expect(page.getByTestId("dry-run-banner")).toContainText(/GEÇTİ/i);
     await expect(page.getByTestId("export-download")).toBeEnabled();
     await expect(page.getByTestId("publish-denedio")).toBeDisabled();
   });
@@ -141,7 +141,7 @@ test.describe("S18 dry-run export gate", () => {
   test("catalog UUID picker blocks invalid UUID", async ({ page }) => {
     await page.goto("/catalog");
     await page.getByTestId("catalog-uuid-input").fill("not-a-uuid");
-    await page.getByRole("button", { name: "Validate UUID" }).click();
+    await page.getByRole("button", { name: "UUID doğrula" }).click();
     await expect(page.getByTestId("catalog-uuid-error")).toBeVisible();
   });
 });

@@ -84,8 +84,25 @@ No uncaught console errors observed during Playwright runs. Server errors: none 
 - Live AI provider not exercised.
 - W5 catalog UUID seed behavior unchanged (OPEN).
 
+## REAL USER ACCEPTANCE — ROUND 1 (2026-09-18)
+
+| Defect | Reproduction | Root cause | Fix |
+|--------|--------------|------------|-----|
+| BUG-UAT-001 drag/drop | Drop ignored on S03 | No DnD handlers on dropzone | `SourceUploadWizard` drag events + `applyFile()` |
+| BUG-UAT-002 upload fail | Picker → generic failure | Missing `DATABASE_URL` + octet-stream MIME | `local-env.ts` defaults + `resolveSourceMimeType` |
+| BUG-UAT-003 English UI | Shell/intake English | No `tr` layer | `tr.ts` + glossary migration |
+
+| Check | Result |
+|-------|--------|
+| Real PNG/JPG upload E2E | **PASS** (`sources-upload-acceptance.spec.ts` 7/7) |
+| DataTransfer drop E2E | **PASS** |
+| Turkish error paths | **PASS** (client + mocked API failure) |
+| Full Playwright | **27/27 PASS** |
+| Vitest | **61 passed**, 1 skipped |
+| Manual browser S03 | **PASS** (Turkish dropzone, title Soru Stüdyosu) |
+
 ## Final Tester Verdict
 
 **PASS**
 
-**Signed:** Tester (automated evidence + e2e 20/20 on closure run)
+**Signed:** Tester — Real UAT round 1 + Playwright **27/27**

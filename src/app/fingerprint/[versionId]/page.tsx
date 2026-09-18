@@ -5,12 +5,13 @@ import { StudioShell } from "@/components/studio/StudioShell";
 import { createFingerprintRepository } from "@/modules/fingerprints/repository/fingerprint-repository";
 import { pedagogicalFingerprintSchema } from "@/shared/validation/pedagogical-fingerprint";
 import { prisma } from "@/shared/db/client";
+import { tr } from "@/shared/copy/tr";
 
 type PageProps = { params: Promise<{ versionId: string }> };
 
 const DIMENSION_GROUPS = [
   {
-    group: "Mechanism",
+    group: tr.fingerprint.groups.mechanism,
     keys: [
       "measured_skill",
       "learning_objective",
@@ -24,11 +25,11 @@ const DIMENSION_GROUPS = [
     ],
   },
   {
-    group: "Burden",
+    group: tr.fingerprint.groups.burden,
     keys: ["calculation_burden", "language_burden", "visual_reasoning_burden", "expected_solve_time_seconds"],
   },
   {
-    group: "Distractors",
+    group: tr.fingerprint.groups.distractors,
     keys: [
       "distractor_mechanisms",
       "misconception_targets",
@@ -38,7 +39,7 @@ const DIMENSION_GROUPS = [
     ],
   },
   {
-    group: "Surface",
+    group: tr.fingerprint.groups.surface,
     keys: ["question_archetype", "mutable_surface_notes"],
   },
 ];
@@ -63,8 +64,8 @@ export default async function FingerprintStudioPage({ params }: PageProps) {
       showBlockers={false}
       header={
         <>
-          <p className="text-mono text-[var(--qs-text-muted)]">S07 · Fingerprint Studio</p>
-          <h1 className="text-display mt-1 text-[var(--qs-text)]">Fingerprint Studio</h1>
+          <p className="text-mono text-[var(--qs-text-muted)]">{tr.fingerprint.studioScreen}</p>
+          <h1 className="text-display mt-1 text-[var(--qs-text)]">{tr.fingerprint.studioTitle}</h1>
         </>
       }
     >

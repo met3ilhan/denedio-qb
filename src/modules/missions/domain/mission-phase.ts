@@ -8,10 +8,10 @@ export const MISSION_PHASE_ORDER: MissionPhase[] = [
 ];
 
 export const MISSION_PHASE_LABELS: Record<MissionPhase, string> = {
-  INTAKE: "Intake",
-  MECHANISM: "Mechanism",
-  CANDIDATES: "Candidates",
-  SHIP: "Ship",
+  INTAKE: "Alım",
+  MECHANISM: "Mekanizma",
+  CANDIDATES: "Adaylar",
+  SHIP: "Yayın",
 };
 
 export const MISSION_PHASE_ROUTE_SEGMENT: Record<MissionPhase, string> = {

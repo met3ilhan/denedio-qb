@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { tr } from "@/shared/copy/tr";
 import type { VerificationResult } from "@/shared/validation/verification-result";
 
 type ApprovalWorkspaceProps = {
@@ -42,24 +43,24 @@ export function ApprovalWorkspace({ candidateId, verification, stale }: Approval
     await fetch(`/api/candidates/${candidateId}/reject`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ reason: comment || "Send back" }),
+      body: JSON.stringify({ reason: comment || tr.candidates.sendBack }),
     });
-    setMessage("Candidate rejected.");
+    setMessage(tr.candidates.rejected);
   }
 
   return (
     <div data-testid="approval-workspace">
       <p className="text-body text-[var(--qs-text-muted)]">
-        Gate: <span data-testid="approval-gate">{verification?.quality_gate ?? "none"}</span>
+        {tr.candidates.gate}: <span data-testid="approval-gate">{verification?.quality_gate ?? tr.status.unknown}</span>
       </p>
       {blocked ? (
         <p className="mt-2 text-sm text-red-700" data-testid="approval-blocked">
-          Approval blocked until verification passes and is current.
+          {tr.candidates.approvalBlocked}
         </p>
       ) : null}
       <textarea
         className="text-body mt-4 min-h-[100px] w-full rounded-md border border-[var(--qs-border)] p-3"
-        placeholder="Expert comment"
+        placeholder={tr.candidates.expertComment}
         value={comment}
         onChange={(e) => setComment(e.target.value)}
       />
@@ -71,14 +72,14 @@ export function ApprovalWorkspace({ candidateId, verification, stale }: Approval
           className="rounded-md bg-[var(--qs-phase-ship)] px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
           data-testid="approve-button"
         >
-          Approve candidate
+          {tr.candidates.approveCandidate}
         </button>
         <button
           type="button"
           onClick={reject}
           className="rounded-md border border-[var(--qs-border)] px-3 py-2 text-sm"
         >
-          Reject
+          {tr.candidates.reject}
         </button>
       </div>
       {message ? <p className="text-body mt-2">{message}</p> : null}

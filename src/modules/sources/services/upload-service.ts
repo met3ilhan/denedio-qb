@@ -2,7 +2,12 @@ import { randomUUID } from "node:crypto";
 
 import { createMissionRepository } from "@/modules/missions/repository/mission-repository";
 import type { PrismaClient } from "@/shared/db/client";
-import { getObjectStorage, isAllowedMimeType, validateUploadSize } from "@/shared/storage";
+import {
+  getObjectStorage,
+  isAllowedMimeType,
+  resolveSourceMimeType,
+  validateUploadSize,
+} from "@/shared/storage";
 import { NoOpVirusScanHook } from "@/shared/storage/virus-scan";
 
 import { createSourceRepository } from "../repository/source-repository";
@@ -29,7 +34,7 @@ export class UploadService {
   ) {}
 
   async uploadIntake(input: UploadSourceInput): Promise<UploadSourceResult> {
-    const mimeType = input.file.type || "application/octet-stream";
+    const mimeType = resolveSourceMimeType(input.file.name, input.file.type || "");
     if (!isAllowedMimeType(mimeType)) {
       throw new UploadValidationError("UNSUPPORTED_TYPE", `Unsupported file type: ${mimeType}`);
     }

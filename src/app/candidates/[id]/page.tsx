@@ -8,6 +8,7 @@ import { distractorAnalysisSchema } from "@/shared/validation/distractor-analysi
 import { generatedQuestionSchema } from "@/shared/validation/generated-question";
 import { mutationPlanSchema } from "@/shared/validation/mutation-plan";
 import { prisma } from "@/shared/db/client";
+import { tr } from "@/shared/copy/tr";
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -44,10 +45,10 @@ export default async function CandidateInspectorPage({ params }: PageProps) {
       activePhase="CANDIDATES"
       header={
         <>
-          <p className="text-mono text-[var(--qs-text-muted)]">S11 · Candidate inspector</p>
-          <h1 className="text-display mt-1">Edit & distractor metadata</h1>
+          <p className="text-mono text-[var(--qs-text-muted)]">{tr.candidates.inspectorScreen}</p>
+          <h1 className="text-display mt-1">{tr.candidates.inspectorTitle}</h1>
           <Link href={`/candidates/${id}/verification`} className="text-sm underline">
-            Open S12 verification
+            {tr.candidates.openVerification}
           </Link>
         </>
       }

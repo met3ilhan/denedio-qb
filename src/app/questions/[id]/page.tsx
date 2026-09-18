@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { StudioShell } from "@/components/studio/StudioShell";
 import { generatedQuestionSchema } from "@/shared/validation/generated-question";
 import { prisma } from "@/shared/db/client";
+import { tr } from "@/shared/copy/tr";
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -28,8 +29,8 @@ export default async function QuestionRecordPage({ params }: PageProps) {
       activePhase="SHIP"
       header={
         <>
-          <p className="text-mono text-[var(--qs-text-muted)]">S14 · Question record</p>
-          <h1 className="text-display mt-1">Approved question</h1>
+          <p className="text-mono text-[var(--qs-text-muted)]">{tr.questions.recordScreen}</p>
+          <h1 className="text-display mt-1">{tr.questions.recordTitle}</h1>
         </>
       }
     >
@@ -39,12 +40,12 @@ export default async function QuestionRecordPage({ params }: PageProps) {
           <p className="text-body mt-4">{content.stem.questionText}</p>
         ) : null}
         <nav className="mt-4 flex flex-wrap gap-3 text-sm">
-          <a href={`/questions/${question.id}/denedio/map`} className="underline">S17 mapping</a>
-          <a href={`/questions/${question.id}/denedio/dry-run`} className="underline">S18 dry-run</a>
-          <a href="/catalog" className="underline">S16 catalog</a>
+          <a href={`/questions/${question.id}/denedio/map`} className="underline">{tr.export.mappingLink}</a>
+          <a href={`/questions/${question.id}/denedio/dry-run`} className="underline">{tr.export.dryRunLink}</a>
+          <a href="/catalog" className="underline">{tr.export.catalogLink}</a>
         </nav>
         <section className="mt-6">
-          <h2 className="text-title">Version history (S15)</h2>
+          <h2 className="text-title">{tr.questions.versionHistory}</h2>
           <ul className="mt-2 text-sm">
             {question.versions.map((v) => (
               <li key={v.id} data-testid={`version-${v.versionNumber}`}>

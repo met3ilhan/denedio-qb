@@ -5,6 +5,7 @@ import { DenedioMapperWorkspace } from "@/components/export/DenedioMapperWorkspa
 import { StudioShell } from "@/components/studio/StudioShell";
 import { listMissionBlockers } from "@/modules/missions/services/mission-blockers";
 import { prisma } from "@/shared/db/client";
+import { tr } from "@/shared/copy/tr";
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -28,15 +29,15 @@ export default async function DenedioMapPage({ params }: PageProps) {
       blockers={blockers}
       header={
         <>
-          <p className="font-mono text-xs text-[var(--qs-text-muted)]">S17 · Denedio payload mapper</p>
-          <h1 className="mt-1 text-xl font-semibold">Field mapping</h1>
+          <p className="font-mono text-xs text-[var(--qs-text-muted)]">{tr.export.mapScreen}</p>
+          <h1 className="mt-1 text-xl font-semibold">{tr.export.mapTitle}</h1>
         </>
       }
     >
       <nav className="mb-4 flex gap-3 text-sm">
-        <Link href={`/questions/${id}`} className="underline">S14 record</Link>
-        <Link href={`/questions/${id}/denedio/dry-run`} className="underline">S18 dry-run</Link>
-        <Link href="/catalog" className="underline">S16 catalog</Link>
+        <Link href={`/questions/${id}`} className="underline">{tr.export.recordLink}</Link>
+        <Link href={`/questions/${id}/denedio/dry-run`} className="underline">{tr.export.dryRunLink}</Link>
+        <Link href="/catalog" className="underline">{tr.export.catalogLink}</Link>
       </nav>
       <DenedioMapperWorkspace
         generatedQuestionId={question.id}

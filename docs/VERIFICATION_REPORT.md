@@ -721,3 +721,101 @@ Golden **source** ferry item: distractor causality **SUPPORTED** (≥3) with zer
 | **10** Product completion | **APPROVE** | TEST_REPORT evidence; blockers 1–4 closed; Gates 0–8 unchanged |
 
 ## **VERIFIER APPROVE (Gate 10 — LOCAL V1)**
+
+---
+
+## Gate 10 — Post–UAT bug bash re-verification (S03 intake)
+
+### Run metadata
+
+| Field | Value |
+|-------|--------|
+| **Scope** | Real-user UAT findings `docs/UAT_BUG_REPORT.md` (BUG-UAT-001 drag/drop, BUG-UAT-002 MIME + `DATABASE_URL`); regression `e2e/sources-upload-acceptance.spec.ts`; Turkish copy adoption vs `docs/DESIGN_QA.md` TURKISH UI AUDIT |
+| **Date** | 2026-09-18 |
+| **Role** | Verifier (independent re-run) |
+| **Branch** | `build/question-studio-v1` |
+| **Git** | `6c99570` (+ working-tree UAT fixes not necessarily committed) |
+| **Inputs** | `docs/UAT_BUG_REPORT.md`, `docs/TEST_REPORT.md` (prior 20/20 on `fdac8d5`), `docs/DESIGN_QA.md`, `docs/TR_COPY_GLOSSARY.md`; **`docs/UAT_REPORT.md` not present** |
+
+### Independent commands (this run)
+
+| Command | Result |
+|---------|--------|
+| `pnpm test` | **PASS** — 61 passed, 1 skipped (includes `policy.test.ts` MIME inference) |
+| `pnpm exec playwright test e2e/sources-upload-acceptance.spec.ts` | **PASS** — **7/7** |
+| `pnpm test:e2e` (build + full suite) | **FAIL** — **20 passed**, **5 failed**, **2 skipped** (27 total) |
+
+**Playwright failures (TR migration vs stale assertions, not upload regressions):**
+
+| Spec | Cause |
+|------|--------|
+| `e2e/home.spec.ts` | Title/link still assert English; UI is `tr.app` (**Soru Stüdyosu**, **Pedagoji Sinyal Laboratuvarı**) |
+| `e2e/studio-shell.spec.ts` (3) | Rail aria/phase labels and command palette `aria-label` still English in tests; UI Turkish (`Alım`, `İş akışı aşamaları`, etc.) |
+| `e2e/export-dry-run.spec.ts` | Banner asserts `/FAIL\|not run/`; UI shows Turkish **BAŞARISIZ veya çalıştırılmadı…** |
+
+---
+
+### UAT bug closure evidence
+
+| ID | Fix verified in code | Regression |
+|----|----------------------|------------|
+| **BUG-UAT-001** | `SourceUploadWizard.tsx`: `onDragOver` / `onDragLeave` / `onDrop` with `preventDefault`, `dragActive`, `applyFile()`, multi-file → `tr.upload.errors.multipleFiles` | E2E **accepts PNG via DataTransfer drop** |
+| **BUG-UAT-002** | `resolveSourceMimeType()` in `policy.ts`; `upload-service.ts` validates resolved MIME; `ensureLocalDevelopmentDefaults()` in `local-env.ts` imported from `client.ts`; upload route maps `DB_UNAVAILABLE` via `upload-errors.ts` | Unit **policy.test.ts**; E2E full PNG path → `/sources/.../extraction` |
+
+**UAT checklist (from bug report):**
+
+| Item | Status |
+|------|--------|
+| Single PNG/PDF drop selects file | **PASS** (code + E2E drop) |
+| Multi-file drop shows TR error | **PASS** (code); **no dedicated E2E** |
+| Invalid extension → `Dosya türü desteklenmiyor.` | **PASS** (E2E) |
+| E2E in `pnpm test:e2e` | **PASS** (7 tests; included in full suite) |
+
+---
+
+### Explicit verification matrix (user report)
+
+| Area | Verdict | Notes |
+|------|---------|--------|
+| **Drag/drop** | **PASS** | Dropzone handlers wired; active state + `applyFile` shared with picker |
+| **File picker** | **PASS** | Hidden input + click/keyboard; PNG/JPG preview `upload-image-preview` |
+| **Persistence** | **PASS** (with DB up) | E2E reaches extraction timeline; `local-env` default `DATABASE_URL` when unset in dev; Prisma P100x → 503 + TR `dbUnavailable` |
+| **Turkish UI** | **PASS (intake + shell); WARN (suite)** | Widespread `tr.ts` imports (layout `lang="tr"`, rail, mission home, S03 wizard, demo banner); `DESIGN_QA.md` TURKISH audit snapshot **stale** vs working tree; **E2E not updated** (DESIGN_QA P2) |
+| **Workflow** | **PASS** | S03 step 1 → metadata → **Çıkarmayı başlat** → `/sources/{id}/extraction` (E2E) |
+| **Console/network** | **PASS** (automated scope) | Upload acceptance mocks 500 → TR storage error; no new blocking server errors in Playwright upload run |
+| **README** | **PARTIAL** | Documents default compose URL; **does not** state dev auto-default when `.env.local` is omitted (`ensureLocalDevelopmentDefaults`) — UAT doc gap |
+
+---
+
+### Gate 9 re-approval
+
+| Lens | Verdict | Rationale |
+|------|---------|-----------|
+| **Design (Pass A/B)** | **VERIFIER RE-APPROVE** | `docs/DESIGN_QA.md` final **APPROVE** for S10/S11/layout unchanged by UAT fixes |
+| **Turkish UI gate** | **RE-APPROVE WITH WARNING (G9-TR-W1)** | S03 + shell/metadata meet glossary intent in code; full **≥95% / designer screenshot** bar not re-audited; **5 E2E failures** prove tests lag UI TR migration |
+
+---
+
+### Gate 10 decision (post–UAT)
+
+| Criterion | Assessment |
+|-----------|------------|
+| UAT intake release gate (`UAT_BUG_REPORT.md`) | **Met** — BUG-UAT-001/002 closed with automated regression |
+| Prior Gate 10 LOCAL V1 bar (`TEST_REPORT.md` 20/20) | **Not met on this tree** — **22/27** tests executable; **5 fail** on English assertions after TR UI |
+| Pedagogy / Gates 3–7 | **Unchanged** — out of scope for this UAT pass |
+
+## **REJECT (Gate 10 full re-signoff)**
+
+**Issued:** **VERIFIER APPROVE (UAT S03 intake — BUG-UAT-001/002)**  
+**Not re-issued:** **VERIFIER APPROVE (Gate 10 — full product / full Playwright suite)** until E2E expectations align with Turkish UI (`home`, `studio-shell`, `export-dry-run`) and `pnpm test:e2e` is green.
+
+**May S03 → extraction golden path ship on this branch:** **YES** (UAT blockers cleared in code + upload acceptance E2E).
+
+**May treat Gate 10 as closed:** **NO** — fix TR E2E drift; refresh `docs/TEST_REPORT.md`; optional README line for dev `DATABASE_URL` default.
+
+### Recommended next actions
+
+1. Update `e2e/home.spec.ts`, `e2e/studio-shell.spec.ts`, `e2e/export-dry-run.spec.ts` to assert Turkish copy / `tr` aria labels.
+2. Add optional E2E: multi-file drop → `tr.upload.errors.multipleFiles`.
+3. README: one sentence on `ensureLocalDevelopmentDefaults()` when `.env.local` is missing.
+4. Re-run `pnpm test:e2e` → target **27/27**; Tester refresh `docs/TEST_REPORT.md`.

@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useState } from "react";
 
+import { tr } from "@/shared/copy/tr";
+
 type DryRunIssue = {
   level: string;
   code: string;
@@ -35,7 +37,7 @@ export function DryRunConsole({
     const data = await res.json();
     if (!res.ok) {
       setPassed(false);
-      setIssues([{ level: "error", code: "HTTP", message: data.error ?? "Dry-run request failed" }]);
+      setIssues([{ level: "error", code: "HTTP", message: data.error ?? tr.export.dryRunFailed }]);
       setRunning(false);
       return;
     }
@@ -49,7 +51,7 @@ export function DryRunConsole({
     const res = await fetch(`/api/questions/${generatedQuestionId}/denedio/export`);
     if (!res.ok) {
       const body = (await res.json()) as { error?: string };
-      setExportError(body.error ?? "Export blocked");
+      setExportError(body.error ?? tr.export.exportBlocked);
       return;
     }
     const blob = await res.blob();
@@ -71,11 +73,11 @@ export function DryRunConsole({
             : "border-amber-300 bg-amber-50 text-amber-950"
         }`}
       >
-        {passed ? "PASS — export bundle enabled" : "FAIL or not run — export disabled"}
+        {passed ? tr.export.passBanner : tr.export.failBanner}
       </div>
 
       <p className="font-mono text-xs text-[var(--qs-text-muted)]">
-        importExternalKey preview: {importExternalKey}
+        {tr.export.importKeyPreview} {importExternalKey}
       </p>
 
       <div className="flex flex-wrap gap-2">
@@ -86,7 +88,7 @@ export function DryRunConsole({
           className="rounded-md bg-[var(--qs-phase-ship)] px-3 py-2 text-sm font-medium text-white disabled:opacity-60"
           onClick={() => void runDryRun()}
         >
-          Run dry-run
+          {tr.export.runDryRun}
         </button>
         <button
           type="button"
@@ -95,16 +97,16 @@ export function DryRunConsole({
           className="rounded-md border border-[var(--qs-border)] px-3 py-2 text-sm disabled:opacity-50"
           onClick={() => void downloadBundle()}
         >
-          Download export bundle
+          {tr.export.downloadBundle}
         </button>
         <button
           type="button"
           data-testid="publish-denedio"
           disabled
-          title="Publishing to Denedio is disabled in V1"
+          title={tr.export.publishDisabledTitle}
           className="rounded-md border border-dashed border-[var(--qs-border)] px-3 py-2 text-sm text-[var(--qs-text-muted)]"
         >
-          Publish to Denedio (disabled)
+          {tr.export.publishDisabled}
         </button>
       </div>
 
@@ -113,10 +115,10 @@ export function DryRunConsole({
       ) : null}
 
       <section>
-        <h2 className="text-sm font-semibold">Issues</h2>
+        <h2 className="text-sm font-semibold">{tr.export.issues}</h2>
         <ul className="mt-2 space-y-2 text-sm" data-testid="dry-run-issues">
           {issues.length === 0 ? (
-            <li className="text-[var(--qs-text-muted)]">No issues recorded.</li>
+            <li className="text-[var(--qs-text-muted)]">{tr.export.noIssues}</li>
           ) : (
             issues.map((issue, idx) => (
               <li key={`${issue.code}-${idx}`} className="rounded border border-[var(--qs-border)] p-2">

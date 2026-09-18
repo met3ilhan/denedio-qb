@@ -4,6 +4,7 @@ import { VerificationFindingsWorkspace } from "@/components/candidates/Verificat
 import { StudioShell } from "@/components/studio/StudioShell";
 import { createCandidateRepository } from "@/modules/candidates/repository/candidate-repository";
 import { prisma } from "@/shared/db/client";
+import { tr } from "@/shared/copy/tr";
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -27,8 +28,8 @@ export default async function CandidateVerificationPage({ params }: PageProps) {
       activePhase="CANDIDATES"
       header={
         <>
-          <p className="text-mono text-[var(--qs-text-muted)]">S12 · Verification findings</p>
-          <h1 className="text-display mt-1">PASS / WARNING / FAIL</h1>
+          <p className="text-mono text-[var(--qs-text-muted)]">{tr.candidates.verificationScreen}</p>
+          <h1 className="text-display mt-1">{tr.candidates.verificationTitle}</h1>
         </>
       }
     >

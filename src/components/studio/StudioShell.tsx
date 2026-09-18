@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import type { MissionBlocker } from "@/modules/missions/services/mission-blockers";
 import { isDemoMode } from "@/shared/ai/demo";
+import { tr } from "@/shared/copy/tr";
 
 import { BlockersPanel } from "./BlockersPanel";
 import { MissionBlockersPanel } from "./MissionBlockersPanel";
@@ -44,10 +45,8 @@ export function StudioShell({
             data-testid="demo-mode-banner"
             role="status"
           >
-            <span className="font-semibold">ÖRNEK / DEMO</span>
-            <span className="ml-2 text-amber-900">
-              Deterministic mock fixtures — not live AI output.
-            </span>
+            <span className="font-semibold">{tr.demo.badge}</span>
+            <span className="ml-2 text-amber-900">{tr.demo.body}</span>
           </div>
         ) : null}
         <header
@@ -56,9 +55,9 @@ export function StudioShell({
           <div className="min-w-0 flex-1">
             {header ?? (
               <>
-                <p className="font-mono text-xs text-[var(--qs-text-muted)]">S01 · Mission Board</p>
+                <p className="font-mono text-xs text-[var(--qs-text-muted)]">{tr.shell.missionBoard}</p>
                 <h1 className="mt-1 text-xl font-semibold tracking-tight text-[var(--qs-text)] sm:text-[28px] sm:leading-[34px]">
-                  Mission stream
+                  {tr.shell.missionStream}
                 </h1>
               </>
             )}

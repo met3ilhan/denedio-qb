@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { EvidenceSpan } from "@/components/fingerprint/EvidenceSpan";
+import { tr } from "@/shared/copy/tr";
 
 type DimensionRow = {
   key: string;
@@ -41,13 +42,13 @@ export function FingerprintDraftWorkspace({
 
   const blockPreview = useMemo(() => {
     const block = blocks.find((b) => b.blockId === activeBlockId);
-    return block?.text ?? blocks[0]?.text ?? "No structured block selected.";
+    return block?.text ?? blocks[0]?.text ?? tr.fingerprint.noBlockSelected;
   }, [activeBlockId, blocks]);
 
   return (
     <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
       <section className="min-w-0 rounded-lg border border-[var(--qs-border)] bg-[var(--qs-surface)] p-4">
-        <h2 className="text-title text-[var(--qs-text)]">Dimensions</h2>
+        <h2 className="text-title text-[var(--qs-text)]">{tr.fingerprint.dimensions}</h2>
         <ul className="mt-4 space-y-2">
           {dimensions.map((row) => (
             <li
@@ -59,7 +60,7 @@ export function FingerprintDraftWorkspace({
                   {row.key}
                 </span>
                 <span className="font-mono text-[10px] text-[var(--qs-text-muted)]">
-                  {row.confidence}
+                  {tr.confidence[row.confidence]}
                 </span>
               </div>
               <p className="text-body mt-1 text-[var(--qs-text)]">{row.value}</p>
@@ -71,7 +72,7 @@ export function FingerprintDraftWorkspace({
             className="mt-4 rounded-md border border-[var(--qs-severity-minor)] bg-[var(--qs-mutable-bg)] p-3 text-sm text-[var(--qs-text)]"
             data-testid="fingerprint-gap-warnings"
           >
-            <p className="font-semibold">Gap warnings</p>
+            <p className="font-semibold">{tr.fingerprint.gapWarnings}</p>
             <ul className="mt-2 list-disc pl-5">
               {gapWarnings.map((w) => (
                 <li key={w}>{w}</li>
@@ -84,12 +85,12 @@ export function FingerprintDraftWorkspace({
           className="mt-4 inline-flex rounded-md bg-[var(--qs-phase-mechanism)] px-3 py-2 text-sm font-medium text-white"
           data-testid="open-fingerprint-studio"
         >
-          Open in Fingerprint Studio
+          {tr.fingerprint.openStudio}
         </Link>
       </section>
 
       <section className="min-w-0 rounded-lg border border-[var(--qs-border)] bg-[var(--qs-surface)] p-4">
-        <h2 className="text-title text-[var(--qs-text)]">Evidence spans</h2>
+        <h2 className="text-title text-[var(--qs-text)]">{tr.fingerprint.evidenceSpans}</h2>
         <div className="mt-4 space-y-2">
           {evidence.map((row) => (
             <EvidenceSpan
@@ -104,12 +105,12 @@ export function FingerprintDraftWorkspace({
         </div>
         <div className="mt-4 rounded-md border border-[var(--qs-border)] bg-[var(--qs-canvas)] p-4">
           <p className="font-mono text-[10px] uppercase text-[var(--qs-text-muted)]">
-            Structured source highlight
+            {tr.fingerprint.structuredHighlight}
           </p>
           <p className="text-body mt-2 whitespace-pre-wrap text-[var(--qs-text)]">{blockPreview}</p>
         </div>
         <p className="mt-3 font-mono text-xs text-[var(--qs-text-muted)]">
-          Source file {sourceFileId}
+          {tr.fingerprint.sourceFile(sourceFileId)}
         </p>
       </section>
     </div>

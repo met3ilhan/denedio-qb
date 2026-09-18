@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 
 import { DistractorCausalityEditor } from "@/components/candidates/DistractorCausalityEditor";
 import type { GeneratedQuestion } from "@/shared/validation/generated-question";
+import { difficultyLabel, tr } from "@/shared/copy/tr";
 import type { DistractorAnalysis } from "@/shared/validation/distractor-analysis";
 
 type CandidateInspectorWorkspaceProps = {
@@ -85,7 +86,7 @@ export function CandidateInspectorWorkspace({
       return;
     }
     setStale(data.verificationStaleAt ?? null);
-    setMessage(data.verificationStaleAt ? "Saved — verification invalidated." : "Saved.");
+    setMessage(data.verificationStaleAt ? tr.candidates.savedStale : tr.candidates.saved);
   }
 
   return (
@@ -95,11 +96,11 @@ export function CandidateInspectorWorkspace({
           className="rounded-lg border border-[var(--qs-border)] bg-[var(--qs-canvas)] p-4"
           data-testid="expert-source-context"
         >
-          <h2 className="text-sm font-semibold">Source measurement (read-only)</h2>
+          <h2 className="text-sm font-semibold">{tr.candidates.sourceMeasurement}</h2>
           <p className="text-stem mt-2">{sourceStem}</p>
           {lockedInvariantSummary.length ? (
             <div className="mt-3">
-              <h3 className="text-xs font-medium text-[var(--qs-text-muted)]">Locked invariants</h3>
+              <h3 className="text-xs font-medium text-[var(--qs-text-muted)]">{tr.candidates.lockedInvariants}</h3>
               <ul className="mt-1 list-disc pl-5 text-body text-sm">
                 {lockedInvariantSummary.map((line) => (
                   <li key={line}>{line}</li>
@@ -109,7 +110,7 @@ export function CandidateInspectorWorkspace({
           ) : null}
           {fingerprintVersionId ? (
             <a href={`/fingerprint/${fingerprintVersionId}`} className="mt-2 inline-block text-sm underline">
-              Open fingerprint review (S07)
+              {tr.fingerprint.openReviewS07}
             </a>
           ) : null}
         </aside>
@@ -118,27 +119,27 @@ export function CandidateInspectorWorkspace({
       <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:items-start">
         <div className="flex min-w-0 flex-col gap-6">
           <section className="rounded-lg border border-[var(--qs-border)] bg-[var(--qs-surface)] p-4">
-            <h2 className="text-title text-[var(--qs-text)]">Expert editor (S11)</h2>
+            <h2 className="text-title text-[var(--qs-text)]">{tr.candidates.expertEditor}</h2>
             {stale ? (
               <p className="mt-2 text-sm text-amber-700" data-testid="verification-stale-banner">
-                Verification stale — re-run verifier before approval.
+                {tr.candidates.verificationStale}
               </p>
             ) : null}
-            <label className="mt-3 block text-xs font-medium text-[var(--qs-text-muted)]">Question stem</label>
+            <label className="mt-3 block text-xs font-medium text-[var(--qs-text-muted)]">{tr.candidates.questionStem}</label>
             <textarea
               className="text-stem mt-1 min-h-[120px] w-full rounded-md border border-[var(--qs-border)] p-3"
               value={stem}
               onChange={(e) => setStem(e.target.value)}
               data-testid="expert-stem"
             />
-            <label className="mt-4 block text-xs font-medium text-[var(--qs-text-muted)]">Solution</label>
+            <label className="mt-4 block text-xs font-medium text-[var(--qs-text-muted)]">{tr.candidates.solution}</label>
             <textarea
               className="text-body mt-1 min-h-[80px] w-full rounded-md border border-[var(--qs-border)] p-3"
               value={solutionText}
               onChange={(e) => setSolutionText(e.target.value)}
               data-testid="expert-solution"
             />
-            <h3 className="mt-4 text-sm font-semibold">Choices</h3>
+            <h3 className="mt-4 text-sm font-semibold">{tr.candidates.choices}</h3>
             <ul className="mt-2 space-y-2">
               {choices.map((choice, idx) => (
                 <li key={choice.label} className="flex flex-wrap items-center gap-2">
@@ -147,7 +148,7 @@ export function CandidateInspectorWorkspace({
                     name="correct-choice"
                     checked={choice.isCorrect}
                     onChange={() => setCorrect(choice.label)}
-                    aria-label={`Mark ${choice.label} correct`}
+                    aria-label={tr.candidates.markCorrect(choice.label)}
                   />
                   <span className="text-mono w-6">{choice.label}</span>
                   <input
@@ -164,19 +165,19 @@ export function CandidateInspectorWorkspace({
             </ul>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="text-xs font-medium text-[var(--qs-text-muted)]">Difficulty</label>
+                <label className="text-xs font-medium text-[var(--qs-text-muted)]">{tr.candidates.difficulty}</label>
                 <select
                   className="mt-1 w-full rounded-md border border-[var(--qs-border)] px-2 py-2 text-sm"
                   value={difficulty}
                   onChange={(e) => setDifficulty(e.target.value as "EASY" | "MEDIUM" | "HARD")}
                 >
-                  <option value="EASY">EASY</option>
-                  <option value="MEDIUM">MEDIUM</option>
-                  <option value="HARD">HARD</option>
+                  <option value="EASY">{difficultyLabel("EASY")}</option>
+                  <option value="MEDIUM">{difficultyLabel("MEDIUM")}</option>
+                  <option value="HARD">{difficultyLabel("HARD")}</option>
                 </select>
               </div>
               <div>
-                <label className="text-xs font-medium text-[var(--qs-text-muted)]">Expected solve (sec)</label>
+                <label className="text-xs font-medium text-[var(--qs-text-muted)]">{tr.candidates.expectedSolveSec}</label>
                 <input
                   type="number"
                   className="mt-1 w-full rounded-md border border-[var(--qs-border)] px-2 py-2 text-sm"
@@ -185,13 +186,13 @@ export function CandidateInspectorWorkspace({
                 />
               </div>
             </div>
-            <label className="mt-3 block text-xs font-medium text-[var(--qs-text-muted)]">Critical signal</label>
+            <label className="mt-3 block text-xs font-medium text-[var(--qs-text-muted)]">{tr.terms.criticalSignal}</label>
             <textarea
               className="mt-1 w-full rounded-md border border-[var(--qs-border)] p-2 text-sm"
               value={criticalClue}
               onChange={(e) => setCriticalClue(e.target.value)}
             />
-            <label className="mt-3 block text-xs font-medium text-[var(--qs-text-muted)]">Ideal approach</label>
+            <label className="mt-3 block text-xs font-medium text-[var(--qs-text-muted)]">{tr.candidates.idealApproach}</label>
             <textarea
               className="mt-1 w-full rounded-md border border-[var(--qs-border)] p-2 text-sm"
               value={idealApproach}
@@ -203,7 +204,7 @@ export function CandidateInspectorWorkspace({
               className="mt-4 min-h-11 rounded-md bg-[var(--qs-phase-candidates)] px-4 py-2 text-sm font-medium text-white"
               data-testid="expert-save-edits"
             >
-              Save edits
+              {tr.candidates.saveEdits}
             </button>
             {message ? <p className="text-body mt-2 text-[var(--qs-text-muted)]">{message}</p> : null}
           </section>
@@ -211,7 +212,7 @@ export function CandidateInspectorWorkspace({
           {distractor && wrongLabels.length > 0 ? (
             <nav
               className="flex flex-wrap gap-2 rounded-lg border border-[var(--qs-border)] bg-[var(--qs-surface)] p-4"
-              aria-label="Wrong choice rail"
+              aria-label={tr.candidates.wrongChoiceRailAria}
               data-testid="distractor-choice-rail"
             >
               {wrongLabels.map((label) => (
@@ -237,10 +238,8 @@ export function CandidateInspectorWorkspace({
           className="rounded-lg border border-[var(--qs-border)] bg-[var(--qs-surface)] p-4 lg:sticky lg:top-4"
           data-testid="distractor-editor-panel"
         >
-          <h2 className="text-title text-[var(--qs-text)]">Causality drawer</h2>
-          <p className="text-body mt-1 text-[var(--qs-text-muted)]">
-            Mechanism, misconception, trap, and error path for the selected wrong choice.
-          </p>
+          <h2 className="text-title text-[var(--qs-text)]">{tr.candidates.causalityDrawer}</h2>
+          <p className="text-body mt-1 text-[var(--qs-text-muted)]">{tr.candidates.causalityHint}</p>
           {distractor ? (
             <DistractorCausalityEditor
               draft={draftForCausality}
@@ -251,7 +250,7 @@ export function CandidateInspectorWorkspace({
               showRail={false}
             />
           ) : (
-            <p className="mt-4 text-sm text-[var(--qs-text-muted)]">No distractor analysis yet.</p>
+            <p className="mt-4 text-sm text-[var(--qs-text-muted)]">{tr.candidates.noDistractorAnalysis}</p>
           )}
         </section>
       </div>

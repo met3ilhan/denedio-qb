@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { EvidenceSpan } from "@/components/fingerprint/EvidenceSpan";
+import { tr } from "@/shared/copy/tr";
 import { INVARIANT_FIELD_KEYS } from "@/shared/validation/pedagogical-fingerprint";
 
 type FingerprintStudioWorkspaceProps = {
@@ -26,7 +27,7 @@ function formatFieldValue(value: unknown): string {
   if (value && typeof value === "object") {
     return JSON.stringify(value, null, 2);
   }
-  return "—";
+  return tr.common.none;
 }
 
 export function FingerprintStudioWorkspace({
@@ -82,7 +83,7 @@ export function FingerprintStudioWorkspace({
     >
       <nav className="min-w-0 rounded-lg border border-[var(--qs-border)] bg-[var(--qs-surface)] p-4">
         <p className="font-mono text-xs text-[var(--qs-text-muted)]">
-          v{versionNumber} · {status}
+          v{versionNumber} · {status === "DRAFT" ? tr.status.draft : status === "LOCKED" ? tr.status.locked : status}
         </p>
         {dimensionGroups.map((group) => (
           <div key={group.group} className="mt-4">
@@ -122,7 +123,7 @@ export function FingerprintStudioWorkspace({
                 : "bg-[var(--qs-mutable-bg)] text-[var(--qs-text)]"
             }`}
           >
-            {isInvariant ? "Invariant" : "Mutable"}
+            {isInvariant ? tr.fingerprint.invariant : tr.fingerprint.mutable}
           </span>
         </div>
         {activeKey === "mutable_surface_notes" && status === "DRAFT" ? (
@@ -138,7 +139,7 @@ export function FingerprintStudioWorkspace({
               onClick={saveMutable}
               className="rounded-md border border-[var(--qs-border)] px-3 py-2 text-sm"
             >
-              Save mutable notes
+              {tr.fingerprint.saveMutableNotes}
             </button>
           </div>
         ) : (
@@ -154,7 +155,7 @@ export function FingerprintStudioWorkspace({
             className="mt-4 rounded-md bg-[var(--qs-phase-mechanism)] px-3 py-2 text-sm font-medium text-white"
             data-testid="lock-fingerprint"
           >
-            Lock fingerprint version
+            {tr.fingerprint.lockVersion}
           </button>
         ) : null}
         {lockWarnings.length > 0 ? (
@@ -167,10 +168,10 @@ export function FingerprintStudioWorkspace({
       </section>
 
       <aside className="min-w-0 rounded-lg border border-[var(--qs-border)] bg-[var(--qs-surface)] p-4">
-        <h2 className="text-title text-[var(--qs-text)]">Evidence</h2>
+        <h2 className="text-title text-[var(--qs-text)]">{tr.fingerprint.evidence}</h2>
         <div className="mt-4 space-y-2">
           {activeEvidence.length === 0 ? (
-            <p className="text-sm text-[var(--qs-text-muted)]">No evidence rows for this dimension.</p>
+            <p className="text-sm text-[var(--qs-text-muted)]">{tr.fingerprint.noEvidence}</p>
           ) : (
             activeEvidence.map((row) => (
               <EvidenceSpan

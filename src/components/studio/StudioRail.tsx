@@ -3,6 +3,8 @@
 import Link from "next/link";
 import type { MissionPhase } from "@prisma/client";
 
+import { tr } from "@/shared/copy/tr";
+
 import { STUDIO_PHASES } from "./phase-tokens";
 
 type StudioRailProps = {
@@ -17,17 +19,17 @@ export function StudioRail({ missionId, activePhase, missionTitle }: StudioRailP
   return (
     <aside
       className="flex w-full min-w-0 shrink-0 flex-col border-b border-[var(--qs-border)] bg-[var(--qs-surface)] md:w-60 md:border-b-0 md:border-r"
-      aria-label="Studio rail"
+      aria-label={tr.nav.railLabel}
     >
       <div className="border-b border-[var(--qs-border)] px-4 py-4">
         <p className="font-mono text-[10px] uppercase tracking-widest text-[var(--qs-text-muted)]">
-          Question Studio
+          {tr.app.productName}
         </p>
         <Link
           href={homeHref}
           className="mt-1 block text-sm font-semibold text-[var(--qs-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--qs-phase-intake)]"
         >
-          Pedagogy Signal Lab
+          {tr.app.labName}
         </Link>
         {missionTitle ? (
           <p className="mt-2 truncate text-xs text-[var(--qs-text-muted)]" title={missionTitle}>
@@ -36,7 +38,7 @@ export function StudioRail({ missionId, activePhase, missionTitle }: StudioRailP
         ) : null}
       </div>
 
-      <nav className="flex flex-1 flex-col gap-1 p-2" aria-label="Workflow phases">
+      <nav className="flex flex-1 flex-col gap-1 p-2" aria-label={tr.nav.phasesLabel}>
         {STUDIO_PHASES.map((phase) => {
           const isActive = phase.phase === activePhase;
           const disabled = !missionId && phase.phase !== "INTAKE";
@@ -49,7 +51,7 @@ export function StudioRail({ missionId, activePhase, missionTitle }: StudioRailP
                   ? `${phase.tintClass} font-medium text-[var(--qs-text)]`
                   : "text-[var(--qs-text-muted)]"
               } ${disabled ? "opacity-60" : ""}`}
-              title={disabled ? "Start intake to unlock later phases" : undefined}
+              title={disabled ? tr.nav.phaseLocked : undefined}
             >
               <span
                 className={`absolute top-1 bottom-1 left-0 w-1 ${phase.signalClass} ${
@@ -65,13 +67,13 @@ export function StudioRail({ missionId, activePhase, missionTitle }: StudioRailP
 
       <div
         className="border-t border-[var(--qs-border)] px-4 py-3"
-        aria-label="Provenance mini-log"
+        aria-label={tr.nav.provenanceTitle}
       >
         <p className="font-mono text-[10px] uppercase tracking-wide text-[var(--qs-text-muted)]">
-          Provenance
+          {tr.nav.provenanceTitle}
         </p>
         <p className="mt-1 font-mono text-[11px] text-[var(--qs-text-muted)]">
-          No events yet · full trail in Ship
+          {tr.nav.provenanceEmpty}
         </p>
       </div>
     </aside>

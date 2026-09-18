@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import type { ComparisonRow } from "@/modules/candidates/services/sibling-comparison";
+import { tr } from "@/shared/copy/tr";
 import {
   rowHasMechanismDelta,
   rowMatchesVerificationFilter,
@@ -73,9 +74,9 @@ export function CandidateComparisonMatrix({
     <div data-testid="candidate-comparison-matrix" className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <p className="text-mono text-sm text-[var(--qs-text-muted)]" data-testid="compare-run-header">
-          Run {runId.slice(0, 8)}…
-          {fingerprintVersionLabel ? ` · fingerprint ${fingerprintVersionLabel}` : ""}
-          <span className="ml-2 text-xs">Mission {missionId.slice(0, 8)}…</span>
+          {tr.common.run} {runId.slice(0, 8)}…
+          {fingerprintVersionLabel ? tr.candidates.fingerprintRun(fingerprintVersionLabel) : ""}
+          <span className="ml-2 text-xs">{tr.common.mission} {missionId.slice(0, 8)}…</span>
         </p>
         <div className="flex flex-wrap gap-3 text-sm" data-testid="compare-filters">
           <label className="flex items-center gap-2">
@@ -85,10 +86,10 @@ export function CandidateComparisonMatrix({
               onChange={(e) => setMechanismDeltasOnly(e.target.checked)}
               data-testid="compare-filter-mechanism-deltas"
             />
-            Mechanism deltas only
+            {tr.candidates.mechanismDeltasOnly}
           </label>
           <label className="flex items-center gap-2">
-            <span className="text-xs text-[var(--qs-text-muted)]">Quality</span>
+            <span className="text-xs text-[var(--qs-text-muted)]">{tr.common.quality}</span>
             <select
               className="rounded-md border border-[var(--qs-border)] px-2 py-1 text-sm"
               value={verificationFilter}
@@ -97,9 +98,9 @@ export function CandidateComparisonMatrix({
               }
               data-testid="compare-filter-verification"
             >
-              <option value="all">All rows</option>
-              <option value="fail_warn">FAIL / WARNING only</option>
-              <option value="fingerprint_drift">Fingerprint drift</option>
+              <option value="all">{tr.candidates.allRows}</option>
+              <option value="fail_warn">{tr.candidates.failWarnOnly}</option>
+              <option value="fingerprint_drift">{tr.candidates.fingerprintDrift}</option>
             </select>
           </label>
           <label className="flex items-center gap-2">
@@ -109,7 +110,7 @@ export function CandidateComparisonMatrix({
               onChange={(e) => setDistractorQualityOnly(e.target.checked)}
               data-testid="compare-filter-distractor"
             />
-            Distractor row only
+            {tr.candidates.distractorRowOnly}
           </label>
         </div>
       </div>
@@ -118,12 +119,12 @@ export function CandidateComparisonMatrix({
         <table
           className="min-w-full text-body"
           role="grid"
-          aria-label="Candidate fingerprint comparison matrix"
+          aria-label={tr.candidates.matrixAria}
         >
           <thead className="sticky top-0 z-20 bg-[var(--qs-canvas)]">
             <tr className="text-left">
               <th scope="col" className="sticky left-0 z-30 bg-[var(--qs-canvas)] px-3 py-3 font-medium">
-                Dimension
+                {tr.common.dimension}
               </th>
               {candidateIds.map((id) => (
                 <th key={id} scope="col" className="px-3 py-3 font-medium">
@@ -155,7 +156,7 @@ export function CandidateComparisonMatrix({
                     className="min-h-11 text-left underline"
                     onClick={() => setPreviewRow(row)}
                     data-testid={`compare-row-${row.rowKey}`}
-                    aria-label={`${row.label} comparison row`}
+                    aria-label={tr.candidates.compareRowAria(row.label)}
                   >
                     {row.label}
                   </button>
@@ -193,10 +194,10 @@ export function CandidateComparisonMatrix({
           className="rounded-lg border border-[var(--qs-border)] bg-[var(--qs-surface)] p-4"
           data-testid="compare-preview-drawer"
         >
-          <h3 className="text-sm font-semibold">{previewRow.label} — detail</h3>
+          <h3 className="text-sm font-semibold">{previewRow.label} — {tr.candidates.detail}</h3>
           {sourceStem ? (
             <p className="mt-2 text-xs text-[var(--qs-text-muted)]">
-              Source stem: {sourceStem.slice(0, 240)}
+              {tr.candidates.sourceStem}: {sourceStem.slice(0, 240)}
               {sourceStem.length > 240 ? "…" : ""}
             </p>
           ) : null}
@@ -217,7 +218,7 @@ export function CandidateComparisonMatrix({
             className="mt-3 text-sm underline"
             onClick={() => setPreviewRow(null)}
           >
-            Close preview
+            {tr.candidates.closePreview}
           </button>
         </aside>
       ) : null}
@@ -230,7 +231,7 @@ export function CandidateComparisonMatrix({
             className="rounded-md border border-[var(--qs-border)] px-3 py-2 text-sm underline"
             data-testid="compare-open-candidate"
           >
-            Open editor · {candidateLabels[id] ?? id.slice(0, 8)}
+            {tr.candidates.openEditor} · {candidateLabels[id] ?? id.slice(0, 8)}
           </Link>
         ))}
       </div>

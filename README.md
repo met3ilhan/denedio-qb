@@ -38,6 +38,8 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+In **local development** (non-production), if you skip copying `.env.local`, the app still applies safe defaults: compose `DATABASE_URL` and demo mode (`QUESTION_STUDIO_DEMO_MODE=1`). You must still run `pnpm db:up` and `pnpm db:migrate` so Postgres is reachable.
+
 ## Demo mode
 
 Set `QUESTION_STUDIO_DEMO_MODE=1` (Playwright default) to run **deterministic mock AI** without API keys. Demo output is pre-authored fixture data—not live model generation. Clear labeling in UI is still being improved; see `docs/OVERNIGHT_BUILD_REPORT.md`.

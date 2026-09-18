@@ -9,6 +9,7 @@ import { createSourceRepository } from "@/modules/sources/repository/source-repo
 import { pedagogicalFingerprintSchema } from "@/shared/validation/pedagogical-fingerprint";
 import { sourceExtractionSchema } from "@/shared/validation/source-extraction";
 import { prisma } from "@/shared/db/client";
+import { tr } from "@/shared/copy/tr";
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -27,7 +28,7 @@ export default async function FingerprintDraftPage({ params }: PageProps) {
   if (!process.env.DATABASE_URL) {
     return (
       <StudioShell activePhase="MECHANISM" showBlockers={false} header={<DraftHeader />}>
-        <p className="text-body text-[var(--qs-text-muted)]">Database offline.</p>
+        <p className="text-body text-[var(--qs-text-muted)]">{tr.mission.databaseOffline}</p>
       </StudioShell>
     );
   }
@@ -43,11 +44,10 @@ export default async function FingerprintDraftPage({ params }: PageProps) {
     return (
       <StudioShell activePhase="MECHANISM" showBlockers={false} header={<DraftHeader />}>
         <p className="text-body text-[var(--qs-text-muted)]">
-          Accept structured extraction on{" "}
+          {tr.mission.acceptStructuredBeforeDraft}{" "}
           <Link href={`/sources/${sourceFileId}/structured`} className="underline">
             S05
-          </Link>{" "}
-          before drafting a fingerprint.
+          </Link>
         </p>
       </StudioShell>
     );
@@ -104,8 +104,8 @@ export default async function FingerprintDraftPage({ params }: PageProps) {
 function DraftHeader() {
   return (
     <>
-      <p className="text-mono text-[var(--qs-text-muted)]">S06 · Fingerprint Draft</p>
-      <h1 className="text-display mt-1 text-[var(--qs-text)]">Fingerprint draft</h1>
+      <p className="text-mono text-[var(--qs-text-muted)]">{tr.fingerprint.draftScreen}</p>
+      <h1 className="text-display mt-1 text-[var(--qs-text)]">{tr.fingerprint.draftTitle}</h1>
     </>
   );
 }

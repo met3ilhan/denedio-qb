@@ -1,5 +1,9 @@
 import { PrismaClient } from "@prisma/client";
 
+import { ensureLocalDevelopmentDefaults } from "@/shared/config/local-env";
+
+ensureLocalDevelopmentDefaults();
+
 const DENEDIO_DB_MARKERS = ["denedio", "denedio_prod", "denedio-production"];
 
 function assertQuestionStudioDatabaseUrl(): void {

@@ -4,14 +4,15 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
+import { tr } from "@/shared/copy/tr";
 import type { BlockReviewLayer, SourceExtraction } from "@/shared/validation/source-extraction";
 
 import { IntakeThreePanel } from "./IntakeThreePanel";
 
 const LAYER_LABEL: Record<BlockReviewLayer, string> = {
-  visible_fact: "Visible facts",
-  inference: "Inference",
-  uncertainty: "Uncertainty",
+  visible_fact: tr.structured.layers.visible_fact,
+  inference: tr.structured.layers.inference,
+  uncertainty: tr.structured.layers.uncertainty,
 };
 
 const LAYER_CLASS: Record<BlockReviewLayer, string> = {
@@ -86,18 +87,16 @@ export function StructuredReviewPanel({ sourceId }: { sourceId: string }) {
     <IntakeThreePanel
       navigator={
         <div className="space-y-2 text-sm" data-testid="source-preview-pane">
-          <p className="font-semibold">Source preview</p>
-          <p className="text-xs text-[var(--qs-text-muted)]">
-            Page 1 · text preview (full viewer in later gate)
-          </p>
+          <p className="font-semibold">{tr.structured.previewTitle}</p>
+          <p className="text-xs text-[var(--qs-text-muted)]">{tr.structured.previewHint}</p>
           <p className="rounded bg-[var(--qs-canvas)] p-2 text-xs leading-relaxed">
-            {extraction?.stemText ?? "Loading structured extraction…"}
+            {extraction?.stemText ?? tr.structured.loading}
           </p>
         </div>
       }
       main={
         <div className="space-y-4" data-testid="structured-review-main">
-          <h2 className="text-sm font-semibold">Structured blocks</h2>
+          <h2 className="text-sm font-semibold">{tr.structured.blocksTitle}</h2>
           {(Object.keys(LAYER_LABEL) as BlockReviewLayer[]).map((layer) => (
             <div key={layer} data-testid={`review-layer-${layer}`}>
               <h3 className="font-mono text-[10px] uppercase tracking-wide text-[var(--qs-text-muted)]">
@@ -129,14 +128,14 @@ export function StructuredReviewPanel({ sourceId }: { sourceId: string }) {
       }
       inspector={
         <div className="space-y-3 text-sm" data-testid="structured-inspector">
-          <p className="font-semibold">Block inspector</p>
+          <p className="font-semibold">{tr.structured.inspector}</p>
           {focused ? (
             <>
               <p className="text-xs text-[var(--qs-text-muted)]">
-                Confidence {(focused.confidence * 100).toFixed(0)}%
+                {tr.structured.confidence((focused.confidence * 100).toFixed(0))}
               </p>
               <p className="text-xs">
-                Layer: {LAYER_LABEL[blockLayers[focused.blockId] ?? "uncertainty"]}
+                {tr.structured.layer(LAYER_LABEL[blockLayers[focused.blockId] ?? "uncertainty"])}
               </p>
             </>
           ) : null}
@@ -155,7 +154,7 @@ export function StructuredReviewPanel({ sourceId }: { sourceId: string }) {
               onClick={() => void onAccept()}
               data-testid="accept-extraction"
             >
-              Accept extraction
+              {tr.structured.accept}
             </button>
             <button
               type="button"
@@ -164,10 +163,10 @@ export function StructuredReviewPanel({ sourceId }: { sourceId: string }) {
               onClick={() => void onReject()}
               data-testid="reject-extraction"
             >
-              Reject · back to queue
+              {tr.structured.reject}
             </button>
             <Link href={`/sources/${sourceId}/extraction`} className="text-xs underline">
-              View job timeline
+              {tr.structured.viewTimeline}
             </Link>
           </div>
         </div>

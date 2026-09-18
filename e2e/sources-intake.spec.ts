@@ -13,7 +13,7 @@ test.describe("Sources intake (Gate 2)", () => {
     await page.getByTestId("upload-file-input").setInputFiles(fixture);
     await expect(page.getByTestId("selected-filename")).toContainText("demo-source.txt");
 
-    await page.getByRole("button", { name: "Continue" }).click();
+    await page.getByRole("button", { name: "Devam et" }).click();
     await page.getByTestId("subject-hint").fill("Synthetic math demo");
     await page.getByTestId("submit-upload").click();
 

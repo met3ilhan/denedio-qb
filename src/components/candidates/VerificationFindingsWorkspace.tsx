@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { tr, verificationGroupLabel } from "@/shared/copy/tr";
 import type { VerificationResult } from "@/shared/validation/verification-result";
 
 type VerificationFindingsWorkspaceProps = {
@@ -28,12 +29,12 @@ export function VerificationFindingsWorkspace({
     <div data-testid="verification-findings">
       <div className="flex flex-wrap items-center gap-3">
         <p className="text-mono text-sm">
-          Quality gate:{" "}
-          <span data-testid="quality-gate">{verification?.quality_gate ?? "UNKNOWN"}</span>
+          {tr.verification.qualityGate}:{" "}
+          <span data-testid="quality-gate">{verification?.quality_gate ?? tr.status.unknown}</span>
         </p>
         {stale ? (
           <span className="text-sm text-amber-700" data-testid="verification-stale">
-            Stale
+            {tr.verification.stale}
           </span>
         ) : null}
         <button
@@ -41,10 +42,10 @@ export function VerificationFindingsWorkspace({
           onClick={reverify}
           className="rounded-md border border-[var(--qs-border)] px-3 py-1 text-sm"
         >
-          Re-run verification
+          {tr.verification.rerun}
         </button>
         <Link href={`/candidates/${candidateId}/approve`} className="text-sm underline">
-          S13 Approval
+          {tr.verification.approvalLink}
         </Link>
       </div>
 
@@ -54,7 +55,7 @@ export function VerificationFindingsWorkspace({
           if (!items?.length) return null;
           return (
             <section key={group} data-testid={`findings-group-${group}`}>
-              <h3 className="text-title text-[var(--qs-text)]">{group}</h3>
+              <h3 className="text-title text-[var(--qs-text)]">{verificationGroupLabel(group)}</h3>
               <ul className="mt-2 space-y-2">
                 {items.map((f) => (
                   <li
@@ -66,13 +67,13 @@ export function VerificationFindingsWorkspace({
                     <p>{f.message}</p>
                     {f.remediationScreen ? (
                       <p className="mt-1 text-xs text-[var(--qs-text-muted)]">
-                        Fix in{" "}
+                        {tr.verification.fixIn}{" "}
                         {f.remediationScreen === "S11" ? (
                           <Link href={`/candidates/${candidateId}`} className="underline">
-                            editor (S11)
+                            {tr.verification.editorS11}
                           </Link>
                         ) : f.remediationScreen === "S07" ? (
-                          <span>fingerprint (S07)</span>
+                          <span>{tr.verification.fingerprintS07}</span>
                         ) : (
                           <span>{f.remediationScreen}</span>
                         )}
@@ -88,13 +89,13 @@ export function VerificationFindingsWorkspace({
 
       {verification?.fingerprint_checklist.length ? (
         <section className="mt-8">
-          <h3 className="text-title text-[var(--qs-text)]">Fingerprint fidelity</h3>
+          <h3 className="text-title text-[var(--qs-text)]">{tr.verification.fingerprintFidelity}</h3>
           <table className="mt-2 w-full text-sm">
             <thead>
               <tr className="text-left text-[var(--qs-text-muted)]">
-                <th className="py-1">Dimension</th>
-                <th>Verdict</th>
-                <th>Level</th>
+                <th className="py-1">{tr.common.dimension}</th>
+                <th>{tr.verification.verdict}</th>
+                <th>{tr.verification.level}</th>
               </tr>
             </thead>
             <tbody>

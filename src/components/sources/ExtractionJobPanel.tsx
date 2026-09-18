@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
+import { tr } from "@/shared/copy/tr";
+
 import { IntakeThreePanel } from "./IntakeThreePanel";
 
 type Job = {
@@ -20,7 +22,7 @@ type SourceMeta = {
   missionId: string;
 };
 
-const STEPS = ["Queued", "Running", "Validate", "Complete"] as const;
+const STEP_TEST_IDS = ["queued", "running", "validate", "complete"] as const;
 
 function stepIndex(status: string): number {
   switch (status) {
@@ -86,21 +88,21 @@ export function ExtractionJobPanel({ sourceId }: { sourceId: string }) {
             href={`/missions/${source?.missionId ?? ""}`}
             className="text-xs text-[var(--qs-phase-intake)] underline"
           >
-            Mission thread
+            {tr.common.missionThread}
           </Link>
         </div>
       }
       main={
         <div className="space-y-4" data-testid="extraction-timeline">
-          <h2 className="text-sm font-semibold">Extraction timeline</h2>
+          <h2 className="text-sm font-semibold">{tr.extraction.timeline}</h2>
           <ol className="space-y-2">
-            {STEPS.map((label, idx) => (
+            {tr.extraction.steps.map((label, idx) => (
               <li
-                key={label}
+                key={STEP_TEST_IDS[idx]}
                 className={`flex items-center gap-2 rounded-md px-2 py-1 text-sm ${
                   idx === activeStep ? "bg-[var(--qs-canvas)] font-medium" : "text-[var(--qs-text-muted)]"
                 }`}
-                data-testid={`timeline-step-${label.toLowerCase()}`}
+                data-testid={`timeline-step-${STEP_TEST_IDS[idx]}`}
               >
                 <span className="font-mono text-xs">{idx + 1}</span>
                 {label}
@@ -126,16 +128,16 @@ export function ExtractionJobPanel({ sourceId }: { sourceId: string }) {
               className="inline-flex rounded-md bg-[var(--qs-phase-intake)] px-3 py-2 text-sm font-medium text-white"
               data-testid="goto-structured-review"
             >
-              Open structured review
+              {tr.extraction.openStructured}
             </Link>
           ) : null}
         </div>
       }
       inspector={
         <div className="space-y-3 text-sm" data-testid="extraction-inspector">
-          <p className="font-semibold">Inspector</p>
+          <p className="font-semibold">{tr.extraction.inspector}</p>
           <p className="text-xs text-[var(--qs-text-muted)]">
-            Attempt {job?.attempt ?? "—"} · priority normal
+            {tr.extraction.attempt(job?.attempt ?? "—")}
           </p>
           <button
             type="button"
@@ -144,7 +146,7 @@ export function ExtractionJobPanel({ sourceId }: { sourceId: string }) {
             onClick={() => void onRetry()}
             data-testid="retry-extraction"
           >
-            Retry extraction
+            {tr.extraction.retry}
           </button>
         </div>
       }

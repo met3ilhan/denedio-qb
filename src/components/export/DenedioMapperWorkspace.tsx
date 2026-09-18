@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { defaultCurriculumSelection } from "@/modules/catalog";
+import { mappingStatusLabel, tr } from "@/shared/copy/tr";
 
 type FieldRow = {
   field: string;
@@ -61,7 +62,7 @@ export function DenedioMapperWorkspace({
   }, [refresh]);
 
   const save = async () => {
-    setStatus("Saving…");
+    setStatus(tr.common.saving);
     const res = await fetch(`/api/questions/${generatedQuestionId}/denedio/mapping`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -72,18 +73,18 @@ export function DenedioMapperWorkspace({
       }),
     });
     if (!res.ok) {
-      setStatus("Save failed");
+      setStatus(tr.export.saveFailed);
       return;
     }
     const data = (await res.json()) as { fieldRows?: FieldRow[] };
     if (data.fieldRows) setFieldRows(data.fieldRows);
-    setStatus("Mapping saved");
+    setStatus(tr.export.mappingSaved);
   };
 
   return (
     <div data-testid="denedio-mapper" className="space-y-4">
       <p className="font-mono text-xs text-[var(--qs-text-muted)]">
-        importExternalKey (stable): {importExternalKey}
+        {tr.export.importKeyStable} {importExternalKey}
       </p>
       <div className="grid gap-3 sm:grid-cols-2">
         {(["examTypeId", "examSectionId", "subjectId", "topicId"] as const).map((key) => (
@@ -104,16 +105,16 @@ export function DenedioMapperWorkspace({
         className="rounded-md bg-[var(--qs-phase-ship)] px-3 py-2 text-sm font-medium text-white"
         onClick={() => void save()}
       >
-        Save mapping
+        {tr.export.saveMapping}
       </button>
       {status ? <p className="text-sm text-[var(--qs-text-muted)]">{status}</p> : null}
 
       <table className="w-full text-left text-sm" data-testid="mapping-field-table">
         <thead>
           <tr className="border-b border-[var(--qs-border)] text-xs uppercase text-[var(--qs-text-muted)]">
-            <th className="py-2">Field</th>
-            <th className="py-2">Status</th>
-            <th className="py-2">Note</th>
+            <th className="py-2">{tr.common.field}</th>
+            <th className="py-2">{tr.common.status}</th>
+            <th className="py-2">{tr.common.note}</th>
           </tr>
         </thead>
         <tbody>
@@ -129,10 +130,10 @@ export function DenedioMapperWorkspace({
                       : "bg-amber-100 text-amber-900"
                   }`}
                 >
-                  {row.status}
+                  {mappingStatusLabel(row.status)}
                 </span>
               </td>
-              <td className="py-2 text-xs text-[var(--qs-text-muted)]">{row.note ?? "—"}</td>
+              <td className="py-2 text-xs text-[var(--qs-text-muted)]">{row.note ?? tr.common.none}</td>
             </tr>
           ))}
         </tbody>

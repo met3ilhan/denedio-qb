@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 
 import type { CatalogMirrorSnapshot } from "@/modules/catalog";
 import { isValidUuid } from "@/modules/catalog";
+import { tr } from "@/shared/copy/tr";
 
 type CatalogBrowserProps = {
   mirror: CatalogMirrorSnapshot;
@@ -35,11 +36,11 @@ export function CatalogBrowser({ mirror, selectedTopicId, onSelectTopic }: Catal
 
   const validateUuid = () => {
     if (!uuidDraft.trim()) {
-      setUuidError("Enter a UUID");
+      setUuidError(tr.catalog.enterUuid);
       return;
     }
     if (!isValidUuid(uuidDraft.trim())) {
-      setUuidError("Invalid UUID format");
+      setUuidError(tr.catalog.invalidUuidFormat);
       return;
     }
     setUuidError(null);
@@ -48,16 +49,16 @@ export function CatalogBrowser({ mirror, selectedTopicId, onSelectTopic }: Catal
   return (
     <div data-testid="catalog-browser" className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,280px)]">
       <section className="rounded-lg border border-[var(--qs-border)] bg-[var(--qs-surface)] p-4">
-        <h2 className="text-sm font-semibold text-[var(--qs-text)]">Curriculum tree</h2>
+        <h2 className="text-sm font-semibold text-[var(--qs-text)]">{tr.catalog.curriculumTree}</h2>
         <p className="mt-1 text-xs text-[var(--qs-text-muted)]">
-          Read-only mirror ({mirror.source}) · {mirror.fetchedAt}
+          {tr.catalog.readOnlyMirror(mirror.source, mirror.fetchedAt)}
         </p>
         {mirror.isDemoReference ? (
           <p
             className="mt-2 rounded-md border border-amber-300 bg-amber-50 px-2 py-1 text-xs text-amber-900"
             data-testid="catalog-demo-disclosure"
           >
-            Demo catalog reference — UUIDs are local mirror values, not confirmed live Denedio entities.
+            {tr.catalog.demoDisclosure}
           </p>
         ) : null}
         <ul className="mt-4 space-y-2 text-sm">
@@ -85,12 +86,10 @@ export function CatalogBrowser({ mirror, selectedTopicId, onSelectTopic }: Catal
       </section>
 
       <section className="rounded-lg border border-[var(--qs-border)] bg-[var(--qs-surface)] p-4">
-        <h2 className="text-sm font-semibold text-[var(--qs-text)]">Catalog UUID validator</h2>
-        <p className="mt-1 text-xs text-[var(--qs-text-muted)]">
-          Validates format only. Map curriculum in S17 from the mirror list — do not treat random UUIDs as Denedio FKs.
-        </p>
+        <h2 className="text-sm font-semibold text-[var(--qs-text)]">{tr.catalog.uuidValidator}</h2>
+        <p className="mt-1 text-xs text-[var(--qs-text-muted)]">{tr.catalog.uuidValidatorHint}</p>
         <label className="mt-3 block text-xs font-medium" htmlFor="catalog-uuid-input">
-          UUID
+          {tr.catalog.uuid}
         </label>
         <input
           id="catalog-uuid-input"
@@ -104,17 +103,17 @@ export function CatalogBrowser({ mirror, selectedTopicId, onSelectTopic }: Catal
           className="mt-2 rounded-md bg-[var(--qs-phase-ship)] px-3 py-2 text-sm font-medium text-white"
           onClick={validateUuid}
         >
-          Validate UUID
+          {tr.catalog.validateUuid}
         </button>
         {uuidError ? (
           <p className="mt-2 text-sm text-red-600" data-testid="catalog-uuid-error">{uuidError}</p>
         ) : null}
         {!uuidError && uuidDraft && isValidUuid(uuidDraft) ? (
-          <p className="mt-2 text-sm text-green-700" data-testid="catalog-uuid-ok">Valid UUID</p>
+          <p className="mt-2 text-sm text-green-700" data-testid="catalog-uuid-ok">{tr.catalog.validUuid}</p>
         ) : null}
 
         <h3 className="mt-6 text-xs font-semibold uppercase tracking-wide text-[var(--qs-text-muted)]">
-          Trap types
+          {tr.catalog.trapTypes}
         </h3>
         <ul className="mt-2 max-h-48 space-y-1 overflow-auto font-mono text-[11px]">
           {mirror.trapTypes.map((trap) => (

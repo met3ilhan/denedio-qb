@@ -4,6 +4,7 @@ import { GenerationRunMonitor } from "@/components/generation/GenerationRunMonit
 import { StudioShell } from "@/components/studio/StudioShell";
 import { createMissionRepository } from "@/modules/missions/repository/mission-repository";
 import { prisma } from "@/shared/db/client";
+import { tr } from "@/shared/copy/tr";
 
 type PageProps = { params: Promise<{ id: string; runId: string }> };
 
@@ -12,7 +13,7 @@ export default async function GenerationRunPage({ params }: PageProps) {
   if (!process.env.DATABASE_URL) {
     return (
       <StudioShell missionId={missionId} activePhase="CANDIDATES">
-        <p>Database offline.</p>
+        <p>{tr.mission.databaseOffline}</p>
       </StudioShell>
     );
   }
@@ -33,8 +34,8 @@ export default async function GenerationRunPage({ params }: PageProps) {
       activePhase="CANDIDATES"
       header={
         <>
-          <p className="text-mono text-[var(--qs-text-muted)]">S09 · Generation monitor</p>
-          <h1 className="text-display mt-1">Candidate spawn</h1>
+          <p className="text-mono text-[var(--qs-text-muted)]">{tr.generation.monitorScreen}</p>
+          <h1 className="text-display mt-1">{tr.generation.monitorTitle}</h1>
         </>
       }
     >

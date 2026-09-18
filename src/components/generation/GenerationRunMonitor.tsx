@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useState } from "react";
 
+import { tr } from "@/shared/copy/tr";
+
 type GenerationRunMonitorProps = {
   missionId: string;
   runId: string;
@@ -21,7 +23,7 @@ export function GenerationRunMonitor({
   const [message, setMessage] = useState<string | null>(null);
 
   async function spawn() {
-    setMessage("Running pipeline…");
+    setMessage(tr.generation.runningPipeline);
     const res = await fetch(`/api/missions/${missionId}/generation/runs/${runId}/spawn`, {
       method: "POST",
     });
@@ -32,13 +34,13 @@ export function GenerationRunMonitor({
     }
     setCandidateIds(data.candidateIds ?? []);
     setStatus("SUCCEEDED");
-    setMessage(`Spawned ${data.candidateIds?.length ?? 0} candidate(s).`);
+    setMessage(tr.generation.spawned(data.candidateIds?.length ?? 0));
   }
 
   return (
     <div data-testid="generation-run-monitor">
       <p className="text-mono text-sm text-[var(--qs-text-muted)]">
-        Run <span>{runId}</span> · {status}
+        {tr.common.run} <span>{runId}</span> · {status}
       </p>
       {status === "READY" ? (
         <button
@@ -47,7 +49,7 @@ export function GenerationRunMonitor({
           className="mt-4 rounded-md bg-[var(--qs-phase-candidates)] px-3 py-2 text-sm font-medium text-white"
           data-testid="spawn-candidates"
         >
-          Spawn candidates (S09)
+          {tr.generation.spawnButton}
         </button>
       ) : null}
       {message ? <p className="text-body mt-2">{message}</p> : null}
@@ -57,18 +59,18 @@ export function GenerationRunMonitor({
           className="mt-4 inline-block text-sm underline"
           data-testid="open-s10-compare"
         >
-          Open S10 comparison matrix
+          {tr.generation.openCompare}
         </Link>
       ) : null}
       <ul className="mt-6 space-y-2">
         {candidateIds.map((id) => (
           <li key={id}>
             <Link href={`/candidates/${id}`} className="underline" data-testid="candidate-link">
-              Candidate {id.slice(0, 8)}…
+              {tr.generation.candidateLink(id.slice(0, 8))}
             </Link>
             <span className="text-[var(--qs-text-muted)]"> · </span>
             <Link href={`/candidates/${id}/verification`} className="text-sm underline">
-              S12 findings
+              {tr.generation.findingsS12}
             </Link>
           </li>
         ))}

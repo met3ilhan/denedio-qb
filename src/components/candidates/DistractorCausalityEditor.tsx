@@ -9,6 +9,7 @@ import type { z } from "zod";
 
 type DistractorChoiceAnalysis = z.infer<typeof distractorChoiceAnalysisSchema>;
 import type { GeneratedQuestion } from "@/shared/validation/generated-question";
+import { causalityStatusLabel, tr } from "@/shared/copy/tr";
 import { MECHANISM_IDS, TRAP_TYPE_IDS } from "@/shared/validation/pedagogy-enums";
 
 type DistractorCausalityEditorProps = {
@@ -18,13 +19,6 @@ type DistractorCausalityEditorProps = {
   selectedLabel: string;
   onSelectLabel: (label: string) => void;
   showRail?: boolean;
-};
-
-const causalityStatusLabel: Record<string, string> = {
-  SUPPORTED: "Verified (supported)",
-  PLAUSIBLE: "Supported (qualitative)",
-  UNVERIFIED: "Unverified",
-  CONTRADICTED: "Contradicted",
 };
 
 export function DistractorCausalityEditor({
@@ -90,7 +84,7 @@ export function DistractorCausalityEditor({
   if (!selectedEntry) {
     return (
       <p className="text-sm text-[var(--qs-text-muted)]" data-testid="distractor-editor-empty">
-        No distractor metadata for choice {selectedLabel}.
+        {tr.candidates.noMetadataForChoice(selectedLabel)}
       </p>
     );
   }
@@ -100,7 +94,7 @@ export function DistractorCausalityEditor({
       {showRail ? (
         <nav
           className="flex flex-wrap gap-2 border-t border-[var(--qs-border)] pt-3"
-          aria-label="Wrong choice rail"
+          aria-label={tr.candidates.wrongChoiceRailAria}
           data-testid="distractor-choice-rail"
         >
           {wrongLabels.map((label) => (
@@ -124,7 +118,7 @@ export function DistractorCausalityEditor({
       <div className="grid gap-6 lg:grid-cols-1">
         <div className="space-y-3">
           <div>
-            <label className="text-xs font-medium text-[var(--qs-text-muted)]">Choice</label>
+            <label className="text-xs font-medium text-[var(--qs-text-muted)]">{tr.candidates.choice}</label>
             <p className="text-stem mt-1 rounded-md border border-[var(--qs-border)] bg-[var(--qs-canvas)] p-2">
               {choiceText}
             </p>
@@ -132,7 +126,7 @@ export function DistractorCausalityEditor({
 
           <div>
             <label className="text-xs font-medium text-[var(--qs-text-muted)]" htmlFor="distractor-mech">
-              Mechanism (MECH)
+              {tr.candidates.mechanismMech}
             </label>
             <select
               id="distractor-mech"
@@ -149,7 +143,7 @@ export function DistractorCausalityEditor({
 
           <div>
             <label className="text-xs font-semibold uppercase text-[var(--qs-text-muted)]" htmlFor="distractor-misconception">
-              Misconception
+              {tr.terms.misconception}
             </label>
             <input
               id="distractor-misconception"
@@ -161,7 +155,7 @@ export function DistractorCausalityEditor({
           </div>
 
           <div>
-            <span className="text-xs font-semibold uppercase text-[var(--qs-text-muted)]">Trap type</span>
+            <span className="text-xs font-semibold uppercase text-[var(--qs-text-muted)]">{tr.candidates.trapType}</span>
             <div className="mt-2 flex flex-wrap gap-2" data-testid="distractor-field-trap-types">
               {TRAP_TYPE_IDS.map((trap) => {
                 const on = selectedEntry.trap_type_ids.includes(trap);
@@ -186,7 +180,7 @@ export function DistractorCausalityEditor({
         <div className="space-y-3">
           <div>
             <label className="text-xs font-semibold uppercase text-[var(--qs-text-muted)]" htmlFor="distractor-likely-mistake">
-              Likely mistake
+              {tr.candidates.likelyMistake}
             </label>
             <textarea
               id="distractor-likely-mistake"
@@ -199,7 +193,7 @@ export function DistractorCausalityEditor({
 
           <div>
             <label className="text-xs font-semibold uppercase text-[var(--qs-text-muted)]" htmlFor="distractor-why-attractive">
-              Why attractive
+              {tr.candidates.whyAttractive}
             </label>
             <textarea
               id="distractor-why-attractive"
@@ -212,7 +206,7 @@ export function DistractorCausalityEditor({
 
           <div>
             <label className="text-xs font-semibold uppercase text-[var(--qs-text-muted)]" htmlFor="distractor-produces">
-              Process outcome (produces value)
+              {tr.candidates.processOutcome}
             </label>
             <input
               id="distractor-produces"
@@ -224,11 +218,11 @@ export function DistractorCausalityEditor({
           </div>
 
           <div>
-            <span className="text-xs font-semibold uppercase text-[var(--qs-text-muted)]">Process / error path</span>
+            <span className="text-xs font-semibold uppercase text-[var(--qs-text-muted)]">{tr.candidates.processErrorPath}</span>
             <ul className="mt-2 space-y-2">
               {selectedEntry.steps.map((step) => (
                 <li key={step.order}>
-                  <label className="text-xs text-[var(--qs-text-muted)]">Step {step.order}</label>
+                  <label className="text-xs text-[var(--qs-text-muted)]">{tr.common.step(step.order)}</label>
                   <textarea
                     className="mt-1 w-full rounded-md border border-[var(--qs-border)] p-2 text-sm"
                     value={step.student_action}
@@ -244,7 +238,7 @@ export function DistractorCausalityEditor({
                 className="mt-2 text-sm underline"
                 onClick={addStep}
               >
-                Add error-path step
+                {tr.candidates.addErrorStep}
               </button>
             ) : null}
           </div>
@@ -255,16 +249,16 @@ export function DistractorCausalityEditor({
         className="rounded-md border border-[var(--qs-border)] bg-[var(--qs-canvas)] p-3 text-sm"
         data-testid="distractor-causality-status"
       >
-        <h3 className="font-semibold">Causality status</h3>
+        <h3 className="font-semibold">{tr.candidates.causalityStatus}</h3>
         <p className="mt-1">
           {selectedFinding
-            ? causalityStatusLabel[selectedFinding.state] ?? selectedFinding.state
-            : "Not evaluated"}
+            ? causalityStatusLabel(selectedFinding.state)
+            : tr.candidates.notEvaluated}
         </p>
         {selectedFinding?.message ? (
           <p className="mt-1 text-[var(--qs-text-muted)]" data-testid="distractor-causality-evidence">
             {selectedFinding.message}
-            {selectedFinding.computed_value ? ` · computed: ${selectedFinding.computed_value}` : ""}
+            {selectedFinding.computed_value ? tr.candidates.computed(selectedFinding.computed_value) : ""}
           </p>
         ) : null}
       </aside>

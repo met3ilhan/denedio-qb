@@ -4,6 +4,7 @@ import { ApprovalWorkspace } from "@/components/candidates/ApprovalWorkspace";
 import { StudioShell } from "@/components/studio/StudioShell";
 import { createCandidateRepository } from "@/modules/candidates/repository/candidate-repository";
 import { prisma } from "@/shared/db/client";
+import { tr } from "@/shared/copy/tr";
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -27,8 +28,8 @@ export default async function CandidateApprovalPage({ params }: PageProps) {
       activePhase="SHIP"
       header={
         <>
-          <p className="text-mono text-[var(--qs-text-muted)]">S13 · Expert approval</p>
-          <h1 className="text-display mt-1">Sign-off</h1>
+          <p className="text-mono text-[var(--qs-text-muted)]">{tr.candidates.approvalScreen}</p>
+          <h1 className="text-display mt-1">{tr.candidates.approvalTitle}</h1>
         </>
       }
     >

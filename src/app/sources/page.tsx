@@ -2,15 +2,16 @@ import Link from "next/link";
 
 import { SourcesLibraryTable } from "@/components/sources/SourcesLibraryTable";
 import { StudioShell } from "@/components/studio/StudioShell";
+import { tr } from "@/shared/copy/tr";
 
 export default function SourcesLibraryPage() {
   return (
     <StudioShell activePhase="INTAKE" showBlockers={false}
       header={
         <>
-          <p className="font-mono text-xs text-[var(--qs-text-muted)]">S02 · Sources Library</p>
+          <p className="font-mono text-xs text-[var(--qs-text-muted)]">{tr.sources.libraryScreen}</p>
           <h1 className="mt-1 text-xl font-semibold tracking-tight text-[var(--qs-text)] sm:text-[28px]">
-            Sources corpus
+            {tr.sources.libraryTitle}
           </h1>
         </>
       }
@@ -20,7 +21,7 @@ export default function SourcesLibraryPage() {
           href="/sources/new"
           className="rounded-md bg-[var(--qs-phase-intake)] px-3 py-2 text-sm font-medium text-white"
         >
-          New source intake
+          {tr.mission.newSourceIntake}
         </Link>
       </div>
       <SourcesLibraryTable />
