@@ -16,28 +16,28 @@ export const STUDIO_PHASES: {
     phase: "INTAKE",
     label: MISSION_PHASE_LABELS.INTAKE,
     signalClass: "bg-[var(--qs-phase-intake)]",
-    tintClass: "bg-[color-mix(in_srgb,var(--qs-phase-intake)_8%,white)]",
+    tintClass: "bg-[var(--qs-phase-intake-50)]",
   },
   {
     id: "mechanism",
     phase: "MECHANISM",
     label: MISSION_PHASE_LABELS.MECHANISM,
     signalClass: "bg-[var(--qs-phase-mechanism)]",
-    tintClass: "bg-[color-mix(in_srgb,var(--qs-phase-mechanism)_8%,white)]",
+    tintClass: "bg-[var(--qs-phase-mechanism-50)]",
   },
   {
     id: "candidates",
     phase: "CANDIDATES",
     label: MISSION_PHASE_LABELS.CANDIDATES,
     signalClass: "bg-[var(--qs-phase-candidates)]",
-    tintClass: "bg-[color-mix(in_srgb,var(--qs-phase-candidates)_8%,white)]",
+    tintClass: "bg-[var(--qs-phase-candidates-50)]",
   },
   {
     id: "ship",
     phase: "SHIP",
     label: MISSION_PHASE_LABELS.SHIP,
     signalClass: "bg-[var(--qs-phase-ship)]",
-    tintClass: "bg-[color-mix(in_srgb,var(--qs-phase-ship)_8%,white)]",
+    tintClass: "bg-[var(--qs-phase-ship-50)]",
   },
 ];
 

@@ -10,6 +10,10 @@
   --qs-phase-mechanism: #7c3aed;
   --qs-phase-candidates: #d97706;
   --qs-phase-ship: #059669;
+  --qs-phase-intake-50: #eff6ff;
+  --qs-phase-mechanism-50: #f5f3ff;
+  --qs-phase-candidates-50: #fffbeb;
+  --qs-phase-ship-50: #ecfdf5;
   --qs-severity-blocker: #dc2626;
   --qs-severity-major: #ea580c;
   --qs-severity-minor: #ca8a04;
@@ -42,4 +46,32 @@ body {
   background: var(--bench);
   color: var(--ink);
   font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+@layer utilities {
+  .text-display {
+    font-size: 28px;
+    line-height: 34px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .text-title {
+    font-size: 20px;
+    line-height: 28px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .text-body {
+    font-size: 15px;
+    line-height: 24px;
+    font-weight: 400;
+  }
+
+  .text-mono {
+    font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+    font-size: 13px;
+    line-height: 20px;
+  }
 }

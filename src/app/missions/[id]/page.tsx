@@ -47,7 +47,7 @@ export default async function MissionPage({ params }: MissionPageProps) {
         </>
       }
     >
-      <section className="min-w-0 rounded-lg border border-[var(--qs-border)] bg-[var(--qs-surface)] p-5">
+      <section className="min-w-0 rounded-lg border border-[var(--qs-border)] bg-[var(--qs-surface)] p-4">
         <h2 className="text-sm font-semibold text-[var(--qs-text)]">Workspace</h2>
         <p className="mt-2 text-sm text-[var(--qs-text-muted)]">
           Phase screens (S02–S18) attach here as gates land. Recent provenance:

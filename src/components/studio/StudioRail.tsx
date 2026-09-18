@@ -52,7 +52,7 @@ export function StudioRail({ missionId, activePhase, missionTitle }: StudioRailP
               title={disabled ? "Start intake to unlock later phases" : undefined}
             >
               <span
-                className={`absolute top-1 bottom-1 left-0 w-1 rounded-full ${phase.signalClass} ${
+                className={`absolute top-1 bottom-1 left-0 w-1 ${phase.signalClass} ${
                   isActive ? "opacity-100" : "opacity-40"
                 }`}
                 aria-hidden
