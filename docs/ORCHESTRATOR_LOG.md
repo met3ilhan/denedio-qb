@@ -218,3 +218,71 @@ Post-session check appended to `docs/DENEDIO_READONLY_BASELINE.md` — HEAD `cab
 **Acceptance:** **PRODUCT DISCOVERY COMPLETE** — `.project-state.md` updated; Implementer may be delegated **P01** scaffold only; domain work remains gated per Master Build Plan.
 
 **Next:** Gate 2 — Source Extraction planning; delegate Implementer for P01 when ready; maintain Denedio read-only discipline.
+
+---
+
+## 2026-09-18 — OVERNIGHT BUILD KICKOFF (P01)
+
+**Owner:** Orchestrator (coordination only — **no application code**).
+
+**Pre-flight:**
+
+| Check | Result |
+|-------|--------|
+| Gate 0–1 | **PASS** (Gate 1 accepted; Denedio read-only baseline current) |
+| Writable repo | `C:\Users\PC\Desktop\denedio-qb` |
+| Denedio reference | `C:\Users\PC\Desktop\sinav` — **READ ONLY** |
+| Application | **NOT STARTED** (authorized for P01 scaffold only) |
+| Git branch | `build/agent-office-v1` — working tree **clean**, up to date with `origin/build/agent-office-v1` |
+
+**Branch recommendation (parent):** Create and work on **`build/question-studio-v1`** branched from clean `build/agent-office-v1` before Implementer commits scaffold (keeps agent-office history separate from application implementation).
+
+**Active implementation phase:** **P01** — Repository scaffold & quality bar (`docs/MASTER_BUILD_PLAN.md`).
+
+### P01 plan (Orchestrator)
+
+| Field | Value |
+|-------|--------|
+| **Goal** | pnpm monolith-ready Next.js App Router app: TS strict, Tailwind, ESLint, Vitest, Playwright harness, CI stub |
+| **Stack authority** | `docs/ARCHITECTURE.md` — Next.js App Router, pnpm, Vitest, Playwright; target `src/app/`, `modules/`, `shared/` layout (normative for Gate 2+) |
+| **Primary gate** | Pre–Gate 2 (does not implement Gate 2 extraction) |
+
+**Out of scope (explicit):** Domain modules (missions, sources, fingerprints, generation, Prisma/PostgreSQL, AI pipeline, UX screens S01+, Denedio connection, catalog mirror, export — **none** until later phases).
+
+### Delegation — **implementer** (P01)
+
+**Task:** Deliver P01 artifacts only.
+
+**Must produce:**
+
+- Root `package.json` + pnpm workspace/monolith layout as appropriate for single Next app
+- Next.js App Router entry: `app/layout.tsx` (or `src/app/layout.tsx` per architecture normative tree)
+- TypeScript **strict**, Tailwind CSS, ESLint configured
+- **Vitest** + scripts; **Playwright** smoke harness (opens `/`)
+- `.env.example` (or equivalent sample) — **no secrets**
+- `README` — install, dev, test, lint commands
+- `.github/workflows/*` **or** documented equivalent local CI command in README
+
+**Must align:** Folder skeleton toward `docs/ARCHITECTURE.md` modular monolith (`src/app/`, `src/modules/` placeholders or empty structure acceptable; **no domain logic**).
+
+**Must not:** Add Prisma, DB, mission/source/fingerprint features, AI providers, or locked UX (P03+).
+
+**Inputs:** `docs/ARCHITECTURE.md` (stack + layout), `docs/MASTER_BUILD_PLAN.md` P01 row, `docs/DESIGN_SYSTEM.md` (Tailwind token hook only if needed for base styles — no full studio UI).
+
+**Gate status:** P01 — **DELEGATED** (awaiting Implementer HANDOFF).
+
+**Acceptance (Orchestrator will accept only after):** TESTER PASS on scaffold smoke per Master Build Plan.
+
+### Post-P01 pipeline (sequenced — do not skip)
+
+| Order | Agent | Responsibility |
+|-------|--------|----------------|
+| 1 | **tester** | Run `pnpm test`, `pnpm lint`; Playwright smoke — app loads `/`; record PASS/FAIL |
+| 2 | **architect** | Review module folder layout vs `docs/ARCHITECTURE.md`; flag drift before P02 |
+| 3 | **verifier** | Phase acceptance per cycle — scaffold meets P01 acceptance; no forbidden scope creep |
+
+If TESTER FAIL or Architect blocks layout: **implementer** fix → re-test → re-verify → Orchestrator P01 accept log.
+
+**On P01 accept:** Update `.project-state.md` — application scaffold **STARTED**; next delegate **P02** only after Orchestrator accepts P01 (Gate 2 domain work still **NOT STARTED** until Gate 2 pass criteria met for extraction — P02 is persistence foundation per plan).
+
+**Next (parent):** Checkout/create `build/question-studio-v1` → invoke **implementer** with delegation brief below → on COMPLETE, invoke **tester** → **architect** → **verifier**.

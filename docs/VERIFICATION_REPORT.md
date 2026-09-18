@@ -212,3 +212,107 @@ Gate 1 definition artifacts are **actionable, internally consistent, and aligned
 ## Prior status (superseded)
 
 Previous placeholder (“No verification runs yet”) referred to **implementation** verification; superseded by this Gate 1 discovery run.
+
+---
+
+## P01 — Repository scaffold & quality bar (implementation)
+
+### Run metadata
+
+| Field | Value |
+|-------|--------|
+| **Scope** | P01 phase acceptance — scaffold layout, quality bar, scope boundary (not Gate 4+ pedagogy) |
+| **Date** | 2026-09-18 |
+| **Role** | Verifier (independent of Implementer / Tester) |
+| **Branch** | `build/question-studio-v1` |
+| **Tester input** | `docs/QA_FINDINGS.md` — **PASS** (commit `15a29a6` cited by Tester) |
+| **Architect input** | Initial **BLOCK** (missing `src/modules/*` + `src/shared/*` skeleton); remediated with nine module README stubs + four shared README stubs + `src/modules/README.md` |
+
+### Independent commands (Verifier re-run)
+
+| Command | Result |
+|---------|--------|
+| `pnpm typecheck` | PASS |
+| `pnpm lint` | PASS |
+| `pnpm test` | PASS (1 unit test, `src/shared/smoke.test.ts`) |
+| `pnpm build` | PASS |
+
+Playwright not re-run in this pass; Tester **PASS** on `pnpm test:e2e` (home smoke) accepted as evidence per P01 acceptance row.
+
+### `MASTER_BUILD_PLAN.md` P01 alignment
+
+| Requirement | Status |
+|-------------|--------|
+| Next.js App Router + TS strict + Tailwind + ESLint | **Met** (`src/app/`, `tsconfig.json` `strict: true`, `globals.css` tokens) |
+| Vitest + Playwright harness | **Met** (`vitest.config.mjs`, `e2e/home.spec.ts`, scripts in `package.json`) |
+| CI stub | **Met** (`.github/workflows/ci.yml`: lint, typecheck, unit test, build) |
+| Env sample without secrets | **Met** (`.env.example`) |
+| README run instructions | **Met** (`README.md`) |
+| Scope: no domain features | **Met** (no Prisma, Zod domain schemas, AI providers, or module `domain`/`application` code) |
+| Review: module layout vs architecture | **Met** (see below) |
+| Acceptance: TESTER PASS on scaffold smoke | **Met** (QA findings) |
+
+### Module / shared skeleton vs `docs/ARCHITECTURE.md`
+
+Normative modules (all present as README-only placeholders):
+
+`missions`, `sources`, `fingerprints`, `generation`, `questions`, `verification`, `catalog`, `export`, `audit`
+
+Normative shared areas (README-only placeholders):
+
+`shared/ai`, `shared/db`, `shared/validation`, `shared/storage`
+
+Additional scaffold-only code under `shared/`: `index.ts` (`STUDIO_NAME` constant) + smoke unit test — **not domain logic**.
+
+**TypeScript under `src/modules/`:** none (README stubs only). **No** extra modules (e.g. no premature `curriculum` tree in this repo).
+
+### Domain creep check
+
+| Check | Result |
+|-------|--------|
+| Persistence / Prisma | **Absent** |
+| AI pipeline / provider SDKs | **Absent** |
+| Domain entities, services, API routes | **Absent** |
+| Denedio DB connection | **Absent** |
+| Export / catalog mirror implementation | **Absent** |
+
+`src/app/page.tsx` is static marketing + **Direction B** standby shell (rail, phase colors, provenance copy). No navigation, data fetching, or workflow state — acceptable as **placeholder** for locked design (D-004 / Pedagogy Signal Lab), with scope note below.
+
+### Design Direction B (placeholder)
+
+| Criterion | Assessment |
+|-----------|------------|
+| Locked authority (UX / design system) | **Aligned** — “Pedagogy Signal Lab”, phase signal colors in `globals.css`, Inter + JetBrains Mono in `layout.tsx` |
+| Full S01+ locked UX | **Not claimed** — footer copy states missions pending; rail items are non-interactive (Tester P01-005) |
+| Orchestrator P01 “no full studio UI” | **Partial overlap with P03** — home implements a shell beyond minimal `/` stub; **accepted** for this verification per product direction (Direction B placeholder OK) |
+
+### Warnings (non-blocking for P01)
+
+| ID | Warning | Owner | Notes |
+|----|---------|-------|-------|
+| P01-V1 | Home layout overlaps **P03** studio-shell scope | Implementer | Intentional Direction B placeholder; avoid adding S01+ behavior until P03 |
+| P01-V2 | Mobile horizontal overflow at 390px | Implementer / Design | Tester **P01-002** — fix before Gate 9 UX sign-off |
+| P01-V3 | CI does not run Playwright | Implementer | Tester **P01-003** — document or add job when stable |
+| P01-V4 | Intermittent `next build` / dev-origin noise | Implementer | Tester **P01-001**, **P01-004** |
+| P01-V5 | `docs/ARCHITECTURE.md` status still reads “no scaffold” | Orchestrator | Doc hygiene; layout section is authoritative for P01 |
+
+### Rejection criteria (P01 lens)
+
+| Criterion | P01 scaffold |
+|-----------|----------------|
+| Domain features shipped early | **No** |
+| Layout drift vs architecture module list | **No** |
+| Forbidden Denedio prod connection | **No** |
+| TESTER FAIL on required smoke | **No** |
+
+**Blocking fixes for REJECT:** **None**.
+
+---
+
+### P01 verdict
+
+**APPROVE WITH WARNINGS** — **VERIFIER APPROVE (P01 scaffold)** with warnings P01-V1–P01-V5.
+
+**May P02 proceed:** **YES** (persistence foundation per `MASTER_BUILD_PLAN.md`; still no extraction UX until later gates).
+
+**Not issued:** Pedagogy, solver, fingerprint, or export **VERIFIER APPROVE** (Gates 3–10).
