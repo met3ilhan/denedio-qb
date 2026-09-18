@@ -45,3 +45,16 @@ HEAD unchanged; working tree remained clean → **VERIFIED** (no Denedio modific
 ## Ongoing checks
 
 Orchestrator must re-run the same two commands after any session that touched Contract Reader tasks and append a row to this file.
+
+---
+
+## Post–Gate 1 discovery session
+
+**Timestamp:** 2026-09-18 (after Gate 1 acceptance; Contract Reader evidence consumed in discovery)
+
+| Check | Result |
+|-------|--------|
+| `git status --porcelain=v1` | *(empty — clean working tree)* |
+| `git rev-parse HEAD` | `cab8643698943c365203b483f138e285ac5be82a` |
+
+**Integrity conclusion:** HEAD unchanged from bootstrap; working tree clean → **VERIFIED** (no Denedio modifications during Gate 1 discovery).
