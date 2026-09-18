@@ -67,11 +67,13 @@ test.describe("Gate 10 QA screenshot capture", () => {
     const spawn = await request.post(`/api/missions/${missionId}/generation/runs/${runId}/spawn`);
     const spawnBody = (await spawn.json()) as { candidateIds: string[] };
     candidateId = spawnBody.candidateIds[0];
-
-    await request.post(`/api/candidates/${candidateId}/verify`, { data: {} });
+    const detail = await request.get(`/api/candidates/${candidateId}`);
+    const { verification } = (await detail.json()) as { verification?: { quality_gate?: string } };
+    expect(verification?.quality_gate).not.toBe("GATE_FAIL");
     const approve = await request.post(`/api/candidates/${candidateId}/approve`, {
       data: { checklist: { mechanism_preserved: true, solver_consistent: true } },
     });
+    expect(approve.ok()).toBeTruthy();
     const approveBody = (await approve.json()) as { generatedQuestionId: string };
     generatedQuestionId = approveBody.generatedQuestionId;
   });

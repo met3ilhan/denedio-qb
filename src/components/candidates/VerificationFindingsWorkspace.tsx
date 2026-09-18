@@ -10,7 +10,7 @@ type VerificationFindingsWorkspaceProps = {
   stale: boolean;
 };
 
-const LEVEL_ORDER = ["FAIL", "WARNING", "PASS"] as const;
+const GROUP_ORDER = ["Solver", "Fingerprint", "Distractor", "Similarity", "Schema", "Trivial"] as const;
 
 export function VerificationFindingsWorkspace({
   candidateId,
@@ -22,7 +22,7 @@ export function VerificationFindingsWorkspace({
     window.location.reload();
   }
 
-  const grouped = groupFindings(verification?.findings ?? []);
+  const grouped = groupFindingsByUxGroup(verification?.findings ?? []);
 
   return (
     <div data-testid="verification-findings">
@@ -49,12 +49,12 @@ export function VerificationFindingsWorkspace({
       </div>
 
       <div className="mt-6 space-y-4">
-        {LEVEL_ORDER.map((level) => {
-          const items = grouped[level];
+        {GROUP_ORDER.map((group) => {
+          const items = grouped[group];
           if (!items?.length) return null;
           return (
-            <section key={level}>
-              <h3 className="text-title text-[var(--qs-text)]">{level}</h3>
+            <section key={group} data-testid={`findings-group-${group}`}>
+              <h3 className="text-title text-[var(--qs-text)]">{group}</h3>
               <ul className="mt-2 space-y-2">
                 {items.map((f) => (
                   <li
@@ -62,8 +62,22 @@ export function VerificationFindingsWorkspace({
                     className="rounded-md border border-[var(--qs-border)] bg-[var(--qs-surface)] p-3 text-sm"
                     data-testid={`finding-${f.level}-${f.code}`}
                   >
-                    <span className="text-mono text-[var(--qs-text-muted)]">{f.group}</span>
+                    <span className="text-mono text-[var(--qs-text-muted)]">{f.level} · {f.code}</span>
                     <p>{f.message}</p>
+                    {f.remediationScreen ? (
+                      <p className="mt-1 text-xs text-[var(--qs-text-muted)]">
+                        Fix in{" "}
+                        {f.remediationScreen === "S11" ? (
+                          <Link href={`/candidates/${candidateId}`} className="underline">
+                            editor (S11)
+                          </Link>
+                        ) : f.remediationScreen === "S07" ? (
+                          <span>fingerprint (S07)</span>
+                        ) : (
+                          <span>{f.remediationScreen}</span>
+                        )}
+                      </p>
+                    ) : null}
                   </li>
                 ))}
               </ul>
@@ -99,11 +113,14 @@ export function VerificationFindingsWorkspace({
   );
 }
 
-function groupFindings(findings: VerificationResult["findings"]) {
-  const map: Record<string, VerificationResult["findings"]> = {};
+function groupFindingsByUxGroup(findings: VerificationResult["findings"]) {
+  const map: Partial<Record<(typeof GROUP_ORDER)[number], VerificationResult["findings"]>> = {};
   for (const f of findings) {
-    map[f.level] = map[f.level] ?? [];
-    map[f.level].push(f);
+    const g = GROUP_ORDER.includes(f.group as (typeof GROUP_ORDER)[number])
+      ? (f.group as (typeof GROUP_ORDER)[number])
+      : "Schema";
+    map[g] = map[g] ?? [];
+    map[g].push(f);
   }
   return map;
 }

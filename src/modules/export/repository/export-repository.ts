@@ -1,6 +1,6 @@
 import type { Prisma } from "@prisma/client";
 
-import { defaultCurriculumSelection } from "@/modules/catalog";
+import { assessExportEligibility } from "@/modules/export/export-eligibility";
 import {
   buildQuestionImportPayload,
   curriculumFromMapping,
@@ -14,8 +14,43 @@ import type { PrismaClient } from "@/shared/db/client";
 import { generatedQuestionSchema } from "@/shared/validation/generated-question";
 import type { QuestionImportPayload } from "@/shared/validation/question-import-payload";
 
+export class ExportBlockedError extends Error {
+  constructor(
+    message: string,
+    public readonly reasons: string[],
+  ) {
+    super(message);
+    this.name = "ExportBlockedError";
+  }
+}
+
 export class ExportRepository {
   constructor(private readonly db: PrismaClient) {}
+
+  async assertExportEligible(generatedQuestionId: string) {
+    const question = await this.db.generatedQuestion.findUnique({
+      where: { id: generatedQuestionId },
+      include: {
+        versions: { orderBy: { versionNumber: "desc" }, take: 1 },
+        denedioMapping: true,
+        candidate: true,
+      },
+    });
+    if (!question || question.versions.length === 0) {
+      throw new ExportBlockedError("Question not found or has no versions", ["NOT_FOUND"]);
+    }
+    const assessment = assessExportEligibility({
+      questionStatus: question.status,
+      candidateStatus: question.candidate?.status ?? null,
+      latestVersionVerificationState: question.versions[0].verificationState,
+      hasExplicitDenedioMapping: Boolean(question.denedioMapping),
+      verificationStaleAt: question.candidate?.verificationStaleAt ?? null,
+    });
+    if (!assessment.eligible) {
+      throw new ExportBlockedError("Export blocked", assessment.reasons);
+    }
+    return question;
+  }
 
   async getMapping(generatedQuestionId: string) {
     return this.db.denedioFieldMapping.findUnique({ where: { generatedQuestionId } });
@@ -31,20 +66,17 @@ export class ExportRepository {
   }
 
   async buildPayloadForQuestion(generatedQuestionId: string): Promise<QuestionImportPayload | null> {
-    const question = await this.db.generatedQuestion.findUnique({
-      where: { id: generatedQuestionId },
-      include: {
-        versions: { orderBy: { versionNumber: "desc" }, take: 1 },
-        denedioMapping: true,
-      },
+    const question = await this.assertExportEligible(generatedQuestionId).catch((error) => {
+      if (error instanceof ExportBlockedError && error.reasons.includes("MISSING_DENEDIO_MAPPING")) {
+        return null;
+      }
+      throw error;
     });
-    if (!question || question.versions.length === 0) return null;
+    if (!question) return null;
 
     const content = generatedQuestionSchema.parse(question.versions[0].content);
-    const mappingRow = question.denedioMapping;
-    const curriculum = mappingRow
-      ? curriculumFromMapping(parseStoredDenedioFieldMapping(mappingRow))
-      : defaultCurriculumSelection();
+    const mappingRow = question.denedioMapping!;
+    const curriculum = curriculumFromMapping(parseStoredDenedioFieldMapping(mappingRow));
 
     const trapTypeMap =
       (mappingRow?.trapTypeMap as Record<string, string> | null | undefined) ?? {};
@@ -68,21 +100,67 @@ export class ExportRepository {
   }
 
   async runDryRunForQuestion(generatedQuestionId: string) {
+    const question = await this.db.generatedQuestion.findUnique({
+      where: { id: generatedQuestionId },
+      include: {
+        versions: { orderBy: { versionNumber: "desc" }, take: 1 },
+        denedioMapping: true,
+        candidate: true,
+      },
+    });
+    if (!question || question.versions.length === 0) {
+      throw new Error("Question not found or has no versions");
+    }
+
+    const assessment = assessExportEligibility({
+      questionStatus: question.status,
+      candidateStatus: question.candidate?.status ?? null,
+      latestVersionVerificationState: question.versions[0].verificationState,
+      hasExplicitDenedioMapping: Boolean(question.denedioMapping),
+      verificationStaleAt: question.candidate?.verificationStaleAt ?? null,
+    });
+
+    if (!assessment.eligible) {
+      const issues = assessment.reasons.map((reason) => ({
+        level: "error" as const,
+        code: dryRunIssueCode(reason),
+        message: exportBlockMessage(reason),
+        remediationScreen: reason === "MISSING_DENEDIO_MAPPING" ? ("S17" as const) : ("S12" as const),
+      }));
+      const stub = {
+        passed: false,
+        issues,
+        payloadHash: "",
+        wirePayload: { items: [] },
+        idempotency: {
+          externalKey: question.importExternalKey,
+          wouldSkipInDenedio: false,
+          note: "Dry-run blocked by export eligibility",
+        },
+        checksRun: ["export_eligibility"],
+        checksDeferredToDenedioPersist: [],
+      };
+      await this.db.exportAttempt.create({
+        data: {
+          generatedQuestionId,
+          passed: false,
+          dryRunResult: stub as Prisma.InputJsonValue,
+          payloadHash: `blocked-${assessment.reasons.join("-")}`,
+        },
+      });
+      return stub;
+    }
+
     const payload = await this.buildPayloadForQuestion(generatedQuestionId);
     if (!payload) {
-      throw new Error("Question not found or has no versions");
+      throw new Error("Payload build failed after eligibility passed");
     }
 
     const allKeys = await this.db.generatedQuestion.findMany({
       select: { importExternalKey: true },
     });
 
-    const question = await this.db.generatedQuestion.findUnique({
-      where: { id: generatedQuestionId },
-      include: { denedioMapping: true },
-    });
-
-    const curriculum = question?.denedioMapping
+    const curriculum = question.denedioMapping
       ? curriculumFromMapping(parseStoredDenedioFieldMapping(question.denedioMapping))
       : undefined;
 
@@ -112,8 +190,9 @@ export class ExportRepository {
   }
 
   async exportBundle(generatedQuestionId: string) {
+    await this.assertExportEligible(generatedQuestionId);
     const payload = await this.buildPayloadForQuestion(generatedQuestionId);
-    if (!payload) throw new Error("Question not found");
+    if (!payload) throw new ExportBlockedError("Export blocked", ["MISSING_DENEDIO_MAPPING"]);
     const latest = await this.latestDryRun(generatedQuestionId);
     if (!latest?.passed) {
       throw new Error("Export blocked until dry-run passes");
@@ -135,4 +214,26 @@ export class ExportRepository {
 
 export function createExportRepository(db: PrismaClient) {
   return new ExportRepository(db);
+}
+
+function dryRunIssueCode(reason: string): string {
+  if (reason === "MISSING_DENEDIO_MAPPING") return "MISSING_MAPPING";
+  return reason;
+}
+
+function exportBlockMessage(reason: string): string {
+  switch (reason) {
+    case "MISSING_DENEDIO_MAPPING":
+      return "Explicit S17 Denedio field mapping required before dry-run";
+    case "VERSION_NEEDS_REVERIFY":
+      return "Latest question version must be re-verified after expert revision";
+    case "VERIFICATION_STALE":
+      return "Candidate verification is stale after edits";
+    case "CANDIDATE_REJECTED":
+      return "Rejected candidates cannot be exported";
+    case "NOT_APPROVED":
+      return "Only approved question records are exportable";
+    default:
+      return `Export blocked: ${reason}`;
+  }
 }

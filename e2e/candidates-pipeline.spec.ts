@@ -64,7 +64,7 @@ test.describe("Candidate review and approval", () => {
     candidateId = spawnBody.candidateIds[0];
   });
 
-  test("UI: verification, stale invalidation, approval blocked", async ({ page }) => {
+  test("UI: verification, stale invalidation, approval blocked", async ({ page, request }) => {
     test.skip(!candidateId, "spawn step failed");
 
     await page.goto(`/candidates/${candidateId}/verification`);
@@ -79,5 +79,22 @@ test.describe("Candidate review and approval", () => {
 
     await page.goto(`/candidates/${candidateId}/approve`);
     await expect(page.getByTestId("approval-blocked")).toBeVisible();
+
+    const reverify = await request.post(`/api/candidates/${candidateId}/verify`, { data: {} });
+    expect(reverify.ok()).toBeTruthy();
+    await page.goto(`/candidates/${candidateId}`);
+    await expect(page.getByTestId("verification-stale-banner")).not.toBeVisible();
+  });
+
+  test("rejected candidate cannot export", async ({ request }) => {
+    test.skip(!candidateId, "spawn step failed");
+    const reject = await request.post(`/api/candidates/${candidateId}/reject`, {
+      data: { reason: "E2E rejection audit" },
+    });
+    expect(reject.ok()).toBeTruthy();
+    const approve = await request.post(`/api/candidates/${candidateId}/approve`, {
+      data: { checklist: { mechanism_preserved: true } },
+    });
+    expect(approve.status()).toBe(403);
   });
 });

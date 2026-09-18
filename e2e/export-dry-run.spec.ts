@@ -45,13 +45,33 @@ test.describe("S18 dry-run export gate", () => {
     });
     const { runId } = (await setup.json()) as { runId: string };
     const spawn = await request.post(`/api/missions/${missionId}/generation/runs/${runId}/spawn`);
+    expect(spawn.ok()).toBeTruthy();
     const { candidateIds } = (await spawn.json()) as { candidateIds: string[] };
-    const candidateId = candidateIds[0];
+    expect(candidateIds.length).toBeGreaterThan(0);
 
-    await request.post(`/api/candidates/${candidateId}/verify`, { data: {} });
+    let candidateId: string | null = null;
+    for (const id of candidateIds) {
+      const detail = await request.get(`/api/candidates/${id}`);
+      expect(detail.ok()).toBeTruthy();
+      const { verification } = (await detail.json()) as { verification?: { quality_gate?: string } };
+      if (verification?.quality_gate !== "GATE_FAIL") {
+        candidateId = id;
+        break;
+      }
+    }
+    if (!candidateId) {
+      const debug = await request.get(`/api/candidates/${candidateIds[0]}`);
+      const debugBody = (await debug.json()) as {
+        verification?: { quality_gate?: string; findings?: Array<{ level: string; code: string }> };
+      };
+      const fails = debugBody.verification?.findings?.filter((f) => f.level === "FAIL") ?? [];
+      expect(candidateId, `no sibling passed verification: ${JSON.stringify(fails)}`).toBeTruthy();
+    }
+
     const approve = await request.post(`/api/candidates/${candidateId}/approve`, {
       data: { checklist: { mechanism_preserved: true, solver_consistent: true } },
     });
+    expect(approve.ok()).toBeTruthy();
     const approveBody = (await approve.json()) as { generatedQuestionId: string };
     generatedQuestionId = approveBody.generatedQuestionId;
     expect(generatedQuestionId).toBeTruthy();

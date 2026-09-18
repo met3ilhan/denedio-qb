@@ -6,6 +6,7 @@ import { StudioShell } from "@/components/studio/StudioShell";
 import { createCandidateRepository } from "@/modules/candidates/repository/candidate-repository";
 import { distractorAnalysisSchema } from "@/shared/validation/distractor-analysis";
 import { generatedQuestionSchema } from "@/shared/validation/generated-question";
+import { mutationPlanSchema } from "@/shared/validation/mutation-plan";
 import { prisma } from "@/shared/db/client";
 
 type PageProps = { params: Promise<{ id: string }> };
@@ -26,6 +27,16 @@ export default async function CandidateInspectorPage({ params }: PageProps) {
   const distractor = bundle.distractorAnalysis
     ? distractorAnalysisSchema.parse(bundle.distractorAnalysis)
     : null;
+  const plan = mutationPlanSchema.parse(
+    bundle.generationRun.mutationPlans.find((p) => p.id === bundle.mutationPlanId)?.payload,
+  );
+  const sourceStem =
+    (bundle.generationRun.fingerprintVersion.fingerprint.sourceQuestion.structured as {
+      stemText?: string;
+    })?.stemText ?? "";
+  const lockedInvariantSummary = plan.invariant_assertions.map(
+    (a) => `${a.dimension}: ${a.assertion}`,
+  );
 
   return (
     <StudioShell
@@ -46,6 +57,9 @@ export default async function CandidateInspectorPage({ params }: PageProps) {
         initialDraft={draft}
         initialDistractor={distractor}
         verificationStaleAt={bundle.verificationStaleAt?.toISOString() ?? null}
+        sourceStem={sourceStem}
+        lockedInvariantSummary={lockedInvariantSummary}
+        fingerprintVersionId={bundle.generationRun.fingerprintVersionId}
       />
     </StudioShell>
   );

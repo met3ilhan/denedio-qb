@@ -52,6 +52,14 @@ export function CatalogBrowser({ mirror, selectedTopicId, onSelectTopic }: Catal
         <p className="mt-1 text-xs text-[var(--qs-text-muted)]">
           Read-only mirror ({mirror.source}) · {mirror.fetchedAt}
         </p>
+        {mirror.isDemoReference ? (
+          <p
+            className="mt-2 rounded-md border border-amber-300 bg-amber-50 px-2 py-1 text-xs text-amber-900"
+            data-testid="catalog-demo-disclosure"
+          >
+            Demo catalog reference — UUIDs are local mirror values, not confirmed live Denedio entities.
+          </p>
+        ) : null}
         <ul className="mt-4 space-y-2 text-sm">
           {topics.map((topic) => {
             const active = topic.id === selectedTopicId;
@@ -77,8 +85,10 @@ export function CatalogBrowser({ mirror, selectedTopicId, onSelectTopic }: Catal
       </section>
 
       <section className="rounded-lg border border-[var(--qs-border)] bg-[var(--qs-surface)] p-4">
-        <h2 className="text-sm font-semibold text-[var(--qs-text)]">UUID picker</h2>
-        <p className="mt-1 text-xs text-[var(--qs-text-muted)]">Paste a catalog UUID to validate format.</p>
+        <h2 className="text-sm font-semibold text-[var(--qs-text)]">Catalog UUID validator</h2>
+        <p className="mt-1 text-xs text-[var(--qs-text-muted)]">
+          Validates format only. Map curriculum in S17 from the mirror list — do not treat random UUIDs as Denedio FKs.
+        </p>
         <label className="mt-3 block text-xs font-medium" htmlFor="catalog-uuid-input">
           UUID
         </label>

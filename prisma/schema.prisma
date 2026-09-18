@@ -330,6 +330,12 @@ model QuestionVersion {
   versionNumber       Int
   content             Json
   createdByLabel      String            @default("expert")
+  parentVersionId     String?
+  revisionReason      String?
+  /// VERIFIED | NEEDS_REVERIFY — export requires latest VERIFIED
+  verificationState   String            @default("VERIFIED")
+  /// APPROVED | DRAFT
+  approvalState       String            @default("APPROVED")
   createdAt           DateTime          @default(now())
 
   @@unique([generatedQuestionId, versionNumber])

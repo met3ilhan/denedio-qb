@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 
-import { createExportRepository } from "@/modules/export/repository/export-repository";
+import {
+  createExportRepository,
+  ExportBlockedError,
+} from "@/modules/export/repository/export-repository";
 import { prisma } from "@/shared/db/client";
 
 export const runtime = "nodejs";
@@ -21,6 +24,12 @@ export async function GET(_request: Request, { params }: Params) {
       },
     });
   } catch (error) {
+    if (error instanceof ExportBlockedError) {
+      return NextResponse.json(
+        { error: error.message, reasons: error.reasons, publishingEnabled: false },
+        { status: 403 },
+      );
+    }
     const message = error instanceof Error ? error.message : "Export blocked";
     return NextResponse.json({ error: message, publishingEnabled: false }, { status: 403 });
   }

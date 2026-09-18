@@ -124,16 +124,25 @@ function solveRelativeSpeedRoundTrip(input: SolverInput): StemSolveOutcome | nul
 
 function solveTieredIntervalPricing(input: SolverInput): StemSolveOutcome | null {
   const stem = input.stemText;
-  if (!/first\s+\d+\s+hours/i.test(stem) && !/first\s+\d+\s+hour/i.test(stem)) return null;
+  const hasTieredCue =
+    /first\s+\d+\s+hours/i.test(stem) ||
+    /first\s+\d+\s+hour/i.test(stem) ||
+    /for\s+the\s+first\s+hour/i.test(stem);
+  if (!hasTieredCue) return null;
 
-  const firstBlock = stem.match(/first\s+(\d+)\s+hours?\s+cost\s+(\d+)/i);
-  const additional = stem.match(/each\s+additional\s+hour\s+costs?\s+(\d+)/i);
-  const totalHours = stem.match(/how\s+many\s+(?:credits|units|dollars|\$)?\s*for\s+(\d+)\s+hours?/i);
-  if (!firstBlock || !additional || !totalHours) return null;
+  const classicFirst = stem.match(/first\s+(\d+)\s+hours?\s+cost\s+(\d+)/i);
+  const kayakFirst = stem.match(/(\d+)\s+coins?\s+for\s+the\s+first\s+hour/i);
+  const additional =
+    stem.match(/each\s+additional\s+hour\s+costs?\s+(\d+)/i) ??
+    stem.match(/(\d+)\s+coins?\s+for\s+each\s+additional\s+hour/i);
+  const totalHours =
+    stem.match(/how\s+many\s+(?:credits|units|dollars|coins|\$)?\s*for\s+(\d+)\s+hours?/i) ??
+    stem.match(/for\s+(\d+)\s+hours?/i);
+  if ((!classicFirst && !kayakFirst) || !additional || !totalHours) return null;
 
-  const firstH = Number(firstBlock[1]);
-  const baseFee = Number(firstBlock[2]);
-  const addFee = Number(additional[1]);
+  const firstH = classicFirst ? Number(classicFirst[1]) : 1;
+  const baseFee = classicFirst ? Number(classicFirst[2]) : Number(kayakFirst![1]);
+  const addFee = Number(additional[1] ?? additional[2]);
   const hours = Number(totalHours[1]);
   const extra = Math.max(0, hours - firstH);
   const total = baseFee + extra * addFee;

@@ -158,3 +158,49 @@ pnpm test:e2e
 ## What Was Deliberately Not Built
 
 Denedio publish, production deploy, student/teacher portals, billing, live Denedio DB, copyrighted question banks.
+
+## FINAL ACCEPTANCE MISSION (2026-09-18)
+
+### Gate evidence
+
+| Gate | Result | Evidence |
+|------|--------|----------|
+| **7** | **FAIL** (Verifier REJECT) | S10 `/missions/:id/candidates/compare` shipped; edit invalidation + approval block e2e; version revision API + migration. **Gap:** S11 distractor panel still read-only; pedagogy-expert FAIL. |
+| **8** | **PASS** (Verifier APPROVE) | `denedio-mapper`, `export-eligibility`, dry-run `MISSING_MAPPING`, `DENEDIO_FIELD_MAPPING.md`, contract doc P20 updated; export e2e pass/fail; publishing disabled. |
+| **9** | **FAIL** (Verifier REJECT) | Playwright 18/18; screenshots under `artifacts/screenshots/`; demo banner; catalog demo disclosure. **Gap:** no formal Designer Pass A/B sign-off; S10/S11 UX depth. |
+| **10** | **FAIL** (Verifier REJECT) | Regression green; no `TEST_REPORT.md`; expert UX holes block product acceptance. |
+
+### Automation
+
+- **typecheck:** PASS  
+- **lint:** PASS (7 warnings)  
+- **vitest:** 53 passed, 1 skipped (`mission-repository.integration` — ENVIRONMENT-DEPENDENT, needs `DATABASE_URL`)  
+- **build:** PASS  
+- **Playwright:** 18/18  
+- **Live AI smoke:** NOT RUN — no Studio key configured in env  
+
+### W1–W6 (Verifier)
+
+| ID | Status |
+|----|--------|
+| W1 | ACCEPTED NON-BLOCKING |
+| W2 | ACCEPTED NON-BLOCKING |
+| W3 | ACCEPTED NON-BLOCKING |
+| W4 | ACCEPTED NON-BLOCKING (demo mirror + disclosure) |
+| W5 | OPEN |
+| W6 | RESOLVED |
+
+### Denedio integrity
+
+`cab8643698943c365203b483f138e285ac5be82a` — clean, read-only.
+
+### Remaining genuine blockers
+
+1. Editable distractor causality in S11 (MECH / misconception / path).  
+2. S10 UX parity (fingerprint-dimension rows, filter, Playwright).  
+3. Designer Gate 9 checklist + formal sign-off.  
+4. `TEST_REPORT.md` + Verifier Gate 10 APPROVE after above.
+
+### Deployment readiness
+
+**Local expert rehearsal only** — export bundle + dry-run; not production AI or Denedio publish.

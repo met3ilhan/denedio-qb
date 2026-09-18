@@ -159,7 +159,7 @@ Reference tests: `src/modules/questions/fixtures/realistic-content.test.ts`, `qu
 
 **Reviewed:** 2026-09-18 — branch `build/question-studio-v1`, commit through `6bd1741`.
 
-**Verdict:** P20 **not implemented** in `denedio-qb` (no mapper module, no `QuestionImportPayload` Zod in `src/`, no S17 route). `src/modules/export/README.md` is a stub only. Spec target: `docs/AI_SCHEMAS.md` § QuestionImportPayloadSchema + `GeneratedQuestion` in `src/shared/validation/generated-question.ts`.
+**Verdict:** P20 **implemented** on `build/question-studio-v1` — `src/modules/export/denedio-mapper.ts`, `src/shared/validation/question-import-payload.ts`, S17/S18 UI + API, `docs/DENEDIO_FIELD_MAPPING.md`. Live Denedio persist remains disabled (`DENEDIO_IMPORT_GAP.md`).
 
 **Wire payload (Denedio admin import):** `{ "items": [ …importQuestionItem… ] }` only — no `schemaVersion` (CONFIRMED Denedio shape: `importQuestionsSchema` in `sinav` `schemas.ts`).
 
@@ -189,7 +189,7 @@ Reference tests: `src/modules/questions/fixtures/realistic-content.test.ts`, `qu
 | `provenance.*`, `studioQuestionId` | **PROPOSED** | Not in Denedio import; fold id into `externalKey` only. |
 | `error_path_id`, `mechanism_id`, `trap_type_ids[]` | **PROPOSED** Studio-only | Do not export; use for internal trap UUID lookup (P19/W5). |
 
-**Parity check (2026-09-18):** `docs/AI_SCHEMAS.md` `QuestionImportPayloadSchema` matches `sinav` `importQuestionItemSchema` + `questionContentSchema` + choice/distractor shapes. **Not yet codified** in `src/shared/validation/` (P21 dry-run depends on P20).
+**Parity check (2026-09-18, updated):** Zod parity in `src/shared/validation/question-import-payload.ts`; local dry-run in `src/modules/export/dry-run.ts` (mirror FK + deferred live DB checks).
 
 Detail, blockers, and acceptance checklist: `docs/DENEDIO_IMPORT_GAP.md`.
 

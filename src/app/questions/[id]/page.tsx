@@ -48,7 +48,8 @@ export default async function QuestionRecordPage({ params }: PageProps) {
           <ul className="mt-2 text-sm">
             {question.versions.map((v) => (
               <li key={v.id} data-testid={`version-${v.versionNumber}`}>
-                v{v.versionNumber} · {v.createdAt.toISOString()}
+                v{v.versionNumber} · {v.verificationState} · {v.approvalState}
+                {v.revisionReason ? ` · ${v.revisionReason}` : ""} · {v.createdAt.toISOString()}
               </li>
             ))}
           </ul>

@@ -41,24 +41,36 @@ export async function PATCH(request: Request, { params }: Params) {
   const body = (await request.json()) as {
     stemText?: string;
     choices?: unknown;
+    solutionText?: string;
+    metadata?: unknown;
     distractorAnalysis?: unknown;
   };
 
   const repo = createCandidateRepository(prisma);
 
   try {
+    let distractorChanged = false;
     if (body.distractorAnalysis) {
       const parsed = distractorAnalysisSchema.parse(body.distractorAnalysis);
+      const before = await prisma.generatedQuestionCandidate.findUnique({ where: { id } });
+      distractorChanged =
+        JSON.stringify(before?.distractorAnalysis ?? null) !== JSON.stringify(parsed);
       await prisma.generatedQuestionCandidate.update({
         where: { id },
         data: { distractorAnalysis: parsed },
       });
     }
 
-    const updated = await repo.updateCandidateDraft(id, {
-      stemText: body.stemText,
-      choices: body.choices,
-    });
+    const updated = await repo.updateCandidateDraft(
+      id,
+      {
+        stemText: body.stemText,
+        choices: body.choices as never,
+        solutionText: body.solutionText,
+        metadata: body.metadata as never,
+      },
+      distractorChanged,
+    );
 
     return NextResponse.json({
       id: updated.id,

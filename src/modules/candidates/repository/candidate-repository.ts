@@ -1,5 +1,9 @@
 import type { Prisma } from "@prisma/client";
 
+import {
+  shouldInvalidateVerification,
+  type DraftPatch,
+} from "@/modules/candidates/services/edit-invalidation";
 import { runVerificationEngine } from "@/modules/verification/services/rule-engine";
 import type { PrismaClient } from "@/shared/db/client";
 import { distractorAnalysisSchema } from "@/shared/validation/distractor-analysis";
@@ -15,8 +19,6 @@ export class CandidateBlockedError extends Error {
     this.name = "CandidateBlockedError";
   }
 }
-
-const MEANINGFUL_STEM_MIN_DELTA = 12;
 
 export class CandidateRepository {
   constructor(private readonly db: PrismaClient) {}
@@ -41,7 +43,7 @@ export class CandidateRepository {
     });
   }
 
-  async updateCandidateDraft(candidateId: string, draftPatch: { stemText?: string; choices?: unknown }) {
+  async updateCandidateDraft(candidateId: string, draftPatch: DraftPatch, distractorChanged = false) {
     const bundle = await this.getCandidateBundle(candidateId);
     const current = generatedQuestionSchema.parse(bundle.draft);
     const nextStem =
@@ -52,19 +54,24 @@ export class CandidateRepository {
       draftPatch.choices !== undefined
         ? (draftPatch.choices as typeof current.choices)
         : current.choices;
+    const nextSolution =
+      draftPatch.solutionText !== undefined
+        ? { ...current.solution, solutionText: draftPatch.solutionText }
+        : current.solution;
+    const nextMetadata =
+      draftPatch.metadata !== undefined
+        ? { ...current.metadata, ...draftPatch.metadata }
+        : current.metadata;
 
     const next = generatedQuestionSchema.parse({
       ...current,
       stem: nextStem,
       choices: nextChoices,
+      solution: nextSolution,
+      metadata: nextMetadata,
     });
 
-    const stemChanged =
-      draftPatch.stemText !== undefined &&
-      meaningfulTextChange(current.stem.questionText, draftPatch.stemText);
-    const choicesChanged = draftPatch.choices !== undefined;
-
-    const invalidate = stemChanged || choicesChanged;
+    const invalidate = shouldInvalidateVerification(current, draftPatch, distractorChanged);
 
     if (invalidate) {
       await this.db.verifierRun.updateMany({
@@ -146,11 +153,18 @@ export class CandidateRepository {
   }
 
   async approveCandidate(candidateId: string, input: { checklist: Record<string, boolean>; comment?: string }) {
+    const bundle = await this.getCandidateBundle(candidateId);
+    if (bundle.status === "REJECTED") {
+      throw new CandidateBlockedError("Approval blocked: candidate was rejected");
+    }
+    if (bundle.status === "APPROVED") {
+      throw new CandidateBlockedError("Approval blocked: candidate already approved");
+    }
+
     const verification = await this.getLatestVerification(candidateId);
     if (!verification || verification.quality_gate === "GATE_FAIL") {
       throw new CandidateBlockedError("Approval blocked: verification FAIL or missing");
     }
-    const bundle = await this.getCandidateBundle(candidateId);
     if (bundle.verificationStaleAt) {
       throw new CandidateBlockedError("Approval blocked: verification stale after edits");
     }
@@ -176,6 +190,9 @@ export class CandidateRepository {
           create: {
             versionNumber: 1,
             content: question as Prisma.InputJsonValue,
+            verificationState: "VERIFIED",
+            approvalState: "APPROVED",
+            revisionReason: "Initial approval",
           },
         },
       },
@@ -203,11 +220,6 @@ export class CandidateRepository {
       data: { status: "REJECTED" },
     });
   }
-}
-
-function meaningfulTextChange(before: string, after: string) {
-  if (before.trim() === after.trim()) return false;
-  return Math.abs(before.length - after.length) >= MEANINGFUL_STEM_MIN_DELTA || before.trim() !== after.trim();
 }
 
 export function createCandidateRepository(db: PrismaClient) {

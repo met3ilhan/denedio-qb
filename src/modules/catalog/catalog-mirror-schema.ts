@@ -36,6 +36,8 @@ export const catalogMirrorSnapshotSchema = z
     schemaVersion,
     fetchedAt: z.string().datetime(),
     source: z.string().min(1),
+    /** When true, UUIDs are demo/reference only — not live Denedio production IDs. */
+    isDemoReference: z.boolean().optional().default(true),
     examTypes: z.array(examTypeNode).min(1),
     trapTypes: z.array(catalogNodeBase).min(1),
     questionArchetypes: z.array(catalogNodeBase),

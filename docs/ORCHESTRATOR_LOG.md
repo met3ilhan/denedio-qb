@@ -331,4 +331,18 @@ If TESTER FAIL or Architect blocks layout: **implementer** fix → re-test → r
 | **Q4** | verifier | Gate 3–6 sample APPROVE/REJECT; update `VERIFICATION_REPORT.md` | 3–6 |
 | **Q5** | orchestrator | Doc rollup; `.project-state.md` gate table; optional Gate 10 re-entry | — |
 
-**Status:** Q0 **NOT STARTED** (await parent delegation).
+**Status:** Q0–Q4 **COMPLETE** (Gates 3–6 Verifier APPROVE).
+
+---
+
+## 2026-09-18 — GATES 7–10 FINAL ACCEPTANCE MISSION
+
+**Owner:** Orchestrator  
+**Baseline:** commit `49ca33b` + session implementer wave  
+**Denedio:** READ ONLY verified (`cab8643…`)
+
+**Delegations:** orchestrator → pedagogy-expert (Gate 7 FAIL) → denedio-contract-reader (no contract delta) → implementer (S10, invalidation, export eligibility, solver demo fix) → tester (18/18 Playwright) → verifier (Gate 8 APPROVE; Gates 7/9/10 REJECT)
+
+**Gate status:** 7 FAIL · 8 PASS · 9 FAIL · 10 FAIL
+
+**Next:** S11 editable distractor metadata + S10 UX/e2e parity → Designer sign-off → Verifier Gate 10 re-run

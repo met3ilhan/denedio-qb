@@ -55,6 +55,23 @@ describe("mock solver independence", () => {
     expect(output.selected_label).toBe("C");
   });
 
+  it("solves demo kayak tiered rental stem uniquely", () => {
+    const stem =
+      "A kayak rental shop charges 12 coins for the first hour and 8 coins for each additional hour. " +
+      "Variant (abc). Mira rents a kayak for 5 hours. How many coins does she pay?";
+    const solved = solveFromStemOnly({
+      stemText: stem,
+      choices: [
+        { label: "A", text: "40 coins" },
+        { label: "B", text: "44 coins" },
+        { label: "C", text: "36 coins" },
+        { label: "D", text: "52 coins" },
+      ],
+    });
+    expect(solved.is_unique).toBe(true);
+    expect(solved.selected_label).toBe("B");
+  });
+
   it("reports ambiguity when model cannot match choices", () => {
     const input = {
       stemText: "Explain the author's tone in paragraph three.",

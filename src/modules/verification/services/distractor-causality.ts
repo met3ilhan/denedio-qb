@@ -108,7 +108,7 @@ export function verifyDistractorCausality(
     const correctNum = correct ? normalizeNumericToken(correct.text) : null;
     const wrongNums = wrong
       .map((c) => ({ label: c.label, n: normalizeNumericToken(c.text) }))
-      .filter((x): x is { label: string; n: string } => x.n !== null);
+      .filter((x): x is { label: (typeof wrong)[number]["label"]; n: string } => x.n !== null);
 
     if (correctNum && wrongNums.length >= 2) {
       const correctValue = Number(correctNum);

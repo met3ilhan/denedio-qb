@@ -51,6 +51,15 @@ export function GenerationRunMonitor({
         </button>
       ) : null}
       {message ? <p className="text-body mt-2">{message}</p> : null}
+      {candidateIds.length > 1 ? (
+        <Link
+          href={`/missions/${missionId}/candidates/compare?runId=${runId}`}
+          className="mt-4 inline-block text-sm underline"
+          data-testid="open-s10-compare"
+        >
+          Open S10 comparison matrix
+        </Link>
+      ) : null}
       <ul className="mt-6 space-y-2">
         {candidateIds.map((id) => (
           <li key={id}>
