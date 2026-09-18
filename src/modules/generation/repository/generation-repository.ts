@@ -48,6 +48,7 @@ export class GenerationRepository {
     generationRunId: string,
     fingerprintVersionId: string,
     payload: MutationPlan,
+    siblingIndex = 0,
   ) {
     const parsed = mutationPlanSchema.parse({
       ...payload,
@@ -59,6 +60,7 @@ export class GenerationRepository {
       data: {
         generationRunId,
         fingerprintVersionId,
+        siblingIndex,
         payload: parsed as Prisma.InputJsonValue,
       },
     });

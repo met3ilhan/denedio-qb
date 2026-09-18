@@ -44,7 +44,25 @@ enum FingerprintVersionStatus {
 enum GenerationRunStatus {
   SETUP
   READY
+  RUNNING
+  SUCCEEDED
+  FAILED
   CANCELLED
+}
+
+enum CandidatePipelineStatus {
+  DRAFT
+  DISTRACTOR_COMPLETE
+  SOLVED
+  VERIFIED
+  APPROVED
+  REJECTED
+}
+
+enum GeneratedQuestionStatus {
+  DRAFT
+  APPROVED
+  ARCHIVED
 }
 
 /// Stub user for ownership and provenance actor references (auth later).
@@ -204,9 +222,13 @@ model GenerationRun {
   fingerprintVersionId String
   fingerprintVersion   PedagogicalFingerprintVersion @relation(fields: [fingerprintVersionId], references: [id])
   status               GenerationRunStatus           @default(SETUP)
+  providerId           String?
+  modelId              String?
+  stageLog             Json                          @default("[]")
   createdAt            DateTime                      @default(now())
   updatedAt            DateTime                      @updatedAt
   mutationPlans        MutationPlan[]
+  candidates           GeneratedQuestionCandidate[]
 
   @@index([missionId])
 }
@@ -218,7 +240,95 @@ model MutationPlan {
   fingerprintVersionId String
   fingerprintVersion   PedagogicalFingerprintVersion @relation(fields: [fingerprintVersionId], references: [id])
   payload              Json
+  siblingIndex         Int                           @default(0)
   createdAt            DateTime                      @default(now())
+  candidates           GeneratedQuestionCandidate[]
 
   @@index([generationRunId])
+}
+
+model GeneratedQuestionCandidate {
+  id                   String                  @id @default(cuid())
+  generationRunId      String
+  generationRun        GenerationRun           @relation(fields: [generationRunId], references: [id], onDelete: Cascade)
+  mutationPlanId       String
+  mutationPlan         MutationPlan            @relation(fields: [mutationPlanId], references: [id])
+  siblingIndex         Int                     @default(0)
+  status               CandidatePipelineStatus @default(DRAFT)
+  draft                Json
+  distractorAnalysis   Json?
+  verificationStaleAt  DateTime?
+  createdAt            DateTime                @default(now())
+  updatedAt            DateTime                @updatedAt
+  solverRuns           SolverRun[]
+  verifierRuns         VerifierRun[]
+  approvalRecords      ApprovalRecord[]
+  generatedQuestion    GeneratedQuestion?
+
+  @@index([generationRunId])
+  @@index([status])
+}
+
+model SolverRun {
+  id                           String                   @id @default(cuid())
+  candidateId                  String
+  candidate                    GeneratedQuestionCandidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  independentOfGenerationRunId String
+  providerId                   String
+  modelId                      String
+  result                       Json
+  createdAt                    DateTime                 @default(now())
+
+  @@index([candidateId, createdAt])
+}
+
+model VerifierRun {
+  id          String                   @id @default(cuid())
+  candidateId String
+  candidate   GeneratedQuestionCandidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  result      Json
+  stale       Boolean                  @default(false)
+  createdAt   DateTime                 @default(now())
+
+  @@index([candidateId, createdAt])
+}
+
+model ApprovalRecord {
+  id          String                   @id @default(cuid())
+  candidateId String
+  candidate   GeneratedQuestionCandidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  checklist   Json
+  comment     String?
+  decision    String
+  actorLabel  String                   @default("expert")
+  createdAt   DateTime                 @default(now())
+
+  @@index([candidateId])
+}
+
+model GeneratedQuestion {
+  id                   String                  @id @default(cuid())
+  candidateId          String                  @unique
+  candidate            GeneratedQuestionCandidate @relation(fields: [candidateId], references: [id])
+  sourceQuestionId     String
+  fingerprintVersionId String
+  status               GeneratedQuestionStatus @default(APPROVED)
+  importExternalKey    String                  @unique
+  createdAt            DateTime                @default(now())
+  updatedAt            DateTime                @updatedAt
+  versions             QuestionVersion[]
+
+  @@index([status])
+}
+
+model QuestionVersion {
+  id                  String            @id @default(cuid())
+  generatedQuestionId String
+  generatedQuestion   GeneratedQuestion @relation(fields: [generatedQuestionId], references: [id], onDelete: Cascade)
+  versionNumber       Int
+  content             Json
+  createdByLabel      String            @default("expert")
+  createdAt           DateTime          @default(now())
+
+  @@unique([generatedQuestionId, versionNumber])
 }
