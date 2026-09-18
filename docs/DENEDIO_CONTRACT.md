@@ -155,6 +155,46 @@ Reference tests: `src/modules/questions/fixtures/realistic-content.test.ts`, `qu
 
 ---
 
+## Question Studio implementation (P20 mapper review)
+
+**Reviewed:** 2026-09-18 — branch `build/question-studio-v1`, commit through `6bd1741`.
+
+**Verdict:** P20 **not implemented** in `denedio-qb` (no mapper module, no `QuestionImportPayload` Zod in `src/`, no S17 route). `src/modules/export/README.md` is a stub only. Spec target: `docs/AI_SCHEMAS.md` § QuestionImportPayloadSchema + `GeneratedQuestion` in `src/shared/validation/generated-question.ts`.
+
+**Wire payload (Denedio admin import):** `{ "items": [ …importQuestionItem… ] }` only — no `schemaVersion` (CONFIRMED Denedio shape: `importQuestionsSchema` in `sinav` `schemas.ts`).
+
+**Field-level export mapping (Studio source → Denedio import item):**
+
+| Denedio export field | CONFIRMED / PROPOSED | Studio source / note |
+|----------------------|----------------------|----------------------|
+| `items[]` | **CONFIRMED** | Batch wrapper; max 200 (`importQuestionsSchema`). |
+| `schemaVersion` (wrapper) | **PROPOSED** | Studio-only; strip before paste/import (`ARCHITECTURE.md`). |
+| `examTypeId`, `examSectionId`, `subjectId`, `topicId` | **CONFIRMED** keys | Values from `DenedioFieldMapping` / catalog mirror (P19) — not in mapper code yet. |
+| `unitId`, `outcomeId` | **CONFIRMED** optional | Same UUID mirror. |
+| `difficulty` | **CONFIRMED** | Denedio **required**; Studio `metadata.difficulty` optional — mapper must require or block export. |
+| `externalKey` | **CONFIRMED** field | Value convention `qs:{studioQuestionId}` — **PROPOSED** (D-008); maps to `Question.importExternalKey`. |
+| `content.questionText` | **CONFIRMED** | `stem.questionText`. |
+| `content.solutionText` | **CONFIRMED** | `solution.solutionText`. |
+| `content.videoSolutionUrl` | **CONFIRMED** | `solution.videoSolutionUrl` (URL or `""`). |
+| `content.expectedSolveTimeSeconds`, `criticalClue`, `idealApproach`, `commonMistake`, `strategyExplanation`, `postExamTip`, `cognitiveSkill` | **CONFIRMED** | `metadata.*` when present. |
+| `content.questionArchetypeId` | **CONFIRMED** optional | UUID from mirror; Studio has no archetype field on `GeneratedQuestion`. |
+| `content.choices[].label`, `text`, `isCorrect` | **CONFIRMED** | `choices[]`; same invariants as Denedio (`validateChoiceInvariants`). |
+| `content.choices[].assetStorageKey`, `assetAltText` | **CONFIRMED** names | Studio uses `assetRef` — rename at map time (**PROPOSED** Studio alias only; Denedio key is confirmed). |
+| `content.choices[].distractor.trapTypeId` | **CONFIRMED** | Denedio `z.uuid()` (`TrapType.id`); Studio `trap_type_ids` / `mechanism_id` are **PROPOSED** pedagogy enums — must not be emitted verbatim. |
+| `content.choices[].distractor.distractorExplanation` | **CONFIRMED** optional | No dedicated Studio field; map from editorial copy or omit. |
+| `content.choices[].distractor.targetMisconception` | **CONFIRMED** optional | Candidate: `misconception_id` (string, not UUID in Studio). |
+| `content.choices[].order` | **CONFIRMED** server | Omit from export JSON. |
+| `Question.status`, `createdById`, version ids | **CONFIRMED** server | Omit. |
+| `stem.mediaRefs[]` | **PROPOSED** gap | Denedio `QuestionAsset` (stem/solution) — post-create media APIs only; not in import JSON. |
+| `provenance.*`, `studioQuestionId` | **PROPOSED** | Not in Denedio import; fold id into `externalKey` only. |
+| `error_path_id`, `mechanism_id`, `trap_type_ids[]` | **PROPOSED** Studio-only | Do not export; use for internal trap UUID lookup (P19/W5). |
+
+**Parity check (2026-09-18):** `docs/AI_SCHEMAS.md` `QuestionImportPayloadSchema` matches `sinav` `importQuestionItemSchema` + `questionContentSchema` + choice/distractor shapes. **Not yet codified** in `src/shared/validation/` (P21 dry-run depends on P20).
+
+Detail, blockers, and acceptance checklist: `docs/DENEDIO_IMPORT_GAP.md`.
+
+---
+
 ## Change policy
 
 Only **denedio-contract-reader** agent updates confirmed sections from source reads.

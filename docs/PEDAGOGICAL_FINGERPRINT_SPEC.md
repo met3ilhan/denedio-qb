@@ -342,3 +342,13 @@ Revisions to invariants after approval require **new fingerprint version** and r
 
 - Org skill taxonomy ids and archetype catalog numbering (Product / curriculum owners).
 - Exact closed enums for `operation_type` and trap types in machine schema (Architect + Pedagogy, Gate 3–4).
+
+---
+
+## Addendum — Gate 3 sample review (2026-09-18)
+
+**Synthetic river fixture** (`SYNTHETIC_RIVER_FIXTURE` → `inferFingerprintDraftFromExtraction`): invariant **mechanism fields** (skill, skeleton, critical signal, piecewise archetype) are directionally correct for the stem; **mutable surface** is correctly scoped via `mutable_surface_notes` and mutation-plan surface dimensions, not fingerprint patch fields.
+
+**Distractor mechanisms on the inferred draft are placeholder** (index-based `MECH_PARTIAL` / `MECH_ARITH`, all `TRAP_PARTIAL`) and do not match the item’s wrong-option arithmetic paths. Closed `MECH_*` / `TRAP_*` enums in code satisfy taxonomy **schema** readiness; **sample payload quality** requires expert-authored distractor rows and evidence before lock.
+
+Full findings and HANDOFF: **`docs/PEDAGOGY_REVIEW_SAMPLES.md`** — Gate 3 sample quality **NEEDS WORK** (infra/tests **APPROVE**).

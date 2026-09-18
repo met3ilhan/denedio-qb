@@ -286,3 +286,27 @@ If TESTER FAIL or Architect blocks layout: **implementer** fix → re-test → r
 **On P01 accept:** Update `.project-state.md` — application scaffold **STARTED**; next delegate **P02** only after Orchestrator accepts P01 (Gate 2 domain work still **NOT STARTED** until Gate 2 pass criteria met for extraction — P02 is persistence foundation per plan).
 
 **Next (parent):** Checkout/create `build/question-studio-v1` → invoke **implementer** with delegation brief below → on COMPLETE, invoke **tester** → **architect** → **verifier**.
+
+---
+
+## 2026-09-18 — OVERNIGHT IMPLEMENTATION (P01–P22 + partial P25)
+
+**Owner:** Orchestrator (parent agent coordinated subagents).
+
+**Branch:** `build/question-studio-v1` (from clean `build/agent-office-v1`).
+
+| Phase | Implementer | Tester | Other specialists | Outcome |
+|-------|-------------|--------|-------------------|---------|
+| P01 | ✓ commit `15a29a6` | PASS | Architect layout fix → skeleton stubs | Verifier APPROVE w/ warnings |
+| P02–P03 | ✓ `23384ce` | PASS | Designer NEEDS WORK → `106c826` polish | — |
+| P04–P07 | ✓ `1b8009c` | PASS | Verifier Gate 2 APPROVE w/ warnings | — |
+| P08–P10 | ✓ `1222b54`…`cc76907` | PASS | Pedagogy sample NEEDS WORK | — |
+| P11–P18 | ✓ `83dc1bd`, `6bd1741` | PASS | — | Partial gates 4–7 |
+| P19–P22 | ✓ `a5f4982` | PASS | Contract reader notes | Partial gate 8 |
+| P25 regression | — | PASS (16 e2e) | Verifier Gate 10 **REJECT** | Gate 10 **FAIL** |
+
+**Denedio integrity:** HEAD `cab8643698943c365203b483f138e285ac5be82a` unchanged.
+
+**Deliverable:** `docs/OVERNIGHT_BUILD_REPORT.md`
+
+**Next:** Golden pedagogy sample + adversarial solver tests → Tester golden mission → Verifier P26 re-run.
