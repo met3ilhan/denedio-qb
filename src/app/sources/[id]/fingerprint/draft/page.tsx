@@ -88,7 +88,7 @@ export default async function FingerprintDraftPage({ params }: PageProps) {
         sourceFileId={sourceFileId}
         versionId={version.id}
         dimensions={dimensions}
-        evidence={version.evidence.map((row) => ({
+        evidence={(version.evidence ?? []).map((row) => ({
           id: row.id,
           dimensionKey: row.dimensionKey,
           excerpt: row.excerpt,

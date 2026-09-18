@@ -223,3 +223,15 @@ Next: Orchestrator — reconcile .project-state; Implementer — G10-B2–B5; Ve
 ### Tester verdict (golden mission)
 
 **PASS**
+
+---
+
+## ZERO-ASSUMPTION UAT (2026-09-18)
+
+| ID | Severity | Finding | Status |
+|----|----------|---------|--------|
+| UAT-001 | BLOCKER | No primary CTA when missions exist | **FIXED** |
+| UAT-002 | HIGH | Mission page dead-end | **FIXED** (workflow hub) |
+| UAT-003 | HIGH | English blocker strings | **FIXED** |
+| UAT-004 | MEDIUM | S-code screen labels | Open |
+| UAT-005 | MEDIUM | Windows `.next/trace` EPERM | Open (environment) |

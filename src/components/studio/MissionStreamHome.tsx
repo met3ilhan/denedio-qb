@@ -4,6 +4,8 @@ import { MISSION_PHASE_LABELS } from "@/modules/missions/domain/mission-phase";
 import type { listHomeMissionSummaries } from "@/modules/missions/services/mission-blockers";
 import { tr } from "@/shared/copy/tr";
 
+import { HomeProductIntro } from "./HomeProductIntro";
+
 type MissionSummary = Awaited<ReturnType<typeof listHomeMissionSummaries>>[number];
 
 type MissionStreamHomeProps = {
@@ -15,18 +17,13 @@ export function MissionStreamHome({ missions }: MissionStreamHomeProps) {
 
   return (
     <section className="min-w-0 space-y-4" aria-label={tr.mission.streamAria} data-testid="mission-stream">
+      <HomeProductIntro />
       {missions.length === 0 ? (
         <div className="rounded-lg border border-[var(--qs-border)] bg-[var(--qs-surface)] p-5">
           <h2 className="text-sm font-semibold text-[var(--qs-text)]">{tr.mission.noMissionsTitle}</h2>
           <p className="mt-2 text-sm leading-relaxed text-[var(--qs-text-muted)]">
             {tr.mission.noMissionsBody}
           </p>
-          <Link
-            href="/sources/new"
-            className="mt-4 inline-flex rounded-md bg-[var(--qs-phase-intake)] px-3 py-2 text-sm font-medium text-white"
-          >
-            {tr.mission.newSourceIntake}
-          </Link>
         </div>
       ) : (
         <>
@@ -54,15 +51,17 @@ export function MissionStreamHome({ missions }: MissionStreamHomeProps) {
               ))}
             </ul>
           </div>
-          {latest ? (
-            <Link
-              href={`/missions/${latest.id}`}
-              data-testid="continue-last-mission"
-              className="inline-flex rounded-md border border-[var(--qs-border)] px-3 py-2 text-sm font-medium"
-            >
-              {tr.mission.continueLast}
-            </Link>
-          ) : null}
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            {latest ? (
+              <Link
+                href={`/missions/${latest.id}`}
+                data-testid="continue-last-mission"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-md border border-[var(--qs-border)] px-4 py-2 text-sm font-medium"
+              >
+                {tr.mission.continueLast}
+              </Link>
+            ) : null}
+          </div>
         </>
       )}
     </section>

@@ -185,3 +185,16 @@ V1 shell, intake, fingerprint, generation, candidate, verification, catalog, and
 - `src/components/candidates/CandidateComparisonMatrix.tsx`
 - `src/components/candidates/DistractorCausalityEditor.tsx`
 - `src/components/candidates/CandidateInspectorWorkspace.tsx`
+
+---
+
+## Pass C — S01 non-empty Home (2026-09-18)
+
+**APPROVE** — Primary CTA **Yeni Soru Oluştur** always visible; intro explains product; rail global nav; mission workflow hub removes dead-ends.
+
+| Check | Result |
+|-------|--------|
+| Primary locus | Home intro card + `data-testid="new-source-intake"` |
+| Secondary | Son göreve devam et, Kaynak arşivi |
+| Mobile 390px | CTA on-screen |
+| Duplicate rail CTA | Allowed (wayfinding) |

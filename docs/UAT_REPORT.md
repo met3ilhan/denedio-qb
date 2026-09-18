@@ -79,3 +79,20 @@ BUG-UAT-001, BUG-UAT-002, BUG-UAT-003; E2E updated for Turkish assertions.
 ## Verifier Verdict
 
 **APPROVE** — Gate 9 Turkish + Gate 10 local V1 UAT intake (see `docs/VERIFICATION_REPORT.md` append).
+
+---
+
+## ZERO-ASSUMPTION UAT (2026-09-18)
+
+**Prior Gate 9/10:** Invalidated — Home hid primary CTA when missions existed.
+
+**Repair:** Always-visible **Yeni Soru Oluştur**, product intro, rail IA, mission workflow hub, Turkish blockers.
+
+| Check | Result |
+|-------|--------|
+| Black-box from `/` | **PASS** |
+| Five-minute test | **PASS** |
+| Ten-minute test (demo) | **PASS** |
+| `docs/END_USER_AUDIT.md` | Complete |
+
+**Regression this host:** `pnpm build` EPERM; Playwright partial under server crash — see `docs/TEST_REPORT.md`.

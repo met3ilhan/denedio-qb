@@ -1,4 +1,5 @@
 import type { PrismaClient } from "@/shared/db/client";
+import { tr } from "@/shared/copy/tr";
 
 export type BlockerSeverity = "P0" | "P1" | "P2";
 
@@ -59,8 +60,8 @@ export async function listMissionBlockers(
     blockers.push({
       id: `${missionId}-intake`,
       severity: "P1",
-      title: "No source intake",
-      detail: "Upload a source file to start the mission thread.",
+      title: tr.blockerCopy.noSourceTitle,
+      detail: tr.blockerCopy.noSourceDetail,
       href: "/sources/new",
       missionId,
     });
@@ -71,8 +72,8 @@ export async function listMissionBlockers(
     blockers.push({
       id: `${missionId}-extraction`,
       severity: "P0",
-      title: "Extraction incomplete",
-      detail: `Latest job status: ${latestJob?.status ?? "missing"}`,
+      title: tr.blockerCopy.extractionIncompleteTitle,
+      detail: tr.blockerCopy.extractionIncompleteDetail(latestJob?.status ?? tr.blockerCopy.statusMissing),
       href: mission.sourceFiles[0] ? `/sources/${mission.sourceFiles[0].id}/extraction` : "/sources",
       missionId,
     });
@@ -87,8 +88,8 @@ export async function listMissionBlockers(
     blockers.push({
       id: `${missionId}-fingerprint`,
       severity: "P0",
-      title: "Fingerprint not locked",
-      detail: "Lock pedagogical fingerprint before generation (S07).",
+      title: tr.blockerCopy.fingerprintNotLockedTitle,
+      detail: tr.blockerCopy.fingerprintNotLockedDetail,
       href: mission.sourceFiles[0]
         ? `/sources/${mission.sourceFiles[0].id}/fingerprint/draft`
         : `/missions/${missionId}`,
@@ -105,8 +106,8 @@ export async function listMissionBlockers(
         blockers.push({
           id: `${candidate.id}-verify`,
           severity: "P0",
-          title: "Verification FAIL",
-          detail: `Candidate ${candidate.id.slice(0, 8)}… blocked approval.`,
+          title: tr.blockerCopy.verificationFailTitle,
+          detail: tr.blockerCopy.verificationFailDetail,
           href: `/candidates/${candidate.id}/verification`,
           missionId,
         });
@@ -118,8 +119,8 @@ export async function listMissionBlockers(
           blockers.push({
             id: `${gq.id}-mapping`,
             severity: "P1",
-            title: "Catalog mapping missing",
-            detail: "Complete Denedio field mapping before export (S17).",
+            title: tr.blockerCopy.mappingMissingTitle,
+            detail: tr.blockerCopy.mappingMissingDetail,
             href: `/questions/${gq.id}/denedio/map`,
             missionId,
           });
@@ -129,8 +130,8 @@ export async function listMissionBlockers(
           blockers.push({
             id: `${gq.id}-dry-run`,
             severity: "P0",
-            title: "Dry-run not passed",
-            detail: "Run local import validation on S18 before export bundle.",
+            title: tr.blockerCopy.dryRunNotPassedTitle,
+            detail: tr.blockerCopy.dryRunNotPassedDetail,
             href: `/questions/${gq.id}/denedio/dry-run`,
             missionId,
           });

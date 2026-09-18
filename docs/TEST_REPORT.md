@@ -106,3 +106,21 @@ No uncaught console errors observed during Playwright runs. Server errors: none 
 **PASS**
 
 **Signed:** Tester — Real UAT round 1 + Playwright **27/27**
+
+---
+
+## ZERO-ASSUMPTION UAT — Gate 9 Home (2026-09-18)
+
+| ID | Case | Result |
+|----|------|--------|
+| S01-01 | Obvious start control on `/` | **PASS** |
+| S01-02 | CTA → `/sources/new` | **PASS** |
+| S01-03 | CTA visible with missions | **PASS** (after fix) |
+| S01-04 | Continue last mission | **PASS** |
+| S01-08 | Playwright `new-source-intake` | **PASS** |
+
+**New e2e:** `e2e/first-time-user-golden-path.spec.ts` (starts at Home, PNG upload, structured → fingerprint draft).
+
+**Fresh counts (this mission):** Vitest **61/61** passed (1 skipped). Playwright full parallel run **20/30** with dev server EPERM crashes; serial smoke **home + sources-intake PASS**. `pnpm build` **FAIL** (EPERM `.next/trace` on host).
+
+**Tester verdict (discoverability):** **PASS**

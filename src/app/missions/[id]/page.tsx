@@ -3,7 +3,9 @@ import { notFound } from "next/navigation";
 import { StudioShell } from "@/components/studio/StudioShell";
 import { MISSION_PHASE_LABELS } from "@/modules/missions/domain/mission-phase";
 import { createMissionRepository } from "@/modules/missions/repository/mission-repository";
+import { MissionWorkflowHub } from "@/components/studio/MissionWorkflowHub";
 import { listMissionBlockers } from "@/modules/missions/services/mission-blockers";
+import { listMissionWorkflowSteps } from "@/modules/missions/services/mission-workflow";
 import { prisma } from "@/shared/db/client";
 import { tr } from "@/shared/copy/tr";
 
@@ -25,6 +27,7 @@ export default async function MissionPage({ params }: MissionPageProps) {
   const repo = createMissionRepository(prisma);
   const mission = await repo.getMissionById(id);
   const blockers = await listMissionBlockers(prisma, id);
+  const workflowSteps = await listMissionWorkflowSteps(prisma, id);
 
   if (!mission) {
     notFound();
@@ -48,21 +51,7 @@ export default async function MissionPage({ params }: MissionPageProps) {
         </>
       }
     >
-      <section className="min-w-0 rounded-lg border border-[var(--qs-border)] bg-[var(--qs-surface)] p-4">
-        <h2 className="text-sm font-semibold text-[var(--qs-text)]">{tr.mission.workspace}</h2>
-        <p className="mt-2 text-sm text-[var(--qs-text-muted)]">{tr.mission.workspaceHint}</p>
-        <ul className="mt-4 space-y-2 font-mono text-xs text-[var(--qs-text-muted)]">
-          {mission.events.length === 0 ? (
-            <li>{tr.mission.noEvents}</li>
-          ) : (
-            mission.events.map((event) => (
-              <li key={event.id}>
-                {event.createdAt.toISOString()} · {event.eventType}
-              </li>
-            ))
-          )}
-        </ul>
-      </section>
+      <MissionWorkflowHub steps={workflowSteps} missionId={mission.id} />
     </StudioShell>
   );
 }

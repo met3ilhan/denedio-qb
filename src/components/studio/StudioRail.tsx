@@ -38,21 +38,45 @@ export function StudioRail({ missionId, activePhase, missionTitle }: StudioRailP
         ) : null}
       </div>
 
+      <nav className="flex flex-col gap-1 border-b border-[var(--qs-border)] p-2" aria-label={tr.nav.globalLabel}>
+        <Link
+          href="/"
+          className="rounded-md px-3 py-2 text-sm font-medium text-[var(--qs-text)] hover:bg-[var(--qs-canvas)]"
+          data-testid="nav-home"
+        >
+          {tr.nav.home}
+        </Link>
+        <Link
+          href="/sources/new"
+          className="rounded-md px-3 py-2 text-sm font-medium text-[var(--qs-phase-intake)] hover:bg-[var(--qs-phase-intake-50)]"
+          data-testid="nav-new-source"
+        >
+          {tr.home.primaryCta}
+        </Link>
+        <Link
+          href="/sources"
+          className="rounded-md px-3 py-2 text-sm text-[var(--qs-text-muted)] hover:bg-[var(--qs-canvas)]"
+          data-testid="nav-sources"
+        >
+          {tr.nav.sourcesArchive}
+        </Link>
+        <Link
+          href="/catalog"
+          className="rounded-md px-3 py-2 text-sm text-[var(--qs-text-muted)] hover:bg-[var(--qs-canvas)]"
+          data-testid="nav-catalog"
+        >
+          {tr.nav.catalog}
+        </Link>
+      </nav>
+
       <nav className="flex flex-1 flex-col gap-1 p-2" aria-label={tr.nav.phasesLabel}>
         {STUDIO_PHASES.map((phase) => {
           const isActive = phase.phase === activePhase;
           const disabled = !missionId && phase.phase !== "INTAKE";
+          const intakeHref = !missionId && phase.phase === "INTAKE" ? "/sources/new" : undefined;
 
-          return (
-            <div
-              key={phase.id}
-              className={`relative flex min-w-0 items-center rounded-md px-3 py-2 text-sm ${
-                isActive
-                  ? `${phase.tintClass} font-medium text-[var(--qs-text)]`
-                  : "text-[var(--qs-text-muted)]"
-              } ${disabled ? "opacity-60" : ""}`}
-              title={disabled ? tr.nav.phaseLocked : undefined}
-            >
+          const inner = (
+            <>
               <span
                 className={`absolute top-1 bottom-1 left-0 w-1 ${phase.signalClass} ${
                   isActive ? "opacity-100" : "opacity-40"
@@ -60,6 +84,35 @@ export function StudioRail({ missionId, activePhase, missionTitle }: StudioRailP
                 aria-hidden
               />
               <span className="min-w-0 truncate pl-2">{phase.label}</span>
+            </>
+          );
+
+          const className = `relative flex min-w-0 items-center rounded-md px-3 py-2 text-sm ${
+            isActive
+              ? `${phase.tintClass} font-medium text-[var(--qs-text)]`
+              : "text-[var(--qs-text-muted)]"
+          } ${disabled && !intakeHref ? "opacity-60" : ""}`;
+
+          if (intakeHref) {
+            return (
+              <Link
+                key={phase.id}
+                href={intakeHref}
+                className={`${className} hover:bg-[var(--qs-phase-intake-50)]`}
+                data-testid="nav-phase-intake"
+              >
+                {inner}
+              </Link>
+            );
+          }
+
+          return (
+            <div
+              key={phase.id}
+              className={className}
+              title={disabled ? tr.nav.phaseLocked : undefined}
+            >
+              {inner}
             </div>
           );
         })}

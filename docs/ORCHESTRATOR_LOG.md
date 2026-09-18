@@ -365,3 +365,21 @@ If TESTER FAIL or Architect blocks layout: **implementer** fix → re-test → r
 | 5 | verifier | Gate 7/9/10 **APPROVE** (see `VERIFICATION_REPORT.md`) | Complete |
 
 **Acceptance:** LOCAL V1 gate table updated in `.project-state.md`.
+
+---
+
+## 2026-09-18 — ZERO-ASSUMPTION UAT (Gates 9/10 REOPENED)
+
+**Owner:** Orchestrator  
+**Trigger:** Real user could not find upload/create CTA on Home when missions existed — prior Gate 9/10 acceptance **invalidated**.
+
+| Wave | Agent | Deliverable | Result |
+|------|--------|-------------|--------|
+| 1 | designer | Pass C — S01 non-empty Home IA (`docs/DESIGN_QA.md`) | **APPROVE** |
+| 2 | implementer | `HomeProductIntro`, rail nav, `MissionWorkflowHub`, Turkish blockers | Complete |
+| 3 | tester | Black-box from `/`, `first-time-user-golden-path.spec.ts`, `docs/END_USER_AUDIT.md` | **PASS** (discoverability) |
+| 4 | verifier | Gate 10 Q&A (`docs/VERIFICATION_REPORT.md` appendix) | **APPROVE** (conditional full regression) |
+
+**Gate status:** 9 **PASS** (discoverability) · 10 **CONDITIONAL** (host `pnpm build` EPERM `.next/trace`)
+
+**Next:** Fix workspace permissions → full Playwright green → live Gemini.

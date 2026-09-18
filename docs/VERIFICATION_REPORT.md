@@ -819,3 +819,16 @@ Golden **source** ferry item: distractor causality **SUPPORTED** (≥3) with zer
 2. Add optional E2E: multi-file drop → `tr.upload.errors.multipleFiles`.
 3. README: one sentence on `ensureLocalDevelopmentDefaults()` when `.env.local` is missing.
 4. Re-run `pnpm test:e2e` → target **27/27**; Tester refresh `docs/TEST_REPORT.md`.
+
+---
+
+## ZERO-ASSUMPTION UAT — Verifier appendix (2026-09-18)
+
+| Question | Answer |
+|----------|--------|
+| Discover start from Home only? | **YES** — **Yeni Soru Oluştur** |
+| Workflow without typed URLs? | **YES** — mission workflow hub |
+| Five-minute / ten-minute tests? | **PASS** (demo mode) |
+| BLOCKER/HIGH usability open? | **NO** (CTA + mission dead-end fixed) |
+
+**Decision:** **APPROVE** product usability for Gate 9. **Gate 10 full regression:** **CONDITIONAL** until `pnpm build` + full Playwright green on host without `.next` EPERM.

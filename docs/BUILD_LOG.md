@@ -89,3 +89,12 @@ Orchestrator
 15. Regression: typecheck, lint, test, build, e2e  
 
 **Next orchestrator delegation:** Wave Q0 — **pedagogy-expert** (golden suite + distractor tables + fidelity acceptance matrix).
+
+---
+
+## 2026-09-18 — Zero-assumption discoverability repair
+
+- `HomeProductIntro`, `MissionWorkflowHub`, `listMissionWorkflowSteps`, rail global nav
+- Turkish `blockerCopy`; mission titles `Kaynak · …`
+- `e2e/first-time-user-golden-path.spec.ts`; Playwright local dev webServer
+- Vitest **61/61**; build **FAIL** (EPERM `.next/trace` on host)

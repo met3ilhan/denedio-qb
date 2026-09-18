@@ -19,6 +19,7 @@ type StudioShellProps = {
   showBlockers?: boolean;
   blockers?: MissionBlocker[];
   header?: ReactNode;
+  headerActions?: ReactNode;
 };
 
 export function StudioShell({
@@ -29,6 +30,7 @@ export function StudioShell({
   showBlockers = true,
   blockers,
   header,
+  headerActions,
 }: StudioShellProps) {
   return (
     <div className="flex min-h-screen min-w-0 flex-col overflow-x-hidden bg-[var(--qs-canvas)] md:flex-row">
@@ -55,14 +57,17 @@ export function StudioShell({
           <div className="min-w-0 flex-1">
             {header ?? (
               <>
-                <p className="font-mono text-xs text-[var(--qs-text-muted)]">{tr.shell.missionBoard}</p>
+                <p className="text-xs text-[var(--qs-text-muted)]">{tr.shell.missionBoard}</p>
                 <h1 className="mt-1 text-xl font-semibold tracking-tight text-[var(--qs-text)] sm:text-[28px] sm:leading-[34px]">
                   {tr.shell.missionStream}
                 </h1>
               </>
             )}
           </div>
-          <PhasePill phase={activePhase} />
+          <div className="flex shrink-0 flex-wrap items-center gap-3">
+            {headerActions}
+            <PhasePill phase={activePhase} />
+          </div>
         </header>
 
         <div

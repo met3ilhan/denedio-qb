@@ -5,4 +5,6 @@ test("home page loads", async ({ page }) => {
   await expect(page).toHaveTitle(/Soru Stüdyosu/);
   await expect(page.getByRole("link", { name: "Pedagoji Sinyal Laboratuvarı" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Görev akışı" })).toBeVisible();
+  await expect(page.getByTestId("new-source-intake")).toBeVisible();
+  await expect(page.getByTestId("home-product-intro")).toBeVisible();
 });

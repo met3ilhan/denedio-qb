@@ -38,11 +38,13 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+**First click (no route cheat sheet):** on the home screen choose **Yeni Soru Oluştur** (or the same action in the left menu). Upload a source image or file, then follow **Devam et** on each step through extraction → structured review → fingerprint.
+
 In **local development** (non-production), if you skip copying `.env.local`, the app still applies safe defaults: compose `DATABASE_URL` and demo mode (`QUESTION_STUDIO_DEMO_MODE=1`). You must still run `pnpm db:up` and `pnpm db:migrate` so Postgres is reachable.
 
 ## Demo mode
 
-Set `QUESTION_STUDIO_DEMO_MODE=1` (Playwright default) to run **deterministic mock AI** without API keys. Demo output is pre-authored fixture data—not live model generation. Clear labeling in UI is still being improved; see `docs/OVERNIGHT_BUILD_REPORT.md`.
+Set `QUESTION_STUDIO_DEMO_MODE=1` (Playwright default) to run **deterministic mock AI** without API keys. Demo output is pre-authored fixture data—not live model generation. The amber **ÖRNEK / DEMO** banner at the top of the app explains this while you work.
 
 ## AI provider (optional live)
 

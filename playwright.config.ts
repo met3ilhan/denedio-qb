@@ -14,9 +14,11 @@ export default defineConfig({
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    command: "pnpm start",
+    command: process.env.CI
+      ? "pnpm start"
+      : "pnpm exec next dev --turbopack -p 3000",
     url: "http://127.0.0.1:3000",
-    reuseExistingServer: false,
+    reuseExistingServer: !process.env.PLAYWRIGHT_FORCE_NEW_SERVER,
     timeout: 120_000,
     env: {
       DATABASE_URL:

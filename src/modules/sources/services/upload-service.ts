@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 
 import { createMissionRepository } from "@/modules/missions/repository/mission-repository";
+import { tr } from "@/shared/copy/tr";
 import type { PrismaClient } from "@/shared/db/client";
 import {
   getObjectStorage,
@@ -46,9 +47,9 @@ export class UploadService {
     }
 
     const missionRepo = createMissionRepository(this.db);
+    const baseName = input.file.name.replace(/\.[^.]+$/, "");
     const title =
-      input.missionTitle?.trim() ||
-      `Intake · ${input.file.name.replace(/\.[^.]+$/, "")}`;
+      input.missionTitle?.trim() || tr.mission.defaultTitle(baseName);
     const mission = await missionRepo.createMission({ title });
 
     const storageKey = `${mission.id}/${randomUUID()}-${sanitizeFilename(input.file.name)}`;

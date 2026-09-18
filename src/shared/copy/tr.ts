@@ -23,14 +23,106 @@ export const tr = {
   },
   nav: {
     railLabel: "Stüdyo menüsü",
+    globalLabel: "Ana gezinme",
+    home: "Ana sayfa",
+    sourcesArchive: "Kaynak arşivi",
+    catalog: "Katalog",
     phasesLabel: "İş akışı aşamaları",
     phaseLocked: "Sonraki aşamalar için önce kaynak alımını tamamlayın",
     provenanceTitle: "Köken",
     provenanceEmpty: "Henüz olay yok · tam iz Yayın aşamasında",
   },
+  home: {
+    introAria: "Ürün tanıtımı",
+    introTitle: "Kaynak sorudan doğrulanmış yeni soruya",
+    introBody:
+      "Soru Stüdyosu, uzmanların lisanslı kaynak soru görselini yükleyip pedagojik olarak eşdeğer yeni aday sorular üretmesi içindir. Yapay zeka yapıyı çıkarır; onay ve doğrulama uzmandadır. Bu uygulama öğrenci sınav arayüzü değildir.",
+    introBullets: [
+      "Başlangıç: kaynak soru görseli veya dosyası yükleyin.",
+      "Sistem çıkarma ve Pedagojik Parmak İzi oluşturur; siz inceler ve kilitleyin.",
+      "Demo modda sonuçlar örnek veridir; canlı yapay zeka ayrıca yapılandırılır.",
+    ],
+    primaryCta: "Yeni Soru Oluştur",
+    secondarySources: "Kaynak arşivine git",
+  },
   shell: {
-    missionBoard: "S01 · Görev Panosu",
+    missionBoard: "Görev panosu",
     missionStream: "Görev akışı",
+  },
+  blockerCopy: {
+    noSourceTitle: "Kaynak yüklenmedi",
+    noSourceDetail: "Görev zincirini başlatmak için kaynak soru dosyası yükleyin.",
+    extractionIncompleteTitle: "Çıkarma tamamlanmadı",
+    extractionIncompleteDetail: (status: string) => `Son iş durumu: ${status}`,
+    statusMissing: "kayıt yok",
+    fingerprintNotLockedTitle: "Pedagojik Parmak İzi kilitli değil",
+    fingerprintNotLockedDetail: "Aday üretiminden önce parmak izini inceleyip kilitleyin.",
+    verificationFailTitle: "Doğrulama başarısız",
+    verificationFailDetail: "Onay, doğrulama geçene kadar engellenir.",
+    mappingMissingTitle: "Katalog eşlemesi eksik",
+    mappingMissingDetail: "Denedio alan eşlemesini tamamlayın.",
+    dryRunNotPassedTitle: "Kuru çalıştırma geçmedi",
+    dryRunNotPassedDetail: "Dışa aktarmadan önce yerel içe aktarma doğrulamasını çalıştırın.",
+  },
+  workflow: {
+    hubAria: "Görev iş akışı",
+    hubTitle: "Bu görevde sıradaki adım",
+    hubHint: "Her aşamaya buradan veya ilgili ekrandaki birincil düğmeden geçin.",
+    nextStepLabel: "Sıradaki adım",
+    continueStep: "Devam et",
+    backToHome: "Ana sayfaya dön",
+    statusDone: "Tamamlandı",
+    statusCurrent: "Şimdi",
+    statusUpcoming: "Sırada",
+    statusBlocked: "Önce önceki adım",
+    upload: {
+      label: "Kaynak soru yükle",
+      description: "Görsel veya dosya ile yeni görev başlatın.",
+    },
+    extraction: {
+      label: "Çıkarma işi",
+      description: "Kaynaktan yapılandırılmış metin çıkarılır.",
+    },
+    structured: {
+      label: "Yapılandırılmış inceleme",
+      description: "Çıkarmayı onaylayın veya reddedin.",
+    },
+    fingerprintDraft: {
+      label: "Parmak izi taslağı",
+      description: "Pedagojik Parmak İzi taslağını gözden geçirin.",
+    },
+    fingerprintStudio: {
+      label: "Parmak İzi Stüdyosu",
+      description: "Değişmezleri doğrulayın ve sürümü kilitleyin.",
+    },
+    generation: {
+      label: "Üretim kurulumu",
+      description: "Mutasyon planı ve çalıştırma ayarları.",
+    },
+    generationRun: {
+      label: "Aday oluşturma",
+      description: "Demo veya canlı üretim çalıştırması.",
+    },
+    compare: {
+      label: "Aday karşılaştırma",
+      description: "Kardeş adayların mekanizma matrisi.",
+    },
+    candidate: {
+      label: "Aday düzenleyici",
+      description: "Soru metni, çeldiriciler ve çözüm.",
+    },
+    verification: {
+      label: "Doğrulama bulguları",
+      description: "Bağımsız Çözücü ve Doğrulayıcı sonuçları.",
+    },
+    approval: {
+      label: "Uzman onayı",
+      description: "Onayla veya reddet.",
+    },
+    dryRun: {
+      label: "Denedio kuru çalıştırma",
+      description: "Yerel içe aktarma doğrulaması.",
+    },
   },
   common: {
     back: "Geri",
@@ -66,12 +158,13 @@ export const tr = {
   mission: {
     noMissionsTitle: "Henüz görev yok",
     noMissionsBody: "Görev zinciri açmak için kaynak alımıyla başlayın.",
-    newSourceIntake: "Yeni kaynak alımı",
+    newSourceIntake: "Yeni Soru Oluştur",
+    defaultTitle: (baseName: string) => `Kaynak · ${baseName}`,
     activeMissions: "Aktif görevler",
     continueLast: "Son göreve devam et",
     streamAria: "Görev akışı",
     workspace: "Çalışma alanı",
-    workspaceHint: "Aşama ekranları (S02–S18) kapılar tamamlandıkça buraya bağlanır. Son köken:",
+    workspaceHint: "Soldaki menüden veya aşağıdaki adım listesinden ilerleyin.",
     noEvents: "Kayıtlı olay yok.",
     offlineTitle: "Görev (veritabanı kapalı)",
     offlineBody:
@@ -130,8 +223,8 @@ export const tr = {
       serverSave: "Sunucu görseli kaydedemedi.",
     },
     page: {
-      screen: "S03 · Kaynak Yükleme",
-      title: "Alım sihirbazı",
+      screen: "Kaynak yükleme",
+      title: "Kaynak soru yükleme",
     },
   },
   sources: {
