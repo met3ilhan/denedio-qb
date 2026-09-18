@@ -1,15 +1,31 @@
 @import "tailwindcss";
 
 :root {
-  --bench: #f4f6f8;
-  --panel: #ffffff;
-  --hairline: #e2e8f0;
-  --ink: #0f172a;
-  --ink-muted: #475569;
-  --signal-intake: #2563eb;
-  --signal-mechanism: #7c3aed;
-  --signal-candidates: #d97706;
-  --signal-ship: #059669;
+  --qs-canvas: #f4f6f8;
+  --qs-surface: #ffffff;
+  --qs-border: #e2e8f0;
+  --qs-text: #0f172a;
+  --qs-text-muted: #475569;
+  --qs-phase-intake: #2563eb;
+  --qs-phase-mechanism: #7c3aed;
+  --qs-phase-candidates: #d97706;
+  --qs-phase-ship: #059669;
+  --qs-severity-blocker: #dc2626;
+  --qs-severity-major: #ea580c;
+  --qs-severity-minor: #ca8a04;
+  --qs-severity-pass: #16a34a;
+  --qs-invariant-bg: #f1f5f9;
+  --qs-mutable-bg: #fffbeb;
+  /* Legacy aliases (P01 scaffold) */
+  --bench: var(--qs-canvas);
+  --panel: var(--qs-surface);
+  --hairline: var(--qs-border);
+  --ink: var(--qs-text);
+  --ink-muted: var(--qs-text-muted);
+  --signal-intake: var(--qs-phase-intake);
+  --signal-mechanism: var(--qs-phase-mechanism);
+  --signal-candidates: var(--qs-phase-candidates);
+  --signal-ship: var(--qs-phase-ship);
 }
 
 @theme inline {

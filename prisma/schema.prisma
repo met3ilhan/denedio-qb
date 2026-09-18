@@ -1,0 +1,58 @@
+// Question Studio database — isolated from Denedio. See docker-compose.yml.
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// UX workflow phases (Intake · Mechanism · Candidates · Ship).
+enum MissionPhase {
+  INTAKE
+  MECHANISM
+  CANDIDATES
+  SHIP
+}
+
+/// Stub user for ownership and provenance actor references (auth later).
+model User {
+  id               String             @id @default(cuid())
+  email            String?            @unique
+  displayName      String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  ownedMissions    Mission[]          @relation("MissionOwner")
+  provenanceEvents ProvenanceEvent[]
+}
+
+model Mission {
+  id           String             @id @default(cuid())
+  title        String
+  phase        MissionPhase         @default(INTAKE)
+  ownerId      String?
+  owner        User?                @relation("MissionOwner", fields: [ownerId], references: [id])
+  /// Opaque artifact pointers (source ids, fingerprint version ids, etc.)
+  artifactRefs Json?
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  events       ProvenanceEvent[]
+
+  @@index([phase])
+  @@index([ownerId])
+}
+
+/// Append-only audit trail for mission thread (no updatedAt).
+model ProvenanceEvent {
+  id        String   @id @default(cuid())
+  missionId String
+  mission   Mission  @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  actorId   String?
+  actor     User?    @relation(fields: [actorId], references: [id])
+  eventType String
+  payload   Json     @default("{}")
+  createdAt DateTime @default(now())
+
+  @@index([missionId, createdAt])
+}
