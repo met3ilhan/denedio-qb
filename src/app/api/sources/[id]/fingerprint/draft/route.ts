@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 
-import {
-  createFingerprintRepository,
-  inferFingerprintDraftFromExtraction,
-} from "@/modules/fingerprints";
+import { createFingerprintRepository } from "@/modules/fingerprints";
+import { ensureFingerprintDraftForSource } from "@/modules/fingerprints/services/ensure-fingerprint-draft";
 import { createSourceRepository } from "@/modules/sources/repository/source-repository";
 import { sourceExtractionSchema } from "@/shared/validation/source-extraction";
 import { prisma } from "@/shared/db/client";
@@ -27,22 +25,18 @@ export async function POST(_request: Request, { params }: Params) {
     return NextResponse.json({ error: "Accept structured extraction first (S05)" }, { status: 400 });
   }
 
-  const existingDraft = await fingerprints.getLatestDraftForSourceFile(sourceFileId);
-  if (existingDraft) {
-    return NextResponse.json({ version: existingDraft, reused: true });
-  }
-
   const extraction = sourceExtractionSchema.parse(accepted.structured);
-  const draft = inferFingerprintDraftFromExtraction(extraction, accepted.id);
-  const version = await fingerprints.createDraftFromInference(
-    accepted.id,
+  const existingDraft = await fingerprints.getLatestDraftForSourceFile(sourceFileId);
+  const { version, inferred } = await ensureFingerprintDraftForSource(
+    fingerprints,
     sourceFileId,
-    draft,
+    accepted.id,
+    extraction,
   );
 
   return NextResponse.json({
     version,
-    gapWarnings: draft.gapWarnings,
-    reused: false,
+    gapWarnings: inferred.gapWarnings,
+    reused: Boolean(existingDraft && existingDraft.id === version.id),
   });
 }

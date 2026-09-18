@@ -13,8 +13,8 @@ import { pedagogicalFingerprintSchema } from "@/shared/validation/pedagogical-fi
 import { previewTrivialMutationFlags } from "@/shared/validation/trivial-mutation";
 
 describe("PedagogicalFingerprintSchema", () => {
-  it("round-trips inferred draft fixture", () => {
-    const draft = inferFingerprintDraftFromExtraction(
+  it("round-trips inferred draft fixture", async () => {
+    const draft = await inferFingerprintDraftFromExtraction(
       SYNTHETIC_RIVER_FIXTURE.extraction,
       "test-source-question",
     );
@@ -59,20 +59,18 @@ describe("Fingerprint lock immutability", () => {
     expect(isFingerprintVersionImmutable("DRAFT")).toBe(false);
   });
 
-  it("blocks invariant field mutation in merge helper", () => {
-    const draft = inferFingerprintDraftFromExtraction(
-      SYNTHETIC_RIVER_FIXTURE.extraction,
-      "sq1",
+  it("blocks invariant field mutation in merge helper", async () => {
+    const draft = (
+      await inferFingerprintDraftFromExtraction(SYNTHETIC_RIVER_FIXTURE.extraction, "sq1")
     ).payload;
     expect(() =>
       mergeMutableFingerprintUpdate(draft, { measured_skill: "different skill" }),
     ).toThrow(/invariant/i);
   });
 
-  it("allows mutable_surface_notes updates", () => {
-    const draft = inferFingerprintDraftFromExtraction(
-      SYNTHETIC_RIVER_FIXTURE.extraction,
-      "sq1",
+  it("allows mutable_surface_notes updates", async () => {
+    const draft = (
+      await inferFingerprintDraftFromExtraction(SYNTHETIC_RIVER_FIXTURE.extraction, "sq1")
     ).payload;
     const next = mergeMutableFingerprintUpdate(draft, {
       mutable_surface_notes: "Updated notes for surface dressing.",

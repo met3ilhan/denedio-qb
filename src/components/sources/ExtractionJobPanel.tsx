@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { tr } from "@/shared/copy/tr";
@@ -46,6 +47,7 @@ function statusLabel(status: string): string {
 }
 
 export function ExtractionJobPanel({ sourceId }: { sourceId: string }) {
+  const router = useRouter();
   const [job, setJob] = useState<Job | null>(null);
   const [source, setSource] = useState<SourceMeta | null>(null);
   const [retrying, setRetrying] = useState(false);
@@ -71,6 +73,12 @@ export function ExtractionJobPanel({ sourceId }: { sourceId: string }) {
     const timer = setInterval(() => void refresh(), 1500);
     return () => clearInterval(timer);
   }, [refresh]);
+
+  useEffect(() => {
+    if (job?.status === "SUCCEEDED") {
+      router.replace(`/sources/${sourceId}/structured`);
+    }
+  }, [job?.status, router, sourceId]);
 
   async function onRetry() {
     setRetrying(true);

@@ -20,9 +20,8 @@ export class MockGenerationProvider implements IGenerationProvider {
       input.plan.surface_mutations.find((m) => m.dimension === "context")?.description ??
       "Alternate scenario";
 
-    const fingerprintBlob = JSON.stringify(input.fingerprint).toLowerCase();
-    const demoKayak =
-      fingerprintBlob.includes("kayak") || fingerprintBlob.includes("12 coins for the first hour");
+    const archetypeId = input.fingerprint.question_archetype.archetype_id;
+    const demoKayak = archetypeId === "AR_RATE_PIECEWISE";
 
     const stem = demoKayak
       ? `A kayak rental shop charges 12 coins for the first hour and 8 coins for each additional hour. ` +

@@ -56,8 +56,8 @@ export function FingerprintDraftWorkspace({
               className="rounded-md border border-[var(--qs-border)] px-3 py-2"
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="font-mono text-[10px] uppercase text-[var(--qs-text-muted)]">
-                  {row.key}
+                <span className="text-xs font-medium text-[var(--qs-text-muted)]">
+                  {row.label}
                 </span>
                 <span className="font-mono text-[10px] text-[var(--qs-text-muted)]">
                   {tr.confidence[row.confidence]}

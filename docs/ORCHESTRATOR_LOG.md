@@ -383,3 +383,59 @@ If TESTER FAIL or Architect blocks layout: **implementer** fix → re-test → r
 **Gate status:** 9 **PASS** (discoverability) · 10 **CONDITIONAL** (host `pnpm build` EPERM `.next/trace`)
 
 **Next:** Fix workspace permissions → full Playwright green → live Gemini.
+
+---
+
+## 2026-09-19 — FULL PRODUCT RESCUE (zero-trust lineage + UX)
+
+**Owner:** Orchestrator (coordination only — no Implementer self-dispatch)
+
+**Branch:** `build/question-studio-v1` · **Writable:** `C:\Users\PC\Desktop\denedio-qb` · **Denedio:** `C:\Users\PC\Desktop\sinav` READ ONLY
+
+**Mission:** P0 history extraction → kayak fingerprint contamination; eliminate silent demo/mock fallback; unified post-upload AI review UX; Turkish UI; Denedio readiness; lineage assertions in CI.
+
+**Prior acceptance invalidated for:** Gates **2, 3, 4, 10** until `docs/DATA_LINEAGE_AUDIT.md` checklist is green with fresh Tester evidence (BUG-P0-001).
+
+**Ordered workstreams:**
+
+| # | Workstream | Primary agent(s) | Evidence artifact |
+|---|------------|------------------|-------------------|
+| **R0** | Zero-trust baseline (no trust in prior PASS) | **tester** | `docs/TEST_REPORT.md` rescue section + executed `pnpm test` / `test:e2e` |
+| **R1** | P0 upload → extraction → S05 → S06 lineage | **tester** → **verifier** | History/canary e2e, provider spy, `lineage-assertions` usage |
+| **R2** | Provider mode / silent fallback elimination | **architect** review → **implementer** | `provider-mode.ts`, analyst index, gemini/unconfigured paths |
+| **R3** | Fingerprint draft contamination (static piecewise template) | **pedagogy-expert** + **architect** → **implementer** | `draft-inference.ts` driven by extraction, not kayak defaults |
+| **R4** | Unified post-upload AI review (S04/S05) | **designer** → **implementer** | `StructuredReviewPanel`, `ProviderModeBanner`, UX_SPEC S05 |
+| **R5** | Turkish copy completeness | **designer** QA → **implementer** | `src/shared/copy/tr.ts`, `TR_COPY_GLOSSARY.md` |
+| **R6** | Denedio export readiness | **denedio-contract-reader** → **implementer** | `docs/DENEDIO_CONTRACT.md`, dry-run API |
+| **R7** | Gate rollup + live Gemini policy | **verifier** → orchestrator | `VERIFICATION_REPORT.md`, `.project-state.md` |
+
+**Next delegation:** **tester** — Wave **R0/R1** (execute DATA_LINEAGE checklist + full regression; report PASS/FAIL per item with command output).
+
+**Held until R0 evidence:** architect (R2/R3 spec), pedagogy-expert (R3 dimensions), designer (R4), implementer (any code), denedio-contract-reader (R6).
+
+**Acceptance:** None — rescue **IN PROGRESS**.
+
+---
+
+## 2026-09-19 — FULL PRODUCT RESCUE (IMPLEMENTATION WAVE)
+
+**Owner:** Orchestrator → **implementer** (fingerprint v2), **tester** (regression), **denedio-contract-reader** (HANDOFF).
+
+**P0 root cause (confirmed):** `inferFingerprintDraftFromExtraction` static piecewise/kayak template + stale DRAFT reuse.
+
+**Delivered:**
+
+| Workstream | Agent | Outcome |
+|------------|-------|---------|
+| R3 Fingerprint LIVE/MOCK | implementer + pedagogy-expert | `src/shared/ai/fingerprint-analyst/*`, `ensureFingerprintDraftForSource` |
+| R2 Provider boundary | architect (review) + implementer | No LIVE→mock fingerprint fallback |
+| R4 Post-upload UX | designer (partial) + implementer | Auto `/structured`, Turkish Kaynak soru analizi |
+| R1 Lineage tests | tester | `e2e/fingerprint-lineage.spec.ts`, canary updates |
+| R6 Denedio | denedio-contract-reader | HANDOFF [aabfc699-3c7b-4af2-996f-720e176506f7] |
+| R0 Regression | tester | typecheck/lint **77/77** unit, **36/36** Playwright |
+
+**Docs:** `docs/FULL_PRODUCT_AUDIT.md`, `docs/RELEASE_CANDIDATE_REPORT.md`.
+
+**Acceptance:** **CONDITIONAL** — user LIVE smoke + commit; generation Gemini still mock-delegated.
+
+**Next:** User acceptance on real history image; optional `pnpm test:live-gemini-smoke`; remove remaining Sxx strings in generation/candidate copy.

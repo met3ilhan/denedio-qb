@@ -26,12 +26,7 @@ test.describe("First-time user golden path", () => {
     await page.getByTestId("subject-hint").fill("UAT altın yol");
     await page.getByTestId("submit-upload").click();
 
-    await expect(page).toHaveURL(/\/sources\/[^/]+\/extraction/);
-    await expect(page.getByTestId("extraction-timeline")).toBeVisible();
-    await expect(page.getByTestId("goto-structured-review")).toBeVisible({ timeout: 45_000 });
-    await page.getByTestId("goto-structured-review").click();
-
-    await expect(page).toHaveURL(/\/structured/);
+    await expect(page).toHaveURL(/\/sources\/[^/]+\/structured/, { timeout: 90_000 });
     await page.getByTestId("accept-extraction").click();
     await expect(page).toHaveURL(/\/fingerprint\/draft/, { timeout: 30_000 });
     await expect(page.getByTestId("open-fingerprint-studio")).toBeVisible({ timeout: 45_000 });

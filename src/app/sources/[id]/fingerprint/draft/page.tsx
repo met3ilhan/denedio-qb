@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import { FingerprintDraftWorkspace } from "@/components/fingerprint/FingerprintDraftWorkspace";
 import { StudioShell } from "@/components/studio/StudioShell";
 import { createFingerprintRepository } from "@/modules/fingerprints/repository/fingerprint-repository";
-import { inferFingerprintDraftFromExtraction } from "@/modules/fingerprints/services/draft-inference";
+import { ensureFingerprintDraftForSource } from "@/modules/fingerprints/services/ensure-fingerprint-draft";
+import { FINGERPRINT_DIMENSION_LABELS } from "@/shared/copy/fingerprint-labels";
 import { createSourceRepository } from "@/modules/sources/repository/source-repository";
 import { pedagogicalFingerprintSchema } from "@/shared/validation/pedagogical-fingerprint";
 import { sourceExtractionSchema } from "@/shared/validation/source-extraction";
@@ -38,7 +39,6 @@ export default async function FingerprintDraftPage({ params }: PageProps) {
   const source = await sources.getSourceFileById(sourceFileId);
   if (!source) notFound();
 
-  let version = await fingerprints.getLatestDraftForSourceFile(sourceFileId);
   const accepted = await fingerprints.getAcceptedSourceQuestionForFile(sourceFileId);
   if (!accepted) {
     return (
@@ -46,7 +46,7 @@ export default async function FingerprintDraftPage({ params }: PageProps) {
         <p className="text-body text-[var(--qs-text-muted)]">
           {tr.mission.acceptStructuredBeforeDraft}{" "}
           <Link href={`/sources/${sourceFileId}/structured`} className="underline">
-            S05
+            {tr.structured.page.title}
           </Link>
         </p>
       </StudioShell>
@@ -54,21 +54,18 @@ export default async function FingerprintDraftPage({ params }: PageProps) {
   }
 
   const extraction = sourceExtractionSchema.parse(accepted.structured);
-  const inferred = inferFingerprintDraftFromExtraction(extraction, accepted.id);
-
-  if (!version) {
-    version = await fingerprints.createDraftFromInference(
-      accepted.id,
-      sourceFileId,
-      inferred,
-    );
-  }
+  const { version, inferred } = await ensureFingerprintDraftForSource(
+    fingerprints,
+    sourceFileId,
+    accepted.id,
+    extraction,
+  );
 
   const payload = pedagogicalFingerprintSchema.parse(version.payload);
 
   const dimensions = DIMENSION_PREVIEW_KEYS.map((key) => ({
     key,
-    label: key,
+    label: FINGERPRINT_DIMENSION_LABELS[key] ?? key,
     value:
       key === "critical_signal"
         ? payload.critical_signal.role

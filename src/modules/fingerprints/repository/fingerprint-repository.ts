@@ -129,6 +129,35 @@ export class FingerprintRepository {
     });
   }
 
+  async replaceDraftFromInference(versionId: string, draft: InferredFingerprintDraft) {
+    const version = await this.db.pedagogicalFingerprintVersion.findUniqueOrThrow({
+      where: { id: versionId },
+    });
+    if (version.status === "LOCKED") {
+      throw new FingerprintLockedError();
+    }
+    const parsed = pedagogicalFingerprintSchema.parse(draft.payload);
+    return this.db.$transaction(async (tx) => {
+      await tx.fingerprintEvidence.deleteMany({ where: { versionId } });
+      if (draft.evidenceRows.length > 0) {
+        await tx.fingerprintEvidence.createMany({
+          data: draft.evidenceRows.map((row) => ({
+            versionId,
+            dimensionKey: row.dimensionKey,
+            evidenceType: row.evidenceType,
+            pointer: row.pointer as Prisma.InputJsonValue,
+            excerpt: row.excerpt,
+          })),
+        });
+      }
+      return tx.pedagogicalFingerprintVersion.update({
+        where: { id: versionId },
+        data: { payload: parsed as Prisma.InputJsonValue },
+        include: { evidence: true },
+      });
+    });
+  }
+
   async updateDraftPayload(versionId: string, payload: PedagogicalFingerprint) {
     const version = await this.db.pedagogicalFingerprintVersion.findUniqueOrThrow({
       where: { id: versionId },
