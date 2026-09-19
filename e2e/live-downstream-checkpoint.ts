@@ -67,8 +67,11 @@ export function isTransientProviderFailure(status: number, body: string): boolea
     status === 502 ||
     status === 504 ||
     body.includes("GeminiRetryExhausted") ||
+    body.includes("GeminiQuotaExhausted") ||
+    body.includes("QUOTA_EXHAUSTED") ||
     body.includes("transient Gemini failures exhausted") ||
     body.includes("RESOURCE_EXHAUSTED") ||
+    body.includes("kota") ||
     body.includes("quota")
   );
 }

@@ -25,6 +25,8 @@ export const tr = {
     retrying: "Yapay zekâ servisi geçici olarak yoğun. Yeniden deneniyor…",
     unavailable:
       "Yapay zekâ servisine şu anda ulaşılamıyor. Birkaç dakika sonra tekrar deneyebilirsiniz.",
+    quotaExhausted:
+      "Gemini kullanım kotası doldu. Kota yenilendiğinde bu aşamadan devam edebilirsiniz.",
     authError:
       "Yapay zekâ servisi kimlik doğrulaması başarısız. Yapılandırmayı kontrol edin.",
     invalidRequestError:

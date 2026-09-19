@@ -5,7 +5,11 @@ import { createGenerationRepository, GenerationBlockedError } from "@/modules/ge
 import { proposeMutationPlanForFingerprintVersion } from "@/modules/generation/services/mutation-plan-proposal";
 import { createFingerprintRepository } from "@/modules/fingerprints/repository/fingerprint-repository";
 import { formatGeminiTransportFailure } from "@/shared/ai/gemini-failure-messages";
-import { GeminiRequestError, GeminiRetryExhaustedError } from "@/shared/ai/gemini-retry";
+import {
+  GeminiQuotaExhaustedError,
+  GeminiRequestError,
+  GeminiRetryExhaustedError,
+} from "@/shared/ai/gemini-retry";
 import { resolveProviderMode } from "@/shared/ai/provider-mode";
 import { mutationPlanSchema } from "@/shared/validation/mutation-plan";
 import { previewTrivialMutationFlags } from "@/shared/validation/trivial-mutation";
@@ -85,11 +89,13 @@ export async function POST(request: Request, { params }: Params) {
       );
     }
     const isGeminiTransport =
+      error instanceof GeminiQuotaExhaustedError ||
       error instanceof GeminiRetryExhaustedError ||
       error instanceof GeminiRequestError ||
       (error instanceof Error &&
         (error.message.includes("Gemini mutation planner") ||
-          error.message.includes("RESOURCE_EXHAUSTED")));
+          error.message.includes("RESOURCE_EXHAUSTED") ||
+          error.message.includes("QUOTA_EXHAUSTED")));
     if (isGeminiTransport) {
       const { userMessage, technicalMessage } = formatGeminiTransportFailure(error);
       return NextResponse.json(

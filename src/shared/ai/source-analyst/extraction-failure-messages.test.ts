@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { tr } from "@/shared/copy/tr";
 
-import { GeminiRetryExhaustedError } from "../gemini-retry";
+import { GeminiQuotaExhaustedError, GeminiRetryExhaustedError } from "../gemini-retry";
 
 import { formatExtractionFailure } from "./extraction-failure-messages";
 
@@ -28,5 +28,15 @@ describe("formatExtractionFailure", () => {
     const { userMessage, technicalMessage } = formatExtractionFailure(err);
     expect(userMessage).toBe(tr.aiService.unavailable);
     expect(technicalMessage).toContain("503");
+  });
+
+  it("maps quota exhaustion to Turkish quota message", () => {
+    const err = new GeminiQuotaExhaustedError(
+      "Gemini source analyst",
+      429,
+      "RESOURCE_EXHAUSTED",
+    );
+    const { userMessage } = formatExtractionFailure(err);
+    expect(userMessage).toBe(tr.aiService.quotaExhausted);
   });
 });

@@ -30,6 +30,19 @@ export class GeminiRequestError extends Error {
   }
 }
 
+export class GeminiQuotaExhaustedError extends Error {
+  readonly code = "QUOTA_EXHAUSTED" as const;
+
+  constructor(
+    readonly stageLabel: string,
+    readonly httpStatus: number | undefined,
+    detail: string,
+  ) {
+    super(`${stageLabel}: QUOTA_EXHAUSTED${detail ? ` — ${detail.slice(0, 500)}` : ""}`);
+    this.name = "GeminiQuotaExhaustedError";
+  }
+}
+
 export class GeminiRetryExhaustedError extends Error {
   constructor(
     readonly stageLabel: string,
@@ -40,8 +53,57 @@ export class GeminiRetryExhaustedError extends Error {
   }
 }
 
+/** Observed Gemini/Google API quota exhaustion (429 + RESOURCE_EXHAUSTED, QuotaFailure, etc.). */
+export function isGeminiQuotaExhaustedResponse(status: number, responseBody: string): boolean {
+  const body = responseBody.trim();
+  if (!body) {
+    return false;
+  }
+
+  const upper = body.toUpperCase();
+  if (upper.includes("RESOURCE_EXHAUSTED")) {
+    return true;
+  }
+  if (upper.includes("TYPE.GOOGLEAPIS.COM/GOOGLE.RPC.QUOTAFAILURE") || upper.includes("QUOTAFAILURE")) {
+    return true;
+  }
+  if (/exceeded your current quota/i.test(body)) {
+    return true;
+  }
+  if (/free[\s-]?tier.*quota/i.test(body) || /quota.*free[\s-]?tier/i.test(body)) {
+    return true;
+  }
+
+  try {
+    const parsed = JSON.parse(body) as {
+      error?: { status?: string; code?: number; message?: string };
+    };
+    const err = parsed?.error;
+    if (err?.status === "RESOURCE_EXHAUSTED") {
+      return true;
+    }
+    if (err?.code === 429 && err?.status === "RESOURCE_EXHAUSTED") {
+      return true;
+    }
+    if (typeof err?.message === "string" && /exceeded your current quota/i.test(err.message)) {
+      return true;
+    }
+  } catch {
+    /* non-JSON body — heuristics above */
+  }
+
+  return false;
+}
+
 export function isTransientHttpStatus(status: number): boolean {
   return status === 429 || status === 500 || status === 502 || status === 503 || status === 504;
+}
+
+export function shouldRetryGeminiHttpStatus(status: number, responseBody: string): boolean {
+  if (isGeminiQuotaExhaustedResponse(status, responseBody)) {
+    return false;
+  }
+  return isTransientHttpStatus(status);
 }
 
 export function isTransientFetchError(cause: unknown): boolean {
@@ -114,7 +176,12 @@ export async function fetchGeminiWithRetry(
 
       const detail = await response.text().catch(() => "");
       const message = `${stageLabel} HTTP ${response.status}${detail ? `: ${detail.slice(0, 500)}` : ""}`;
-      const retryable = isTransientHttpStatus(response.status);
+
+      if (isGeminiQuotaExhaustedResponse(response.status, detail)) {
+        throw new GeminiQuotaExhaustedError(stageLabel, response.status, message);
+      }
+
+      const retryable = shouldRetryGeminiHttpStatus(response.status, detail);
 
       if (retryable && attempt < maxAttempts) {
         const retryAfter = parseRetryAfterMs(response);
@@ -132,6 +199,10 @@ export async function fetchGeminiWithRetry(
 
       throw new GeminiRequestError(message, stageLabel, response.status, retryable);
     } catch (cause) {
+      if (cause instanceof GeminiQuotaExhaustedError) {
+        throw cause;
+      }
+
       if (cause instanceof GeminiRequestError) {
         lastError = cause;
         if (!cause.retryable || attempt >= maxAttempts) {

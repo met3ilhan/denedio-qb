@@ -1,6 +1,7 @@
 import { ZodError } from "zod";
 
 import { formatGeminiTransportFailure } from "../gemini-failure-messages";
+import { GeminiQuotaExhaustedError } from "../gemini-retry";
 import { tr } from "@/shared/copy/tr";
 
 export function formatExtractionFailure(error: unknown): {
@@ -14,10 +15,15 @@ export function formatExtractionFailure(error: unknown): {
     };
   }
 
+  if (error instanceof GeminiQuotaExhaustedError) {
+    return formatGeminiTransportFailure(error);
+  }
+
   const technicalMessage = error instanceof Error ? error.message : String(error);
   const isGeminiTransport =
     /^Gemini .+ (HTTP \d+|network error)/.test(technicalMessage) ||
-    technicalMessage.includes("transient Gemini failures exhausted");
+    technicalMessage.includes("transient Gemini failures exhausted") ||
+    technicalMessage.includes("QUOTA_EXHAUSTED");
 
   if (isGeminiTransport) {
     return formatGeminiTransportFailure(error);

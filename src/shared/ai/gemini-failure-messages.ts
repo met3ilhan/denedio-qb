@@ -1,12 +1,23 @@
 import { tr } from "@/shared/copy/tr";
 
-import { GeminiRequestError, GeminiRetryExhaustedError } from "./gemini-retry";
+import {
+  GeminiQuotaExhaustedError,
+  GeminiRequestError,
+  GeminiRetryExhaustedError,
+} from "./gemini-retry";
 
 export function formatGeminiTransportFailure(error: unknown): {
   userMessage: string;
   technicalMessage: string;
 } {
   const technicalMessage = error instanceof Error ? error.message : String(error);
+
+  if (error instanceof GeminiQuotaExhaustedError) {
+    return {
+      userMessage: tr.aiService.quotaExhausted,
+      technicalMessage,
+    };
+  }
 
   if (error instanceof GeminiRetryExhaustedError) {
     return {
