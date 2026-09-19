@@ -73,6 +73,9 @@ export function normalizeGeminiQuestionPayload(
     const n = Number(est);
     if (Number.isFinite(n)) expectedSolveTimeSeconds = Math.trunc(n);
   }
+  if (expectedSolveTimeSeconds !== undefined && expectedSolveTimeSeconds < 10) {
+    expectedSolveTimeSeconds = 10;
+  }
 
   const candidate = {
     schemaVersion: SCHEMA_VERSION,

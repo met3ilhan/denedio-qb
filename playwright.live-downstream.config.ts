@@ -6,7 +6,7 @@ loadProjectEnv();
 
 import base from "./playwright.config";
 
-/** Downstream-only live Gemini acceptance — starts from seeded locked fingerprint. */
+/** Downstream-only live OpenRouter acceptance — starts from seeded locked fingerprint. */
 export default defineConfig({
   ...base,
   globalSetup: "./e2e/live-downstream-global-setup.ts",
@@ -27,11 +27,13 @@ export default defineConfig({
       QUESTION_STUDIO_PROVIDER_MODE: "LIVE",
       QUESTION_STUDIO_DEMO_MODE: "0",
       NEXT_PUBLIC_QUESTION_STUDIO_DEMO_MODE: "0",
-      QUESTION_STUDIO_GEMINI_API_KEY: process.env.QUESTION_STUDIO_GEMINI_API_KEY ?? "",
+      OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY ?? "",
+      QUESTION_STUDIO_LIVE_PROVIDER: process.env.QUESTION_STUDIO_LIVE_PROVIDER ?? "openrouter",
       QUESTION_STUDIO_GENERATION_CANDIDATE_COUNT: "1",
-      ...(process.env.QUESTION_STUDIO_GEMINI_MODEL?.trim()
-        ? { QUESTION_STUDIO_GEMINI_MODEL: process.env.QUESTION_STUDIO_GEMINI_MODEL.trim() }
+      ...(process.env.QUESTION_STUDIO_OPENROUTER_MODEL?.trim()
+        ? { QUESTION_STUDIO_OPENROUTER_MODEL: process.env.QUESTION_STUDIO_OPENROUTER_MODEL.trim() }
         : {}),
+      QUESTION_STUDIO_GEMINI_API_KEY: process.env.QUESTION_STUDIO_GEMINI_API_KEY ?? "",
     },
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],

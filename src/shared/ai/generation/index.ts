@@ -1,5 +1,6 @@
 import { createStageProvider } from "../create-stage-provider";
 import { GeminiGenerationProvider } from "./gemini-provider";
+import { OpenRouterGenerationProvider } from "./openrouter-provider";
 import { MockGenerationProvider } from "./mock-provider";
 import { UnconfiguredLiveGenerationProvider } from "./unconfigured-live-provider";
 import type { IGenerationProvider } from "./types";
@@ -23,7 +24,8 @@ export function resetGenerationProviderCache(): void {
 
 export function createGenerationProvider(): IGenerationProvider {
   return createStageProvider<IGenerationProvider>(STAGE, {
-    live: () => new GeminiGenerationProvider(process.env.QUESTION_STUDIO_GEMINI_API_KEY!.trim()),
+    openrouter: () => new OpenRouterGenerationProvider(process.env.OPENROUTER_API_KEY!.trim()),
+    gemini: () => new GeminiGenerationProvider(process.env.QUESTION_STUDIO_GEMINI_API_KEY!.trim()),
     mock: () => new MockGenerationProvider(),
     unconfiguredLive: () => new UnconfiguredLiveGenerationProvider(),
   });

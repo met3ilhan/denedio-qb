@@ -1,7 +1,13 @@
 import { ZodError } from "zod";
 
 import { formatGeminiTransportFailure } from "../gemini-failure-messages";
+import { formatOpenRouterTransportFailure } from "../openrouter-failure-messages";
 import { GeminiQuotaExhaustedError } from "../gemini-retry";
+import {
+  OpenRouterInsufficientCreditsError,
+  OpenRouterRequestError,
+  OpenRouterRetryExhaustedError,
+} from "../openrouter/errors";
 import { tr } from "@/shared/copy/tr";
 
 export function formatExtractionFailure(error: unknown): {
@@ -19,6 +25,14 @@ export function formatExtractionFailure(error: unknown): {
     return formatGeminiTransportFailure(error);
   }
 
+  if (
+    error instanceof OpenRouterInsufficientCreditsError ||
+    error instanceof OpenRouterRequestError ||
+    error instanceof OpenRouterRetryExhaustedError
+  ) {
+    return formatOpenRouterTransportFailure(error);
+  }
+
   const technicalMessage = error instanceof Error ? error.message : String(error);
   const isGeminiTransport =
     /^Gemini .+ (HTTP \d+|network error)/.test(technicalMessage) ||
@@ -27,6 +41,15 @@ export function formatExtractionFailure(error: unknown): {
 
   if (isGeminiTransport) {
     return formatGeminiTransportFailure(error);
+  }
+
+  const isOpenRouterTransport =
+    /^OpenRouter .+ (HTTP \d+|network error)/.test(technicalMessage) ||
+    technicalMessage.includes("transient OpenRouter failures exhausted") ||
+    technicalMessage.includes("INSUFFICIENT_CREDITS");
+
+  if (isOpenRouterTransport) {
+    return formatOpenRouterTransportFailure(error);
   }
 
   if (technicalMessage.includes("page is not a positive integer")) {

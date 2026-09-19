@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { ensurePlaywrightTemp } from "./ensure-playwright-temp.mjs";
 import { loadLocalEnv, repoRoot } from "./load-local-env.mjs";
-import { printLiveDiagnostics, requireGeminiKeyForLive } from "./print-live-diagnostics.mjs";
+import { printLiveDiagnostics, requireOpenRouterKeyForLive } from "./print-live-diagnostics.mjs";
 
 process.chdir(repoRoot);
 loadLocalEnv(repoRoot);
@@ -27,14 +27,14 @@ if (!fs.existsSync(fixture)) {
   }
 }
 
-requireGeminiKeyForLive();
+requireOpenRouterKeyForLive();
 
 process.env.QUESTION_STUDIO_PROVIDER_MODE = "LIVE";
 process.env.QUESTION_STUDIO_DEMO_MODE = "0";
 process.env.NEXT_PUBLIC_QUESTION_STUDIO_DEMO_MODE = "0";
 process.env.PLAYWRIGHT_FORCE_NEW_SERVER = "1";
 
-console.log("Live Gemini smoke — startup diagnostics:");
+console.log("Live OpenRouter smoke — startup diagnostics:");
 printLiveDiagnostics(repoRoot);
 console.log("");
 

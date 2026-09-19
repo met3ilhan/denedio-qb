@@ -128,10 +128,10 @@ test.describe("Live downstream pipeline (seeded fingerprint)", () => {
     expect(candidate.lineage?.sourceQuestionId).toBe(manifest.sourceQuestionId);
     expect(candidate.lineage?.sourceFileId).toBe(manifest.sourceFileId);
     expect(candidate.lineage?.fingerprintVersionId).toBe(manifest.fingerprintVersionId);
-    expect(candidate.generation?.providerId).toBe("gemini");
+    expect(candidate.generation?.providerId).toBe("openrouter");
     expect(candidate.generation?.modelId).not.toContain("mock");
     expect(candidate.distractorAnalysis?.wrong_choices?.length).toBeGreaterThan(0);
-    expect(candidate.solver?.providerId).toBe("gemini");
+    expect(candidate.solver?.providerId).toBe("openrouter");
     expect(candidate.solver?.modelId).not.toContain("mock");
     expect(candidate.draft?.stem?.questionText?.toLowerCase()).not.toContain("kayak");
     expect(candidate.verification?.quality_gate).toBeTruthy();

@@ -1,5 +1,7 @@
-import { hasGeminiApiKey, resolveProviderMode } from "../provider-mode";
+import { resolveLiveVendorProvider } from "../create-stage-provider";
+import { resolveProviderMode } from "../provider-mode";
 import { GeminiFingerprintAnalystProvider } from "./gemini-provider";
+import { OpenRouterFingerprintAnalystProvider } from "./openrouter-provider";
 import { MockFingerprintAnalystProvider } from "./mock-provider";
 import { UnconfiguredLiveFingerprintAnalystProvider } from "./unconfigured-live-provider";
 import type { IFingerprintAnalystProvider } from "./types";
@@ -22,9 +24,13 @@ export function getFingerprintAnalystProvider(): IFingerprintAnalystProvider {
 
   const mode = resolveProviderMode();
   if (mode === "LIVE") {
-    provider = hasGeminiApiKey()
-      ? new GeminiFingerprintAnalystProvider(process.env.QUESTION_STUDIO_GEMINI_API_KEY!)
-      : new UnconfiguredLiveFingerprintAnalystProvider();
+    provider = resolveLiveVendorProvider<IFingerprintAnalystProvider>({
+      openrouter: () =>
+        new OpenRouterFingerprintAnalystProvider(process.env.OPENROUTER_API_KEY!.trim()),
+      gemini: () =>
+        new GeminiFingerprintAnalystProvider(process.env.QUESTION_STUDIO_GEMINI_API_KEY!),
+      unconfiguredLive: () => new UnconfiguredLiveFingerprintAnalystProvider(),
+    });
   } else {
     provider = new MockFingerprintAnalystProvider();
   }

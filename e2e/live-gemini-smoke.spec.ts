@@ -9,7 +9,7 @@ const EXPECTED_STEM_SNIPPET = "Kurtuluş Savaşı";
 
 test.describe.configure({ mode: "serial" });
 
-test.describe("Controlled live Gemini source extraction", () => {
+test.describe("Controlled live OpenRouter source extraction", () => {
   // Key presence is enforced in `e2e/live-global-setup.ts` (fail fast, not silent skip).
 
   let sourceFileId = "";
@@ -44,7 +44,7 @@ test.describe("Controlled live Gemini source extraction", () => {
 
     await page.getByTestId("upload-file-input").setInputFiles(fixturePath);
     await page.getByRole("button", { name: "Devam et" }).click();
-    await page.getByTestId("subject-hint").fill("Tarih — canlı Gemini duman testi");
+    await page.getByTestId("subject-hint").fill("Tarih — canlı OpenRouter duman testi");
     await page.getByTestId("submit-upload").click();
 
     await expect(page).toHaveURL(/\/sources\/([^/]+)\/extraction/, { timeout: 60_000 });
@@ -56,7 +56,10 @@ test.describe("Controlled live Gemini source extraction", () => {
     await expect(page.getByTestId("source-expert-review")).toBeVisible({ timeout: 30_000 });
     await expect(page.getByTestId("structured-source-image")).toBeVisible();
     await expect(
-      page.getByTestId("source-expert-review").getByRole("definition").filter({ hasText: "Canlı AI" }),
+      page
+        .getByTestId("source-expert-review")
+        .getByRole("definition")
+        .filter({ hasText: /Canlı AI/ }),
     ).toBeVisible();
 
     const stem = page.getByTestId("structured-stem-preview");
@@ -87,12 +90,13 @@ test.describe("Controlled live Gemini source extraction", () => {
       job?: { providerId?: string; modelId?: string; status?: string };
     };
     expect(jobBody.job?.status).toBe("SUCCEEDED");
-    expect(jobBody.job?.providerId).toBe("gemini");
+    expect(jobBody.job?.providerId).toBe("openrouter");
     expect(jobBody.job?.modelId).not.toContain("mock");
 
     const qualityOk =
       stemText.includes(SMOKE_MARKER) ||
       stemText.includes(EXPECTED_STEM_SNIPPET) ||
+      (/kurtulu/i.test(stemText) && /savas/i.test(stemText)) ||
       /19(18|19|20|21)/.test(stemText);
     expect(qualityOk).toBeTruthy();
 

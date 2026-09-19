@@ -1,5 +1,7 @@
-import { hasGeminiApiKey, resolveProviderMode } from "../provider-mode";
+import { resolveLiveVendorProvider } from "../create-stage-provider";
+import { resolveProviderMode } from "../provider-mode";
 import { GeminiSourceAnalystProvider } from "./gemini-provider";
+import { OpenRouterSourceAnalystProvider } from "./openrouter-provider";
 import { ManualSourceAnalystProvider } from "./manual-provider";
 import { MockSourceAnalystProvider } from "./mock-provider";
 import { UnconfiguredLiveSourceAnalystProvider } from "./unconfigured-live-provider";
@@ -28,9 +30,12 @@ export function getSourceAnalystProvider(): ISourceAnalystProvider {
 
   const mode = resolveProviderMode();
   if (mode === "LIVE") {
-    provider = hasGeminiApiKey()
-      ? new GeminiSourceAnalystProvider(process.env.QUESTION_STUDIO_GEMINI_API_KEY!)
-      : new UnconfiguredLiveSourceAnalystProvider();
+    provider = resolveLiveVendorProvider<ISourceAnalystProvider>({
+      openrouter: () =>
+        new OpenRouterSourceAnalystProvider(process.env.OPENROUTER_API_KEY!.trim()),
+      gemini: () => new GeminiSourceAnalystProvider(process.env.QUESTION_STUDIO_GEMINI_API_KEY!),
+      unconfiguredLive: () => new UnconfiguredLiveSourceAnalystProvider(),
+    });
   } else if (mode === "MANUAL") {
     provider = new ManualSourceAnalystProvider();
   } else {

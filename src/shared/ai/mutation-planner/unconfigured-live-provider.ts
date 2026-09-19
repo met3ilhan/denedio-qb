@@ -1,3 +1,5 @@
+import { liveVendorUnconfiguredMessage } from "../live-unconfigured-message";
+
 import type { IMutationPlannerProvider, MutationPlannerInput } from "./types";
 
 export class UnconfiguredLiveMutationPlannerProvider implements IMutationPlannerProvider {
@@ -6,7 +8,7 @@ export class UnconfiguredLiveMutationPlannerProvider implements IMutationPlanner
 
   async plan(_input: MutationPlannerInput): Promise<never> {
     throw new Error(
-      "Canlı mutasyon planlama için QUESTION_STUDIO_GEMINI_API_KEY yapılandırılmalıdır.",
+      liveVendorUnconfiguredMessage("mutasyon planlama"),
     );
   }
 }

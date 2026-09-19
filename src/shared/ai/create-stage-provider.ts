@@ -1,12 +1,29 @@
-import { hasGeminiApiKey, resolveProviderMode, type ProviderMode } from "./provider-mode";
+import {
+  hasGeminiApiKey,
+  hasOpenRouterApiKey,
+  resolveLiveProvider,
+  resolveProviderMode,
+  type ProviderMode,
+} from "./provider-mode";
 
 export type StageProviderFactories<T> = {
-  live: () => T;
+  openrouter: () => T;
+  gemini: () => T;
   mock: () => T;
   unconfiguredLive: () => T;
   demo?: () => T;
   manual?: () => T;
 };
+
+export function resolveLiveVendorProvider<T>(
+  factories: Pick<StageProviderFactories<T>, "openrouter" | "gemini" | "unconfiguredLive">,
+): T {
+  const vendor = resolveLiveProvider();
+  if (vendor === "openrouter") {
+    return hasOpenRouterApiKey() ? factories.openrouter() : factories.unconfiguredLive();
+  }
+  return hasGeminiApiKey() ? factories.gemini() : factories.unconfiguredLive();
+}
 
 const caches = new Map<string, { mode: ProviderMode; instance: unknown }>();
 const testOverrides = new Map<string, unknown>();
@@ -42,7 +59,7 @@ export function createStageProvider<T>(namespace: string, factories: StageProvid
 
   let instance: T;
   if (mode === "LIVE") {
-    instance = hasGeminiApiKey() ? factories.live() : factories.unconfiguredLive();
+    instance = resolveLiveVendorProvider(factories);
   } else if (mode === "DEMO" && factories.demo) {
     instance = factories.demo();
   } else if (mode === "MANUAL" && factories.manual) {

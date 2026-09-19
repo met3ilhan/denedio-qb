@@ -38,9 +38,45 @@ export function isDemoMode(): boolean {
   return resolveProviderMode() === "DEMO";
 }
 
+export type LiveProvider = "openrouter" | "gemini";
+
+const LIVE_PROVIDERS: LiveProvider[] = ["openrouter", "gemini"];
+
+/** Which vendor serves LIVE mode (distinct from MOCK/DEMO execution mode). */
+export function resolveLiveProvider(): LiveProvider {
+  const raw = process.env.QUESTION_STUDIO_LIVE_PROVIDER?.trim().toLowerCase();
+  if (raw === "gemini") return "gemini";
+  if (raw === "openrouter") return "openrouter";
+  if (raw && LIVE_PROVIDERS.includes(raw as LiveProvider)) {
+    return raw as LiveProvider;
+  }
+  return "openrouter";
+}
+
+export function hasOpenRouterApiKey(): boolean {
+  return Boolean(process.env.OPENROUTER_API_KEY?.trim());
+}
+
 export function hasGeminiApiKey(): boolean {
   return Boolean(process.env.QUESTION_STUDIO_GEMINI_API_KEY?.trim());
 }
+
+export function isLiveVendorConfigured(): boolean {
+  const vendor = resolveLiveProvider();
+  if (vendor === "openrouter") {
+    return hasOpenRouterApiKey();
+  }
+  return hasGeminiApiKey();
+}
+
+export function defaultOpenRouterModelSlug(): string {
+  return (
+    process.env.QUESTION_STUDIO_OPENROUTER_MODEL?.trim() ||
+    process.env.OPENROUTER_MODEL?.trim() ||
+    "openai/gpt-5.6-luna"
+  );
+}
+
 
 /** Demo kayak fixture only for deliberately marked demo samples. */
 export function isExplicitDemoSource(input: {

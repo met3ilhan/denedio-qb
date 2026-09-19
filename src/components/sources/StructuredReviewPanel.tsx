@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
+import { liveAiExpertLabel } from "@/shared/ai/live-ai-display";
 import { tr } from "@/shared/copy/tr";
 import type { BlockReviewLayer, SourceExtraction } from "@/shared/validation/source-extraction";
 
@@ -42,8 +43,8 @@ function blockTypeLabel(type: string): string {
   return tr.blockType[key] ?? type;
 }
 
-function providerModeLabel(mode: string | undefined): string {
-  if (mode === "LIVE") return "Canlı AI";
+function providerModeLabel(mode: string | undefined, providerId?: string | null): string {
+  if (mode === "LIVE") return liveAiExpertLabel(providerId);
   if (mode === "DEMO") return "Demo";
   if (mode === "MANUAL") return "Manuel";
   if (mode === "MOCK") return "Mock (yerel)";
@@ -206,7 +207,9 @@ export function StructuredReviewPanel({ sourceId }: { sourceId: string }) {
           <p className="font-semibold">{tr.structured.inspector}</p>
           <p className="text-xs" data-testid="execution-mode-label">
             {tr.structured.executionMode}:{" "}
-            <span className="font-medium">{providerModeLabel(analystMeta.providerMode)}</span>
+            <span className="font-medium">
+              {providerModeLabel(analystMeta.providerMode, providerId)}
+            </span>
           </p>
           {analystMeta.demoFixtureId ? (
             <p className="text-xs text-amber-800" data-testid="demo-fixture-id">

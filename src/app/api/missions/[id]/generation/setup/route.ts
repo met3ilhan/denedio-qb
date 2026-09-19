@@ -4,7 +4,7 @@ import { ZodError } from "zod";
 import { createGenerationRepository, GenerationBlockedError } from "@/modules/generation/repository/generation-repository";
 import { proposeMutationPlanForFingerprintVersion } from "@/modules/generation/services/mutation-plan-proposal";
 import { createFingerprintRepository } from "@/modules/fingerprints/repository/fingerprint-repository";
-import { formatGeminiTransportFailure } from "@/shared/ai/gemini-failure-messages";
+import { formatLiveAiTransportFailure } from "@/shared/ai/openrouter-failure-messages";
 import {
   GeminiQuotaExhaustedError,
   GeminiRequestError,
@@ -97,7 +97,7 @@ export async function POST(request: Request, { params }: Params) {
           error.message.includes("RESOURCE_EXHAUSTED") ||
           error.message.includes("QUOTA_EXHAUSTED")));
     if (isGeminiTransport) {
-      const { userMessage, technicalMessage } = formatGeminiTransportFailure(error);
+      const { userMessage, technicalMessage } = formatLiveAiTransportFailure(error);
       return NextResponse.json(
         { error: userMessage, detail: technicalMessage.slice(0, 500) },
         { status: 502 },

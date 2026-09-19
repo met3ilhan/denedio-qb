@@ -2,6 +2,37 @@ import type { SolverResult } from "@/shared/validation/solver-result";
 import { solverResultSchema } from "@/shared/validation/solver-result";
 import { SCHEMA_VERSION } from "@/shared/validation/primitives";
 
+const OPERATION_TYPES = new Set([
+  "parse",
+  "model",
+  "compute",
+  "compare",
+  "verify",
+  "eliminate",
+  "infer",
+  "translate",
+]);
+
+function normalizeOperationType(raw: unknown): SolverResult["reasoning_trace"][number]["operation_type"] {
+  if (typeof raw !== "string" || !raw.trim()) {
+    return undefined;
+  }
+  const lower = raw.trim().toLowerCase();
+  if (OPERATION_TYPES.has(lower)) {
+    return lower as SolverResult["reasoning_trace"][number]["operation_type"];
+  }
+  if (/read|recall|histor|caus|reason|interpret/.test(lower)) {
+    return "infer";
+  }
+  if (/elimin|reject|exclude/.test(lower)) {
+    return "eliminate";
+  }
+  if (/compar|contrast/.test(lower)) {
+    return "compare";
+  }
+  return "infer";
+}
+
 function asString(value: unknown, fallback: string): string {
   if (typeof value === "string" && value.trim()) return value.trim();
   return fallback;
@@ -33,12 +64,7 @@ export function normalizeGeminiSolverPayload(
         return {
           step: typeof row.step === "number" ? row.step : i + 1,
           description: asString(row.description, "Reasoning step"),
-          operation_type:
-            typeof row.operation_type === "string"
-              ? row.operation_type
-              : typeof row.operationType === "string"
-                ? row.operationType
-                : undefined,
+          operation_type: normalizeOperationType(row.operation_type ?? row.operationType),
         };
       })
     : [{ step: 1, description: "Independent solution derived from stem and choices only." }];

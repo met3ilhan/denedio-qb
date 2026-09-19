@@ -4,13 +4,20 @@ import path from "node:path";
 import { loadProjectEnv } from "./load-project-env";
 import globalSetup from "./global-setup";
 
+function liveVendor(): "openrouter" | "gemini" {
+  const raw = process.env.QUESTION_STUDIO_LIVE_PROVIDER?.trim().toLowerCase();
+  return raw === "gemini" ? "gemini" : "openrouter";
+}
+
 export default async function liveDownstreamGlobalSetup() {
   loadProjectEnv();
 
-  if (!process.env.QUESTION_STUDIO_GEMINI_API_KEY?.trim()) {
-    throw new Error(
-      "Live downstream tests require QUESTION_STUDIO_GEMINI_API_KEY in .env.local.",
-    );
+  const vendor = liveVendor();
+  if (vendor === "openrouter" && !process.env.OPENROUTER_API_KEY?.trim()) {
+    throw new Error("Live downstream tests require OPENROUTER_API_KEY in .env.local.");
+  }
+  if (vendor === "gemini" && !process.env.QUESTION_STUDIO_GEMINI_API_KEY?.trim()) {
+    throw new Error("Live downstream tests require QUESTION_STUDIO_GEMINI_API_KEY in .env.local.");
   }
 
   process.env.QUESTION_STUDIO_PROVIDER_MODE = "LIVE";
@@ -19,7 +26,12 @@ export default async function liveDownstreamGlobalSetup() {
 
   console.log("Live downstream smoke — global setup:");
   console.log(`Database URL configured: ${process.env.DATABASE_URL?.trim() ? "YES" : "NO"}`);
-  console.log("Gemini key configured: YES");
+  console.log(`Live provider: ${vendor}`);
+  console.log(
+    vendor === "openrouter"
+      ? "OpenRouter key configured: YES"
+      : "Gemini key configured: YES",
+  );
   console.log(`Provider mode: ${process.env.QUESTION_STUDIO_PROVIDER_MODE}`);
 
   await globalSetup();

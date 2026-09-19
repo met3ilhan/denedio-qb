@@ -1,3 +1,5 @@
+import { liveVendorUnconfiguredMessage } from "../live-unconfigured-message";
+
 import type { IDistractorAnalysisProvider } from "./types";
 
 export class UnconfiguredLiveDistractorProvider implements IDistractorAnalysisProvider {
@@ -6,7 +8,7 @@ export class UnconfiguredLiveDistractorProvider implements IDistractorAnalysisPr
 
   async analyze(_input: Parameters<IDistractorAnalysisProvider["analyze"]>[0]): Promise<never> {
     throw new Error(
-      "Canlı çeldirici analizi için QUESTION_STUDIO_GEMINI_API_KEY yapılandırılmalıdır.",
+      liveVendorUnconfiguredMessage("çeldirici analizi"),
     );
   }
 }

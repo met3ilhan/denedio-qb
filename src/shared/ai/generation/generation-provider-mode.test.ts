@@ -22,13 +22,25 @@ describe("createGenerationProvider", () => {
 
   it("uses unconfigured live provider when LIVE without key", () => {
     process.env.QUESTION_STUDIO_PROVIDER_MODE = "LIVE";
+    delete process.env.OPENROUTER_API_KEY;
     delete process.env.QUESTION_STUDIO_GEMINI_API_KEY;
     const provider = createGenerationProvider();
     expect(provider).toBeInstanceOf(UnconfiguredLiveGenerationProvider);
   });
 
-  it("gemini generation provider does not wrap mock", async () => {
+  it("selects OpenRouter by default in LIVE when key present", async () => {
     process.env.QUESTION_STUDIO_PROVIDER_MODE = "LIVE";
+    delete process.env.QUESTION_STUDIO_LIVE_PROVIDER;
+    process.env.OPENROUTER_API_KEY = "test-key";
+    const { OpenRouterGenerationProvider } = await import("./openrouter-provider");
+    const provider = createGenerationProvider();
+    expect(provider).toBeInstanceOf(OpenRouterGenerationProvider);
+    expect(provider.providerId).toBe("openrouter");
+  });
+
+  it("selects Gemini when LIVE provider override is gemini", async () => {
+    process.env.QUESTION_STUDIO_PROVIDER_MODE = "LIVE";
+    process.env.QUESTION_STUDIO_LIVE_PROVIDER = "gemini";
     process.env.QUESTION_STUDIO_GEMINI_API_KEY = "test-key";
     const { GeminiGenerationProvider } = await import("./gemini-provider");
     const provider = createGenerationProvider();

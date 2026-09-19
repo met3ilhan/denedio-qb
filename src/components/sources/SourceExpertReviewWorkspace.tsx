@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { liveAiExpertLabel } from "@/shared/ai/live-ai-display";
 import { FINGERPRINT_DIMENSION_LABELS } from "@/shared/copy/fingerprint-labels";
 import { tr } from "@/shared/copy/tr";
 import type { SourceExtraction } from "@/shared/validation/source-extraction";
@@ -29,8 +30,8 @@ type DenedioRow = {
   mappingStatus: string;
 };
 
-function providerModeLabel(mode: string | undefined): string {
-  if (mode === "LIVE") return "Canlı AI";
+function providerModeLabel(mode: string | undefined, providerId?: string | null): string {
+  if (mode === "LIVE") return liveAiExpertLabel(providerId);
   if (mode === "DEMO") return "Demo";
   if (mode === "MANUAL") return "Manuel";
   if (mode === "MOCK") return "Mock (yerel)";

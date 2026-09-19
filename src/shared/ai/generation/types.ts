@@ -16,10 +16,13 @@ export type GenerationInput = {
   plan: MutationPlan;
 };
 
+import type { OpenRouterUsageTelemetry } from "../openrouter/usage";
+
 export type AIStageMeta = {
   providerId: string;
   modelId: string;
   latencyMs: number;
+  usage?: OpenRouterUsageTelemetry;
 };
 
 export interface IGenerationProvider {
