@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { tr } from "@/shared/copy/tr";
 
@@ -52,6 +52,8 @@ export function ExtractionJobPanel({ sourceId }: { sourceId: string }) {
   const [source, setSource] = useState<SourceMeta | null>(null);
   const [retrying, setRetrying] = useState(false);
   const [showTechnical, setShowTechnical] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
+  const navigatedRef = useRef(false);
 
   const refresh = useCallback(async () => {
     const [srcRes, jobRes] = await Promise.all([
@@ -75,13 +77,25 @@ export function ExtractionJobPanel({ sourceId }: { sourceId: string }) {
   }, [refresh]);
 
   useEffect(() => {
-    if (job?.status === "SUCCEEDED") {
-      router.replace(`/sources/${sourceId}/review`);
+    if (job?.status !== "SUCCEEDED") {
+      navigatedRef.current = false;
+      setRedirecting(false);
     }
+  }, [job?.status]);
+
+  useEffect(() => {
+    if (job?.status !== "SUCCEEDED" || navigatedRef.current) {
+      return;
+    }
+    navigatedRef.current = true;
+    setRedirecting(true);
+    router.replace(`/sources/${sourceId}/review`);
   }, [job?.status, router, sourceId]);
 
   async function onRetry() {
     setRetrying(true);
+    navigatedRef.current = false;
+    setRedirecting(false);
     await fetch(`/api/sources/${sourceId}/extraction`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -143,6 +157,15 @@ export function ExtractionJobPanel({ sourceId }: { sourceId: string }) {
               </li>
             ))}
           </ol>
+          {redirecting ? (
+            <p
+              className="rounded-md border border-[var(--qs-border)] bg-[var(--qs-canvas)] px-3 py-2 text-sm"
+              data-testid="extraction-redirecting"
+              role="status"
+            >
+              {tr.expertReview.redirecting}
+            </p>
+          ) : null}
           {retryNotice ? (
             <p
               className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950"
@@ -186,15 +209,6 @@ export function ExtractionJobPanel({ sourceId }: { sourceId: string }) {
                   </p>
                 ))}
             </div>
-          ) : null}
-          {job?.status === "SUCCEEDED" ? (
-            <Link
-              href={`/sources/${sourceId}/structured`}
-              className="inline-flex rounded-md bg-[var(--qs-phase-intake)] px-3 py-2 text-sm font-medium text-white"
-              data-testid="goto-structured-review"
-            >
-              {tr.extraction.openStructured}
-            </Link>
           ) : null}
         </div>
       }

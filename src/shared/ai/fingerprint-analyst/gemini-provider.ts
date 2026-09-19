@@ -1,4 +1,5 @@
 import { defaultGeminiModelId, extractJsonObject, geminiGenerateTextJson } from "../gemini-client";
+import { MECHANISM_IDS, TRAP_TYPE_IDS } from "@/shared/validation/pedagogy-enums";
 import { resolveProviderMode } from "../provider-mode";
 import { SCHEMA_VERSION } from "@/shared/validation/primitives";
 
@@ -60,15 +61,15 @@ export class GeminiFingerprintAnalystProvider implements IFingerprintAnalystProv
 
     const prompt =
       "You are a pedagogical analyst for Turkish exam questions. Analyze ONLY the provided structured extraction. " +
-      "Return ONLY valid JSON (no markdown) for PedagogicalFingerprint with fields: " +
-      "measured_skill, learning_objective, cognitive_operation, reasoning_pattern, solution_skeleton (array of phases with phase_id, operation_type one of parse|model|compute|compare|verify|eliminate|infer|translate, depends_on, critical_substep, description), " +
-      "critical_signal { role, surface_form_notes }, hidden_constraint, reasoning_steps {min,max}, information_order, " +
-      "calculation_burden one of none|light_mental|multi_step_numeric|symbolic|calculator_expected, " +
-      "language_burden low|medium|high, visual_reasoning_burden none|decode_diagram|spatial_transform|graph_read|table_cross_reference|combined, " +
-      "distractor_mechanisms (per wrong choice: slot, mechanism_id from MECH_* set, trap_type_ids from TRAP_* set, misconception_id, summary), " +
-      "misconception_targets, trap_types, elimination_opportunities, difficulty_factors [{factor,weight primary|secondary}], " +
-      "expected_solve_time_seconds {min,max}, question_archetype {archetype_id, version, label}, mutable_surface_notes. " +
-      "Use Turkish exam pedagogy when stem is Turkish; do NOT invent kayak/pricing templates unless the stem is clearly math pricing. " +
+      "Return ONLY valid JSON (no markdown) matching PedagogicalFingerprint. " +
+      "Types are strict: phase_id string; depends_on string[] (use [] not null); critical_substep boolean; reasoning_steps and expected_solve_time_seconds use integer min/max; " +
+      "calculation_burden one of none|light_mental|multi_step_numeric|symbolic|calculator_expected; language_burden low|medium|high; " +
+      "visual_reasoning_burden one of none|decode_diagram|spatial_transform|graph_read|table_cross_reference|combined. " +
+      `mechanism_id must be exactly one of: ${MECHANISM_IDS.join("|")}. ` +
+      `trap_type_ids and trap_types must use only: ${TRAP_TYPE_IDS.join("|")}. ` +
+      "For history recall items with no hidden constraint, set hidden_constraint to a NOT_APPLICABLE sentence (never null). " +
+      "Use NOT_APPLICABLE semantics honestly — do not invent math/kayak/pricing templates for non-math stems. " +
+      "distractor_mechanisms: one entry per wrong choice label with slot matching choice label. " +
       `schemaVersion must be "${SCHEMA_VERSION}". sourceQuestionId: ${input.sourceQuestionId}. ` +
       "Structured extraction JSON:\n" +
       extractionJson;

@@ -212,6 +212,8 @@ export const tr = {
     denedioReadiness: "Denedio hazırlığı",
     primaryCta: "Analizi onayla ve soru üretimine geç",
     extractionNotReady: "Çıkarma henüz hazır değil.",
+    redirecting: "İnceleme alanına yönlendiriliyor…",
+    fingerprintPreviewFailed: "Pedagojik profil yüklenemedi. Teknik ayrıntılara bakın veya tekrar deneyin.",
     approveFailed: "Onay ve kilitleme başarısız — tekrar deneyin.",
     correctAnswer: "Doğru cevap",
     fieldCol: "Alan",

@@ -13,7 +13,9 @@ test.describe("Controlled live Gemini source extraction", () => {
   // Key presence is enforced in `e2e/live-global-setup.ts` (fail fast, not silent skip).
 
   let sourceFileId = "";
+  let missionId = "";
   let uploadSha256 = "";
+  let fingerprintVersionId = "";
   let structuredPayload: {
     jobId?: string;
     analystMeta?: {
@@ -21,10 +23,14 @@ test.describe("Controlled live Gemini source extraction", () => {
       inputBytesSha256?: string;
       sourceFileId?: string;
     };
+    extraction?: { stemText?: string };
   } = {};
 
-  test("HOME → upload → LIVE extraction → structured review", async ({ page, request }) => {
-    test.setTimeout(180_000);
+  test("HOME → upload → LIVE extraction → review → fingerprint → optional generation", async ({
+    page,
+    request,
+  }) => {
+    test.setTimeout(600_000);
 
     const fixturePath = path.join(__dirname, "fixtures", "live-smoke-tarih-question.png");
     expect(fs.existsSync(fixturePath)).toBeTruthy();
@@ -46,12 +52,12 @@ test.describe("Controlled live Gemini source extraction", () => {
     sourceFileId = match?.[1] ?? "";
     expect(sourceFileId.length).toBeGreaterThan(8);
 
-    await expect(page.getByTestId("goto-structured-review")).toBeVisible({ timeout: 120_000 });
-    await page.getByTestId("goto-structured-review").click();
-    await expect(page).toHaveURL(/\/review/, { timeout: 30_000 });
-
+    await expect(page).toHaveURL(new RegExp(`/sources/${sourceFileId}/review`), { timeout: 180_000 });
+    await expect(page.getByTestId("source-expert-review")).toBeVisible({ timeout: 30_000 });
     await expect(page.getByTestId("structured-source-image")).toBeVisible();
-    await expect(page.getByText(/Canlı AI/i)).toBeVisible();
+    await expect(
+      page.getByTestId("source-expert-review").getByRole("definition").filter({ hasText: "Canlı AI" }),
+    ).toBeVisible();
 
     const stem = page.getByTestId("structured-stem-preview");
     await expect(stem).toBeVisible({ timeout: 15_000 });
@@ -59,17 +65,17 @@ test.describe("Controlled live Gemini source extraction", () => {
     await expect(stem).not.toContainText(/mock-source-analyst/i);
     await expect(stem).not.toContainText(/DENEDIO-CANARY/i);
 
-    const stemText = (await stem.textContent()) ?? "";
+    const stemText = (await stem.inputValue()) ?? "";
     expect(stemText.length).toBeGreaterThan(20);
 
     const extractionRes = await request.get(`/api/sources/${sourceFileId}/structured`);
     expect(extractionRes.ok()).toBeTruthy();
     structuredPayload = (await extractionRes.json()) as typeof structuredPayload;
+    missionId = (structuredPayload as { source?: { missionId?: string } }).source?.missionId ?? "";
 
     const assetRes = await request.get(`/api/sources/${sourceFileId}/asset`);
     expect(assetRes.ok()).toBeTruthy();
-    const assetBytes = Buffer.from(await assetRes.body());
-    const assetSha = createHash("sha256").update(assetBytes).digest("hex");
+    const assetSha = createHash("sha256").update(Buffer.from(await assetRes.body())).digest("hex");
     expect(assetSha).toBe(uploadSha256);
 
     expect(structuredPayload.analystMeta?.providerMode).toBe("LIVE");
@@ -90,9 +96,60 @@ test.describe("Controlled live Gemini source extraction", () => {
       /19(18|19|20|21)/.test(stemText);
     expect(qualityOk).toBeTruthy();
 
+    const previewRes = await request.post(`/api/sources/${sourceFileId}/fingerprint/preview`);
+    expect(previewRes.ok()).toBeTruthy();
+    const previewJson = (await previewRes.json()) as {
+      payload: { measured_skill?: string; calculation_burden?: string };
+    };
+    expect(previewJson.payload.measured_skill?.toLowerCase()).not.toContain("kayak");
+    expect(["none", "light_mental"]).toContain(previewJson.payload.calculation_burden);
+
+    await expect(page.getByTestId("expert-review-pedagogical-profile")).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId("fingerprint-preview-error")).toHaveCount(0);
+
+    const acceptRes = await request.post(`/api/sources/${sourceFileId}/structured`, {
+      data: { action: "accept", extraction: structuredPayload.extraction },
+    });
+    expect(acceptRes.ok()).toBeTruthy();
+
+    const draftRes = await request.post(`/api/sources/${sourceFileId}/fingerprint/draft`);
+    expect(draftRes.ok()).toBeTruthy();
+    const draftJson = (await draftRes.json()) as { version: { id: string; payload?: Record<string, unknown> } };
+    fingerprintVersionId = draftJson.version.id;
+    expect(fingerprintVersionId.length).toBeGreaterThan(8);
+
+    const lockRes = await request.post(`/api/fingerprint/${fingerprintVersionId}/lock`);
+    expect(lockRes.ok()).toBeTruthy();
+
+    const fpGet = await request.get(`/api/fingerprint/${fingerprintVersionId}`);
+    expect(fpGet.ok()).toBeTruthy();
+
+    if (missionId) {
+      const setupPost = await request.post(`/api/missions/${missionId}/generation/setup`, {
+        data: {
+          action: "persist",
+          fingerprintVersionId,
+          siblingCount: 1,
+        },
+      });
+      expect(setupPost.ok()).toBeTruthy();
+      const setupBody = (await setupPost.json()) as { runId?: string };
+      expect(setupBody.runId).toBeTruthy();
+
+      const spawnRes = await request.post(
+        `/api/missions/${missionId}/generation/runs/${setupBody.runId}/spawn`,
+        { timeout: 480_000 },
+      );
+      expect(spawnRes.ok()).toBeTruthy();
+      const spawnBody = (await spawnRes.json()) as { candidateIds?: string[] };
+      expect(spawnBody.candidateIds?.length).toBe(1);
+    }
+
     process.env.__LIVE_SMOKE_EVIDENCE__ = JSON.stringify({
       sourceFileId,
+      missionId,
       extractionJobId: structuredPayload.jobId ?? null,
+      fingerprintVersionId,
       uploadSha256,
       providerMode: structuredPayload.analystMeta?.providerMode,
       providerId: jobBody.job?.providerId,

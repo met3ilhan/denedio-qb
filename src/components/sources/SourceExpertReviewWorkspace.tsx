@@ -54,6 +54,7 @@ export function SourceExpertReviewWorkspace({ sourceId }: { sourceId: string }) 
   const [subtopicHint, setSubtopicHint] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [fingerprintError, setFingerprintError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -82,6 +83,11 @@ export function SourceExpertReviewWorkspace({ sourceId }: { sourceId: string }) 
         payload: previewJson.payload,
         gapWarnings: previewJson.gapWarnings ?? [],
       });
+      setFingerprintError(null);
+    } else {
+      setFingerprint(null);
+      const errJson = (await previewRes.json().catch(() => ({}))) as { error?: string };
+      setFingerprintError(errJson.error ?? tr.expertReview.fingerprintPreviewFailed);
     }
     setLoading(false);
   }, [sourceId]);
@@ -296,8 +302,16 @@ export function SourceExpertReviewWorkspace({ sourceId }: { sourceId: string }) 
             </div>
           </div>
 
+          {fingerprintError ? (
+            <p className="text-sm text-red-700" data-testid="fingerprint-preview-error" role="alert">
+              {tr.expertReview.fingerprintPreviewFailed}
+            </p>
+          ) : null}
           {fingerprint ? (
-            <div className="rounded-lg border border-[var(--qs-border)] bg-[var(--qs-surface)] p-4">
+            <div
+              className="rounded-lg border border-[var(--qs-border)] bg-[var(--qs-surface)] p-4"
+              data-testid="expert-review-pedagogical-profile"
+            >
               <h3 className="text-sm font-semibold">{tr.expertReview.pedagogicalProfile}</h3>
               <div className="mt-3 grid gap-3 sm:grid-cols-2">
                 {(

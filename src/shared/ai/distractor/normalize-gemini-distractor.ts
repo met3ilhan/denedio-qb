@@ -2,18 +2,8 @@ import type { DistractorAnalysis } from "@/shared/validation/distractor-analysis
 import { distractorAnalysisSchema } from "@/shared/validation/distractor-analysis";
 import type { GeneratedQuestion } from "@/shared/validation/generated-question";
 import { wrongChoices } from "@/shared/validation/generated-question";
-import { mechanismId, trapTypeId } from "@/shared/validation/pedagogy-enums";
+import { coerceMechanismId, coerceTrapTypeId } from "../gemini-pedagogy-coerce";
 import { SCHEMA_VERSION } from "@/shared/validation/primitives";
-
-function coerceMechanism(raw: unknown): string {
-  const parsed = mechanismId.safeParse(raw);
-  return parsed.success ? parsed.data : "MECH_READ";
-}
-
-function coerceTrap(raw: unknown): string {
-  const parsed = trapTypeId.safeParse(raw);
-  return parsed.success ? parsed.data : "TRAP_READ";
-}
 
 function asString(value: unknown, fallback: string): string {
   if (typeof value === "string" && value.trim()) return value.trim();
@@ -46,8 +36,8 @@ export function normalizeGeminiDistractorPayload(
 
     const trapRaw = row.trap_type_ids;
     const trap_type_ids = Array.isArray(trapRaw)
-      ? trapRaw.map((t) => coerceTrap(t))
-      : [coerceTrap("TRAP_READ")];
+      ? trapRaw.map((t) => coerceTrapTypeId(t))
+      : [coerceTrapTypeId("TRAP_READ")];
 
     const stepsRaw = row.steps;
     const steps = Array.isArray(stepsRaw)
@@ -74,7 +64,7 @@ export function normalizeGeminiDistractorPayload(
 
     return {
       choice_label: choice.label,
-      mechanism_id: coerceMechanism(row.mechanism_id),
+      mechanism_id: coerceMechanismId(row.mechanism_id),
       misconception_id: asString(row.misconception_id, `misc_${choice.label.toLowerCase()}`),
       trap_type_ids,
       steps,
