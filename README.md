@@ -61,8 +61,9 @@ Set `QUESTION_STUDIO_DEMO_MODE=1` (Playwright default) to run **deterministic mo
 | `pnpm lint` | ESLint |
 | `pnpm typecheck` | TypeScript check |
 | `pnpm test` | Vitest |
-| `pnpm test:e2e` | Playwright (requires DB + migrate) |
-| `pnpm db:up` / `pnpm db:migrate` | Docker Postgres + Prisma |
+| `pnpm test:e2e` | Playwright (requires DB + migrate; loads `.env.local`) |
+| `pnpm test:e2e:live` | One controlled live Gemini smoke (requires key in `.env.local`) |
+| `pnpm db:up` / `pnpm db:migrate` | Docker Postgres + Prisma (migrate loads `.env.local` automatically) |
 
 Integration tests: `QUESTION_STUDIO_INTEGRATION=1 pnpm test`
 
@@ -74,6 +75,14 @@ pnpm db:up && pnpm db:migrate
 pnpm test
 pnpm test:e2e
 ```
+
+**Live Gemini acceptance** (opt-in; uses your API key from `.env.local`, not mock mode):
+
+```bash
+pnpm test:e2e:live
+```
+
+No manual `DATABASE_URL`, `TEMP`, or API key exports are required in PowerShell when using the scripts above.
 
 ## Denedio relationship
 

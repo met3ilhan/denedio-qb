@@ -1,6 +1,10 @@
 import { execSync } from "node:child_process";
 
+import { loadProjectEnv } from "./load-project-env";
+
 export default function globalSetup() {
+  loadProjectEnv();
+
   const databaseUrl =
     process.env.DATABASE_URL ??
     "postgresql://question_studio:question_studio@localhost:5433/question_studio";

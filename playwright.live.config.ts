@@ -1,10 +1,15 @@
 import { defineConfig, devices } from "@playwright/test";
 
+import { loadProjectEnv } from "./e2e/load-project-env";
+
+loadProjectEnv();
+
 import base from "./playwright.config";
 
-/** One-shot live Gemini smoke — not part of default `pnpm test:e2e`. */
+/** One-shot live Gemini smoke — use `pnpm test:e2e:live` (loads `.env.local` + repo temp). */
 export default defineConfig({
   ...base,
+  globalSetup: "./e2e/live-global-setup.ts",
   testIgnore: [],
   testMatch: /live-gemini-smoke\.spec\.ts/,
   workers: 1,

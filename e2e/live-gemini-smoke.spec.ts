@@ -10,10 +10,7 @@ const EXPECTED_STEM_SNIPPET = "Kurtuluş Savaşı";
 test.describe.configure({ mode: "serial" });
 
 test.describe("Controlled live Gemini source extraction", () => {
-  test.skip(
-    !process.env.QUESTION_STUDIO_GEMINI_API_KEY?.trim(),
-    "QUESTION_STUDIO_GEMINI_API_KEY required",
-  );
+  // Key presence is enforced in `e2e/live-global-setup.ts` (fail fast, not silent skip).
 
   let sourceFileId = "";
   let uploadSha256 = "";

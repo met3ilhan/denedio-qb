@@ -1,5 +1,9 @@
 import { defineConfig, devices } from "@playwright/test";
 
+import { loadProjectEnv } from "./e2e/load-project-env";
+
+loadProjectEnv();
+
 export default defineConfig({
   testDir: "./e2e",
   testIgnore: [/live-gemini-smoke\.spec\.ts/],

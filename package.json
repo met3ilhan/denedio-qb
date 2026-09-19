@@ -10,12 +10,15 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "pnpm build && playwright test",
-    "test:live-gemini-smoke": "pnpm build && node scripts/run-live-gemini-smoke.mjs",
+    "test:e2e": "pnpm build && node scripts/run-playwright.mjs test",
+    "test:e2e:live": "pnpm build && node scripts/run-playwright-live.mjs",
+    "test:live-gemini-smoke": "pnpm test:e2e:live",
     "db:up": "docker compose up -d question-studio-db",
     "db:down": "docker compose down",
-    "db:migrate": "prisma migrate dev",
-    "db:generate": "prisma generate",
+    "db:migrate": "node scripts/with-local-env.mjs pnpm exec prisma migrate dev",
+    "db:generate": "node scripts/with-local-env.mjs pnpm exec prisma generate",
+    "db:studio": "node scripts/with-local-env.mjs pnpm exec prisma studio",
+    "db:deploy": "node scripts/with-local-env.mjs pnpm exec prisma migrate deploy",
     "postinstall": "prisma generate"
   },
   "dependencies": {
@@ -27,6 +30,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
+    "@next/env": "15.5.25",
     "@playwright/test": "^1.55.0",
     "@tailwindcss/postcss": "^4.1.13",
     "@types/node": "^22.18.1",
