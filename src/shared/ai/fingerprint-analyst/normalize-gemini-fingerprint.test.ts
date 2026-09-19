@@ -117,7 +117,7 @@ describe("normalizeGeminiFingerprintPayload", () => {
       baseExtraction,
       "preview-source",
     );
-    expect(payload.measured_skill).toBe("Skill derived from source stem");
+    expect(payload.measured_skill).toBe("NOT_ANALYZED");
   });
 
   it("uses defaults for missing solution_skeleton", () => {

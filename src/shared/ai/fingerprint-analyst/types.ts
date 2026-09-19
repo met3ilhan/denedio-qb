@@ -1,3 +1,4 @@
+import type { OpenRouterUsageTelemetry } from "../openrouter/usage";
 import type { PedagogicalFingerprint } from "@/shared/validation/pedagogical-fingerprint";
 import type { SourceExtraction } from "@/shared/validation/source-extraction";
 
@@ -12,6 +13,7 @@ export type FingerprintAnalystMeta = {
   modelId: string;
   providerMode: string;
   latencyMs?: number;
+  usage?: OpenRouterUsageTelemetry;
 };
 
 export type FingerprintEvidenceRow = {
@@ -26,6 +28,8 @@ export type FingerprintAnalystResult = {
   evidenceRows: FingerprintEvidenceRow[];
   gapWarnings: string[];
   meta: FingerprintAnalystMeta;
+  /** Raw provider JSON before normalization (classification + fingerprint). */
+  rawModelPayload?: unknown;
 };
 
 export interface IFingerprintAnalystProvider {

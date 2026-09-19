@@ -1,8 +1,8 @@
 import {
-  defaultOpenRouterModelId,
   openRouterGenerateJson,
   requireLiveMode,
 } from "../openrouter/client";
+import { openRouterModelForStage } from "../openrouter/stage-models";
 import { SCHEMA_VERSION } from "@/shared/validation/primitives";
 
 import { normalizeGeminiMutationPlanPayload } from "./normalize-gemini-mutation-plan";
@@ -10,7 +10,7 @@ import type { IMutationPlannerProvider, MutationPlannerInput } from "./types";
 
 export class OpenRouterMutationPlannerProvider implements IMutationPlannerProvider {
   readonly providerId = "openrouter";
-  readonly modelId = defaultOpenRouterModelId();
+  readonly modelId = openRouterModelForStage("mutation");
 
   constructor(private readonly apiKey: string) {}
 

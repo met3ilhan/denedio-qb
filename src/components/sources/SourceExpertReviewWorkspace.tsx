@@ -4,8 +4,16 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { liveAiExpertLabel } from "@/shared/ai/live-ai-display";
+import {
+  correctAnswerProvenanceLabel,
+  formatDifficultyTr,
+  formatHiddenConstraintDisplay,
+  formatSolveTimeBandTr,
+  type CorrectAnswerProvenance,
+} from "@/shared/ai/pedagogy-display";
 import { FINGERPRINT_DIMENSION_LABELS } from "@/shared/copy/fingerprint-labels";
 import { tr } from "@/shared/copy/tr";
+import type { SourcePedagogicalClassification } from "@/shared/validation/source-pedagogical-classification";
 import type { SourceExtraction } from "@/shared/validation/source-extraction";
 
 type SourceMeta = {
@@ -15,6 +23,10 @@ type SourceMeta = {
   missionId?: string;
   createdAt: string;
   assetUrl: string;
+  reviewSubject?: string | null;
+  reviewTopic?: string | null;
+  reviewSubtopic?: string | null;
+  reviewDifficulty?: string | null;
 };
 
 type FingerprintDraft = {
@@ -56,6 +68,26 @@ export function SourceExpertReviewWorkspace({ sourceId }: { sourceId: string }) 
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [fingerprintError, setFingerprintError] = useState<string | null>(null);
+  const [classification, setClassification] = useState<SourcePedagogicalClassification | null>(null);
+  const [correctAnswerProvenance, setCorrectAnswerProvenance] =
+    useState<CorrectAnswerProvenance>("unset");
+
+  const persistReviewMeta = useCallback(
+    async (patch: {
+      reviewSubject?: string;
+      reviewTopic?: string;
+      reviewSubtopic?: string;
+      reviewDifficulty?: string;
+      extraction?: SourceExtraction;
+    }) => {
+      await fetch(`/api/sources/${sourceId}/structured`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(patch),
+      });
+    },
+    [sourceId],
+  );
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -68,38 +100,78 @@ export function SourceExpertReviewWorkspace({ sourceId }: { sourceId: string }) 
       extraction: SourceExtraction;
       source?: SourceMeta & { missionId?: string };
       analystMeta?: { providerMode?: string };
+      pedagogicalAnalysis?: {
+        fingerprint?: Record<string, unknown>;
+        gapWarnings?: string[];
+        qualityWarnings?: string[];
+      } | null;
+      classification?: SourcePedagogicalClassification | null;
+      correctAnswerProvenance?: CorrectAnswerProvenance | null;
     };
     setExtraction(json.extraction);
     setSource(json.source ?? null);
     setProviderMode(json.analystMeta?.providerMode ?? "");
+    setCorrectAnswerProvenance(json.correctAnswerProvenance ?? "unset");
 
-    const previewRes = await fetch(`/api/sources/${sourceId}/fingerprint/preview`, { method: "POST" });
-    if (previewRes.ok) {
-      const previewJson = (await previewRes.json()) as {
-        payload: Record<string, unknown>;
-        gapWarnings?: string[];
-      };
+    const aiClass = json.classification ?? null;
+    setClassification(aiClass);
+
+    const savedSubject = json.source?.reviewSubject?.trim();
+    const savedTopic = json.source?.reviewTopic?.trim();
+    const savedSubtopic = json.source?.reviewSubtopic?.trim();
+    setSubjectHint(savedSubject || aiClass?.subject || "");
+    setTopicHint(savedTopic || aiClass?.topic || "");
+    setSubtopicHint(savedSubtopic || aiClass?.subtopic || "");
+
+    const bundle = json.pedagogicalAnalysis;
+    if (bundle?.fingerprint) {
       setFingerprint({
         versionId: "",
-        payload: previewJson.payload,
-        gapWarnings: previewJson.gapWarnings ?? [],
+        payload: bundle.fingerprint,
+        gapWarnings: bundle.gapWarnings ?? [],
       });
       setFingerprintError(null);
     } else {
       setFingerprint(null);
-      const errJson = (await previewRes.json().catch(() => ({}))) as { error?: string };
-      setFingerprintError(errJson.error ?? tr.expertReview.fingerprintPreviewFailed);
+      setFingerprintError(tr.expertReview.fingerprintPreviewFailed);
     }
     setLoading(false);
   }, [sourceId]);
+
+  async function rerunPedagogicalAnalysis() {
+    setBusy(true);
+    const previewRes = await fetch(`/api/sources/${sourceId}/fingerprint/preview?force=1`, {
+      method: "POST",
+    });
+    if (previewRes.ok) {
+      await refresh();
+    } else {
+      setFingerprintError(tr.expertReview.fingerprintPreviewFailed);
+    }
+    setBusy(false);
+  }
 
   useEffect(() => {
     void refresh();
   }, [refresh]);
 
-  const correctLabel = useMemo(() => {
-    return extraction?.choices.find((c) => c.isCorrect)?.label ?? "";
+  const correctChoice = useMemo(() => {
+    return extraction?.choices.find((c) => c.isCorrect) ?? null;
   }, [extraction]);
+
+  const difficultyDisplay = useMemo(() => {
+    const fromReview = source?.reviewDifficulty?.trim();
+    if (fromReview) return formatDifficultyTr(fromReview);
+    return formatDifficultyTr(classification?.difficulty);
+  }, [classification?.difficulty, source?.reviewDifficulty]);
+
+  const solveTimeDisplay = formatSolveTimeBandTr(classification?.expected_solve_time_seconds);
+
+  const hiddenConstraintDisplay = formatHiddenConstraintDisplay(
+    typeof fingerprint?.payload.hidden_constraint === "string"
+      ? fingerprint.payload.hidden_constraint
+      : "",
+  );
 
   const denedioRows: DenedioRow[] = useMemo(() => {
     const archetype = fingerprint?.payload.question_archetype as { label?: string } | undefined;
@@ -284,22 +356,64 @@ export function SourceExpertReviewWorkspace({ sourceId }: { sourceId: string }) 
               onChange={(e) => setExtraction({ ...extraction, solutionText: e.target.value })}
             />
             <p className="mt-2 text-xs text-[var(--qs-text-muted)]">
-              {tr.provenance.label}: {tr.provenance.aiDerived}
-              {correctLabel ? ` · ${tr.expertReview.correctAnswer}: ${correctLabel}` : ""}
+              {correctChoice ? (
+                <>
+                  {tr.expertReview.correctAnswer}: {correctChoice.label}) {correctChoice.text}
+                  <br />
+                  {tr.provenance.label}: {correctAnswerProvenanceLabel(correctAnswerProvenance)}
+                </>
+              ) : (
+                <>{tr.expertReview.correctAnswer}: {tr.common.undetermined}</>
+              )}
             </p>
           </div>
 
           <div className="rounded-lg border border-[var(--qs-border)] bg-[var(--qs-surface)] p-4">
             <h3 className="text-sm font-semibold">{tr.expertReview.classification}</h3>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              <FieldInput label={tr.upload.subjectLabel} value={subjectHint} onChange={setSubjectHint} />
-              <FieldInput label="Konu" value={topicHint} onChange={setTopicHint} missing={tr.common.undetermined} />
-              <FieldInput label="Alt konu" value={subtopicHint} onChange={setSubtopicHint} missing={tr.common.undetermined} />
+              <FieldInput
+                label={tr.upload.subjectLabel}
+                value={subjectHint}
+                onChange={(v) => {
+                  setSubjectHint(v);
+                  void persistReviewMeta({ reviewSubject: v, reviewTopic: topicHint, reviewSubtopic: subtopicHint });
+                }}
+              />
+              <FieldInput
+                label="Konu"
+                value={topicHint}
+                onChange={(v) => {
+                  setTopicHint(v);
+                  void persistReviewMeta({ reviewSubject: subjectHint, reviewTopic: v, reviewSubtopic: subtopicHint });
+                }}
+                missing={tr.common.undetermined}
+              />
+              <FieldInput
+                label="Alt konu"
+                value={subtopicHint}
+                onChange={(v) => {
+                  setSubtopicHint(v);
+                  void persistReviewMeta({ reviewSubject: subjectHint, reviewTopic: topicHint, reviewSubtopic: v });
+                }}
+                missing={tr.common.undetermined}
+              />
               <ReadOnlyField
                 label={tr.candidates.difficulty}
-                value={tr.common.notYetEvaluated}
-                provenance={tr.provenance.undetermined}
+                value={difficultyDisplay}
+                provenance={classification?.difficulty ? tr.provenance.aiDerived : tr.provenance.undetermined}
               />
+              <ReadOnlyField
+                label="Tahmini süre"
+                value={solveTimeDisplay}
+                provenance={classification?.expected_solve_time_seconds ? tr.provenance.aiDerived : tr.provenance.undetermined}
+              />
+              {classification?.question_type ? (
+                <ReadOnlyField
+                  label="Soru türü"
+                  value={classification.question_type}
+                  provenance={tr.provenance.aiDerived}
+                />
+              ) : null}
             </div>
           </div>
 
@@ -313,7 +427,17 @@ export function SourceExpertReviewWorkspace({ sourceId }: { sourceId: string }) 
               className="rounded-lg border border-[var(--qs-border)] bg-[var(--qs-surface)] p-4"
               data-testid="expert-review-pedagogical-profile"
             >
-              <h3 className="text-sm font-semibold">{tr.expertReview.pedagogicalProfile}</h3>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="text-sm font-semibold">{tr.expertReview.pedagogicalProfile}</h3>
+                <button
+                  type="button"
+                  className="text-xs underline"
+                  disabled={busy}
+                  onClick={() => void rerunPedagogicalAnalysis()}
+                >
+                  Pedagojik analizi yenile (ücretli)
+                </button>
+              </div>
               <div className="mt-3 grid gap-3 sm:grid-cols-2">
                 {(
                   [
@@ -321,7 +445,6 @@ export function SourceExpertReviewWorkspace({ sourceId }: { sourceId: string }) 
                     "learning_objective",
                     "cognitive_operation",
                     "reasoning_pattern",
-                    "hidden_constraint",
                   ] as const
                 ).map((key) => (
                   <label key={key} className="block text-xs">
@@ -331,17 +454,22 @@ export function SourceExpertReviewWorkspace({ sourceId }: { sourceId: string }) 
                     <input
                       className="mt-1 w-full rounded-md border border-[var(--qs-border)] px-2 py-1 text-sm"
                       value={String(fingerprint.payload[key] ?? "")}
-                      onChange={(e) =>
-                        setFingerprint({
-                          ...fingerprint,
-                          payload: { ...fingerprint.payload, [key]: e.target.value },
-                        })
-                      }
-                      onBlur={(e) => void saveFingerprintField(key, e.target.value)}
+                      onChange={(e) => saveFingerprintField(key, e.target.value)}
                     />
                     <span className="text-[10px] text-[var(--qs-text-muted)]">{tr.provenance.aiDerived}</span>
                   </label>
                 ))}
+                <div className="block text-xs sm:col-span-2">
+                  <span className="font-medium text-[var(--qs-text-muted)]">
+                    {FINGERPRINT_DIMENSION_LABELS.hidden_constraint}
+                  </span>
+                  <p className="mt-1 text-sm">{hiddenConstraintDisplay.status}</p>
+                  {hiddenConstraintDisplay.explanation ? (
+                    <p className="mt-1 text-sm text-[var(--qs-text-muted)]">
+                      {hiddenConstraintDisplay.explanation}
+                    </p>
+                  ) : null}
+                </div>
               </div>
               {fingerprint.gapWarnings.length > 0 ? (
                 <ul className="mt-3 list-disc pl-5 text-xs text-amber-800">

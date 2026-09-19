@@ -1,8 +1,8 @@
 import {
-  defaultOpenRouterModelId,
   openRouterGenerateJson,
   requireLiveMode,
 } from "../openrouter/client";
+import { openRouterModelForStage } from "../openrouter/stage-models";
 import { SCHEMA_VERSION } from "@/shared/validation/primitives";
 
 import { normalizeGeminiQuestionPayload } from "./normalize-gemini-question";
@@ -10,7 +10,7 @@ import type { GenerationInput, IGenerationProvider } from "./types";
 
 export class OpenRouterGenerationProvider implements IGenerationProvider {
   readonly providerId = "openrouter";
-  readonly modelId = defaultOpenRouterModelId();
+  readonly modelId = openRouterModelForStage("generation");
 
   constructor(private readonly apiKey: string) {}
 

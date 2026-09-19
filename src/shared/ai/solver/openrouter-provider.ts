@@ -1,8 +1,8 @@
 import {
-  defaultOpenRouterModelId,
   openRouterGenerateJson,
   requireLiveMode,
 } from "../openrouter/client";
+import { openRouterModelForStage } from "../openrouter/stage-models";
 import { SCHEMA_VERSION } from "@/shared/validation/primitives";
 
 import { solveFromStemOnly } from "./stem-solver";
@@ -14,7 +14,7 @@ import type { ISolverProvider, SolverInput } from "./types";
  */
 export class OpenRouterSolverProvider implements ISolverProvider {
   readonly providerId = "openrouter";
-  readonly modelId = defaultOpenRouterModelId();
+  readonly modelId = openRouterModelForStage("solver");
   readonly solverProfile = "independent" as const;
 
   constructor(private readonly apiKey: string) {}

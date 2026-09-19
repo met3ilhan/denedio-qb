@@ -1,0 +1,4 @@
+ALTER TABLE "SourceFile" ADD COLUMN IF NOT EXISTS "reviewSubject" TEXT;
+ALTER TABLE "SourceFile" ADD COLUMN IF NOT EXISTS "reviewTopic" TEXT;
+ALTER TABLE "SourceFile" ADD COLUMN IF NOT EXISTS "reviewSubtopic" TEXT;
+ALTER TABLE "SourceFile" ADD COLUMN IF NOT EXISTS "reviewDifficulty" TEXT;

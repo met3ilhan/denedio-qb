@@ -1,7 +1,5 @@
-import {
-  defaultOpenRouterModelId,
-  openRouterGenerateJson,
-} from "../openrouter/client";
+import { openRouterGenerateJson } from "../openrouter/client";
+import { openRouterModelForStage } from "../openrouter/stage-models";
 import { inputBytesSha256, resolveProviderMode } from "../provider-mode";
 import { SCHEMA_VERSION } from "@/shared/validation/primitives";
 import {
@@ -9,8 +7,10 @@ import {
   type SourceAnalystEnvelope,
 } from "@/shared/validation/source-extraction";
 
+import { buildSourceExtractionPrompt } from "./extraction-prompt";
 import { buildBlockLayers } from "./layering";
 import { normalizeGeminiExtractionBlocks } from "./normalize-gemini-extraction";
+import { syncChoicesFromBlocks } from "./sync-choices-from-blocks";
 import type { ISourceAnalystProvider, SourceAnalystInput } from "./types";
 import type { SourceExtraction } from "@/shared/validation/source-extraction";
 
@@ -37,7 +37,7 @@ function buildBlocksFromStemAndChoices(extraction: Pick<SourceExtraction, "stemT
 /** Live OpenRouter source analyst — failures surface as errors (no mock/demo fallback). */
 export class OpenRouterSourceAnalystProvider implements ISourceAnalystProvider {
   readonly providerId = "openrouter";
-  readonly modelId = defaultOpenRouterModelId();
+  readonly modelId = openRouterModelForStage("source");
 
   constructor(private readonly apiKey: string) {}
 
@@ -48,15 +48,7 @@ export class OpenRouterSourceAnalystProvider implements ISourceAnalystProvider {
     }
 
     const stageLabel = "OpenRouter source analyst";
-    const prompt =
-      "You are a source analyst for Turkish exam questions. Return ONLY valid JSON (no markdown) matching " +
-      "this shape: { schemaVersion, sourceQuestionKey, language, stemText, choices (2-5 with labels A-D consecutive), " +
-      "solutionText optional, blocks (stem + choice blocks with blockId, type one of stem|choice|figure|table|solution|metadata|other, text, confidence 0-1, page as positive integer). " +
-      "For a single uploaded image use page: 1 on every block; never use null. " +
-      "extractionWarnings optional }. schemaVersion must be exactly " +
-      SCHEMA_VERSION +
-      ". Document filename: " +
-      input.originalFilename;
+    const prompt = buildSourceExtractionPrompt(input);
 
     const { parsed: parsedExtraction } = await openRouterGenerateJson({
       apiKey: this.apiKey,
@@ -93,17 +85,22 @@ export class OpenRouterSourceAnalystProvider implements ISourceAnalystProvider {
       blocks = normalizeGeminiExtractionBlocks(blocks);
     }
 
-    const extraction = {
-      ...raw,
+    let mergedChoices = choices as SourceExtraction["choices"];
+    const draftExtraction = {
       schemaVersion: SCHEMA_VERSION,
       sourceQuestionKey:
         typeof raw.sourceQuestionKey === "string"
           ? raw.sourceQuestionKey
           : `openrouter-${input.sourceFileId.slice(0, 8)}`,
       stemText,
-      choices,
-      blocks,
+      choices: mergedChoices,
+      blocks: blocks as SourceExtraction["blocks"],
+      language: typeof raw.language === "string" ? raw.language : "tr",
+      solutionText: typeof raw.solutionText === "string" ? raw.solutionText : undefined,
+      extractionWarnings: Array.isArray(raw.extractionWarnings) ? raw.extractionWarnings : undefined,
     };
+    mergedChoices = syncChoicesFromBlocks(draftExtraction);
+    const extraction = { ...draftExtraction, choices: mergedChoices };
 
     const envelopeCandidate = {
       schemaVersion: SCHEMA_VERSION,

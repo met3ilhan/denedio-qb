@@ -162,6 +162,45 @@ export class SourceRepository {
     });
   }
 
+  async updateSourceReviewMeta(
+    sourceFileId: string,
+    patch: {
+      reviewSubject?: string | null;
+      reviewTopic?: string | null;
+      reviewSubtopic?: string | null;
+      reviewDifficulty?: string | null;
+    },
+  ): Promise<SourceFile> {
+    return this.db.sourceFile.update({
+      where: { id: sourceFileId },
+      data: patch,
+    });
+  }
+
+  async updateJobResult(jobId: string, result: Prisma.InputJsonValue): Promise<ExtractionJob> {
+    return this.db.extractionJob.update({
+      where: { id: jobId },
+      data: { result },
+    });
+  }
+
+  async mergeJobAnalystMeta(
+    jobId: string,
+    patch: Record<string, unknown>,
+  ): Promise<ExtractionJob> {
+    const job = await this.db.extractionJob.findUniqueOrThrow({ where: { id: jobId } });
+    const existing =
+      job.analystMeta && typeof job.analystMeta === "object"
+        ? (job.analystMeta as Record<string, unknown>)
+        : {};
+    return this.db.extractionJob.update({
+      where: { id: jobId },
+      data: {
+        analystMeta: { ...existing, ...patch } as Prisma.InputJsonValue,
+      },
+    });
+  }
+
   async rejectExtraction(
     sourceFileId: string,
     extractionJobId: string,

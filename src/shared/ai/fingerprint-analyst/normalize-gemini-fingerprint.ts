@@ -107,7 +107,7 @@ function normalizeSolutionSkeleton(raw: unknown, stemSnippet: string) {
       operation_type: coerceOperationType(row.operation_type ?? row.operationType, index === 0 ? "parse" : "infer"),
       depends_on: coerceStringArray(row.depends_on ?? row.dependsOn),
       critical_substep: coerceBoolean(row.critical_substep ?? row.criticalSubstep, index === 0),
-      description: asNonEmptyString(row.description, "Reasoning phase aligned to source stem").slice(0, 500),
+      description: asNonEmptyString(row.description, "NOT_ANALYZED").slice(0, 500),
     };
   });
 }
@@ -213,10 +213,10 @@ export function normalizeGeminiFingerprintPayload(
   const candidate = {
     schemaVersion: SCHEMA_VERSION,
     sourceQuestionId,
-    measured_skill: asNonEmptyString(rec.measured_skill, "Skill derived from source stem"),
-    learning_objective: asNonEmptyString(rec.learning_objective, "Learning objective aligned to source stem"),
-    cognitive_operation: asNonEmptyString(rec.cognitive_operation, "recall_and_apply"),
-    reasoning_pattern: asNonEmptyString(rec.reasoning_pattern, "stem_guided_reasoning"),
+    measured_skill: asNonEmptyString(rec.measured_skill, "NOT_ANALYZED"),
+    learning_objective: asNonEmptyString(rec.learning_objective, "NOT_ANALYZED"),
+    cognitive_operation: asNonEmptyString(rec.cognitive_operation, "NOT_ANALYZED"),
+    reasoning_pattern: asNonEmptyString(rec.reasoning_pattern, "NOT_ANALYZED"),
     solution_skeleton: normalizeSolutionSkeleton(rec.solution_skeleton, stemSnippet),
     critical_signal:
       typeof rec.critical_signal === "object" && rec.critical_signal !== null
@@ -231,7 +231,7 @@ export function normalizeGeminiFingerprintPayload(
             ),
           }
         : {
-            role: "Key cue in the stem",
+            role: "NOT_ANALYZED",
             surface_form_notes: stemBlock?.text?.slice(0, 200) ?? stemSnippet.slice(0, 200),
           },
     hidden_constraint: normalizeHiddenConstraint(rec.hidden_constraint),
@@ -253,7 +253,7 @@ export function normalizeGeminiFingerprintPayload(
     question_archetype: {
       archetype_id: asNonEmptyString(archetypeRec.archetype_id ?? archetypeRec.archetypeId, "AR_SOURCE_ALIGNED"),
       version: asNonEmptyString(archetypeRec.version, "1"),
-      label: asNonEmptyString(archetypeRec.label, "Source-aligned item"),
+      label: asNonEmptyString(archetypeRec.label, "NOT_ANALYZED"),
     },
     mutable_surface_notes: asNonEmptyString(
       rec.mutable_surface_notes,

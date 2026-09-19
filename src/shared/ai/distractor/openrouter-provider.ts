@@ -1,8 +1,8 @@
 import {
-  defaultOpenRouterModelId,
   openRouterGenerateJson,
   requireLiveMode,
 } from "../openrouter/client";
+import { openRouterModelForStage } from "../openrouter/stage-models";
 import { SCHEMA_VERSION } from "@/shared/validation/primitives";
 
 import { normalizeGeminiDistractorPayload } from "./normalize-gemini-distractor";
@@ -10,7 +10,7 @@ import type { IDistractorAnalysisProvider } from "./types";
 
 export class OpenRouterDistractorAnalysisProvider implements IDistractorAnalysisProvider {
   readonly providerId = "openrouter";
-  readonly modelId = defaultOpenRouterModelId();
+  readonly modelId = openRouterModelForStage("distractor");
 
   constructor(private readonly apiKey: string) {}
 

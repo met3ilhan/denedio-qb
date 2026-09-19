@@ -120,6 +120,10 @@ model SourceFile {
   subjectHint      String?
   languageHint     String?
   notes            String?
+  reviewSubject    String?
+  reviewTopic      String?
+  reviewSubtopic   String?
+  reviewDifficulty String?
   fingerprintState FingerprintPipelineState @default(NOT_STARTED)
   createdAt        DateTime                 @default(now())
   updatedAt        DateTime                 @updatedAt

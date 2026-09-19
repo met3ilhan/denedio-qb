@@ -6,6 +6,9 @@ import { getObjectStorage } from "@/shared/storage";
 import { sourceAnalystEnvelopeSchema } from "@/shared/validation/source-extraction";
 import type { PrismaClient } from "@/shared/db/client";
 
+import { ensurePedagogicalAnalysisCached } from "@/modules/fingerprints/services/persist-pedagogical-analysis";
+import { resolveCorrectAnswerProvenance } from "@/shared/ai/source-analyst/correct-answer-provenance";
+
 import { appendLogLine } from "../domain/extraction-job-state";
 import { createSourceRepository } from "../repository/source-repository";
 
@@ -91,6 +94,7 @@ export class InProcessExtractionWorker {
       );
 
       const parsed = sourceAnalystEnvelopeSchema.parse(envelope);
+      const correctAnswerProvenance = resolveCorrectAnswerProvenance(parsed.extraction);
 
       await repo.transitionJob(jobId, "SUCCEEDED", {
         finishedAt: new Date(),
@@ -102,6 +106,7 @@ export class InProcessExtractionWorker {
           providerMode: parsed.providerMode,
           inputBytesSha256: parsed.inputBytesSha256,
           sourceFileId: source.id,
+          correctAnswerProvenance,
         },
         providerId: parsed.providerId,
         modelId: parsed.modelId,
@@ -109,6 +114,32 @@ export class InProcessExtractionWorker {
       await repo.appendJobLogs(
         jobId,
         appendLogLine([], "info", "Extraction validated against SourceExtractionSchema"),
+      );
+
+      await repo.appendJobLogs(
+        jobId,
+        appendLogLine([], "info", "Pedagogical analysis (classification + fingerprint) starting"),
+      );
+      const bundle = await ensurePedagogicalAnalysisCached(
+        this.db,
+        jobId,
+        parsed.extraction,
+        source.id,
+      );
+      await repo.mergeJobAnalystMeta(jobId, {
+        correctAnswerProvenance,
+        aiUsageSummary: {
+          extraction: { providerId: parsed.providerId, modelId: parsed.modelId },
+          analysis: {
+            providerId: bundle.providerId,
+            modelId: bundle.modelId,
+            usage: bundle.usage,
+          },
+        },
+      });
+      await repo.appendJobLogs(
+        jobId,
+        appendLogLine([], "info", "Pedagogical analysis cached for review (no reload re-billing)"),
       );
     } catch (error) {
       const { userMessage, technicalMessage } = formatExtractionFailure(error);
