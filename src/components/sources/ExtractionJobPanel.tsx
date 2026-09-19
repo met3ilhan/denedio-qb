@@ -93,6 +93,10 @@ export function ExtractionJobPanel({ sourceId }: { sourceId: string }) {
 
   const activeStep = job ? stepIndex(job.status) : 0;
   const isImage = source?.mimeType.startsWith("image/");
+  const retryNotice =
+    job?.status === "RUNNING"
+      ? [...(job.logs ?? [])].reverse().find((line) => line.message.includes(tr.aiService.retrying))
+      : undefined;
 
   return (
     <IntakeThreePanel
@@ -139,6 +143,15 @@ export function ExtractionJobPanel({ sourceId }: { sourceId: string }) {
               </li>
             ))}
           </ol>
+          {retryNotice ? (
+            <p
+              className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950"
+              data-testid="extraction-retry-notice"
+              role="status"
+            >
+              {tr.aiService.retrying}
+            </p>
+          ) : null}
           {job?.status === "FAILED" && job.errorMessage ? (
             <p
               className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-900"

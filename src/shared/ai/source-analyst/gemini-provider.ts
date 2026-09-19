@@ -1,3 +1,4 @@
+import { defaultGeminiModelId, extractJsonObject, geminiGenerateTextJson } from "../gemini-client";
 import { inputBytesSha256, resolveProviderMode } from "../provider-mode";
 import { SCHEMA_VERSION } from "@/shared/validation/primitives";
 import {
@@ -36,8 +37,7 @@ function buildBlocksFromStemAndChoices(extraction: Pick<SourceExtraction, "stemT
  */
 export class GeminiSourceAnalystProvider implements ISourceAnalystProvider {
   readonly providerId = "gemini";
-  readonly modelId =
-    process.env.QUESTION_STUDIO_GEMINI_MODEL?.trim() || "gemini-2.5-flash";
+  readonly modelId = defaultGeminiModelId();
 
   constructor(private readonly apiKey: string) {}
 
@@ -47,6 +47,7 @@ export class GeminiSourceAnalystProvider implements ISourceAnalystProvider {
       throw new Error("GeminiSourceAnalystProvider invoked outside LIVE provider mode");
     }
 
+    const stageLabel = "Gemini source analyst";
     const prompt =
       "You are a source analyst for Turkish exam questions. Return ONLY valid JSON (no markdown) matching " +
       "this shape: { schemaVersion, sourceQuestionKey, language, stemText, choices (2-5 with labels A-D consecutive), " +
@@ -57,62 +58,18 @@ export class GeminiSourceAnalystProvider implements ISourceAnalystProvider {
       ". Document filename: " +
       input.originalFilename;
 
-    const body = {
-      contents: [
-        {
-          parts: [
-            { text: prompt },
-            {
-              inline_data: {
-                mime_type: input.mimeType,
-                data: input.bytes.toString("base64"),
-              },
-            },
-          ],
-        },
-      ],
-    };
+    const text = await geminiGenerateTextJson({
+      apiKey: this.apiKey,
+      modelId: this.modelId,
+      prompt,
+      stageLabel,
+      inlineImage: {
+        mimeType: input.mimeType,
+        base64: input.bytes.toString("base64"),
+      },
+    });
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.modelId}:generateContent?key=${this.apiKey}`;
-    let response: Response;
-    try {
-      response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-    } catch (cause) {
-      throw new Error(
-        `Gemini source analyst network error: ${cause instanceof Error ? cause.message : String(cause)}`,
-      );
-    }
-
-    if (!response.ok) {
-      const detail = await response.text().catch(() => "");
-      throw new Error(
-        `Gemini source analyst HTTP ${response.status}${detail ? `: ${detail.slice(0, 500)}` : ""}`,
-      );
-    }
-
-    const json = (await response.json()) as {
-      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
-    };
-    const text = json.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-    if (!text) {
-      throw new Error("Gemini source analyst returned empty content");
-    }
-
-    const match = text.match(/\{[\s\S]*\}/);
-    if (!match) {
-      throw new Error("Gemini source analyst response did not contain JSON object");
-    }
-
-    let parsedExtraction: unknown;
-    try {
-      parsedExtraction = JSON.parse(match[0]);
-    } catch {
-      throw new Error("Gemini source analyst returned invalid JSON");
-    }
+    const parsedExtraction = extractJsonObject(text, stageLabel);
 
     const extractionRecord =
       typeof parsedExtraction === "object" &&

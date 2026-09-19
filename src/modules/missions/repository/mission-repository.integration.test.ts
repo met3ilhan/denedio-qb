@@ -7,6 +7,7 @@ import {
   PROVENANCE_MISSION_CREATED,
 } from "./mission-repository";
 
+/** Opt-in: hits real Postgres. Run with `QUESTION_STUDIO_INTEGRATION=1 pnpm test`. */
 const runIntegration = process.env.QUESTION_STUDIO_INTEGRATION === "1" && !!process.env.DATABASE_URL;
 
 describe.skipIf(!runIntegration)("MissionRepository (integration)", () => {

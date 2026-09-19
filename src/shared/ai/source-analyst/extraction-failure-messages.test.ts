@@ -3,6 +3,8 @@ import { z } from "zod";
 
 import { tr } from "@/shared/copy/tr";
 
+import { GeminiRetryExhaustedError } from "../gemini-retry";
+
 import { formatExtractionFailure } from "./extraction-failure-messages";
 
 describe("formatExtractionFailure", () => {
@@ -16,5 +18,15 @@ describe("formatExtractionFailure", () => {
     const { userMessage, technicalMessage } = formatExtractionFailure(zodErr);
     expect(userMessage).toBe(tr.extraction.schemaShapeError);
     expect(technicalMessage).toContain("fieldErrors");
+  });
+
+  it("maps exhausted Gemini transport failure to Turkish unavailable message", () => {
+    const err = new GeminiRetryExhaustedError(
+      "Gemini source analyst",
+      new Error("Gemini source analyst HTTP 503: busy"),
+    );
+    const { userMessage, technicalMessage } = formatExtractionFailure(err);
+    expect(userMessage).toBe(tr.aiService.unavailable);
+    expect(technicalMessage).toContain("503");
   });
 });

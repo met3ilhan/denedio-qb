@@ -1,5 +1,6 @@
 import { ZodError } from "zod";
 
+import { formatGeminiTransportFailure } from "../gemini-failure-messages";
 import { tr } from "@/shared/copy/tr";
 
 export function formatExtractionFailure(error: unknown): {
@@ -14,17 +15,25 @@ export function formatExtractionFailure(error: unknown): {
   }
 
   const technicalMessage = error instanceof Error ? error.message : String(error);
-  const isProviderHttp = technicalMessage.includes("Gemini source analyst HTTP");
-  const isNetwork = technicalMessage.includes("network error");
+  const isGeminiTransport =
+    /^Gemini .+ (HTTP \d+|network error)/.test(technicalMessage) ||
+    technicalMessage.includes("transient Gemini failures exhausted");
 
-  if (isProviderHttp || isNetwork) {
+  if (isGeminiTransport) {
+    return formatGeminiTransportFailure(error);
+  }
+
+  if (technicalMessage.includes("page is not a positive integer")) {
     return {
-      userMessage: tr.extraction.providerUnavailableError,
+      userMessage: tr.extraction.schemaShapeError,
       technicalMessage,
     };
   }
 
-  if (technicalMessage.includes("page is not a positive integer")) {
+  if (
+    technicalMessage.includes("returned invalid JSON") ||
+    technicalMessage.includes("did not contain JSON object")
+  ) {
     return {
       userMessage: tr.extraction.schemaShapeError,
       technicalMessage,

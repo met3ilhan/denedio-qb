@@ -1,5 +1,7 @@
+import { runWithGeminiRetryListener } from "@/shared/ai/gemini-retry-context";
 import { formatExtractionFailure } from "@/shared/ai/source-analyst/extraction-failure-messages";
 import { getSourceAnalystProvider } from "@/shared/ai/source-analyst";
+import { tr } from "@/shared/copy/tr";
 import { getObjectStorage } from "@/shared/storage";
 import { sourceAnalystEnvelopeSchema } from "@/shared/validation/source-extraction";
 import type { PrismaClient } from "@/shared/db/client";
@@ -67,15 +69,26 @@ export class InProcessExtractionWorker {
         appendLogLine([], "info", `Source analyst: ${provider.providerId}/${provider.modelId}`),
       );
 
-      const envelope = await provider.extract({
-        sourceFileId: source.id,
-        storageKey: source.storageKey,
-        mimeType: source.mimeType,
-        originalFilename: source.originalFilename,
-        languageHint: source.languageHint,
-        subjectHint: source.subjectHint,
-        bytes,
-      });
+      const envelope = await runWithGeminiRetryListener(async (event) => {
+        await repo.appendJobLogs(
+          jobId,
+          appendLogLine(
+            [],
+            "info",
+            `${tr.aiService.retrying} (${event.attempt}/${event.maxAttempts})`,
+          ),
+        );
+      }, () =>
+        provider.extract({
+          sourceFileId: source.id,
+          storageKey: source.storageKey,
+          mimeType: source.mimeType,
+          originalFilename: source.originalFilename,
+          languageHint: source.languageHint,
+          subjectHint: source.subjectHint,
+          bytes,
+        }),
+      );
 
       const parsed = sourceAnalystEnvelopeSchema.parse(envelope);
 

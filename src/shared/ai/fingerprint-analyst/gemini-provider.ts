@@ -1,3 +1,4 @@
+import { defaultGeminiModelId, extractJsonObject, geminiGenerateTextJson } from "../gemini-client";
 import { resolveProviderMode } from "../provider-mode";
 import { SCHEMA_VERSION } from "@/shared/validation/primitives";
 
@@ -37,8 +38,7 @@ function buildEvidenceDraft(
  */
 export class GeminiFingerprintAnalystProvider implements IFingerprintAnalystProvider {
   readonly providerId = "gemini";
-  readonly modelId =
-    process.env.QUESTION_STUDIO_GEMINI_MODEL?.trim() || "gemini-2.5-flash";
+  readonly modelId = defaultGeminiModelId();
 
   constructor(private readonly apiKey: string) {}
 
@@ -49,6 +49,7 @@ export class GeminiFingerprintAnalystProvider implements IFingerprintAnalystProv
     }
 
     const started = Date.now();
+    const stageLabel = "Gemini fingerprint analyst";
     const extractionJson = JSON.stringify({
       stemText: input.extraction.stemText,
       choices: input.extraction.choices,
@@ -72,50 +73,14 @@ export class GeminiFingerprintAnalystProvider implements IFingerprintAnalystProv
       "Structured extraction JSON:\n" +
       extractionJson;
 
-    const body = {
-      contents: [{ parts: [{ text: prompt }] }],
-    };
+    const text = await geminiGenerateTextJson({
+      apiKey: this.apiKey,
+      modelId: this.modelId,
+      prompt,
+      stageLabel,
+    });
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.modelId}:generateContent?key=${this.apiKey}`;
-    let response: Response;
-    try {
-      response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-    } catch (cause) {
-      throw new Error(
-        `Gemini fingerprint analyst network error: ${cause instanceof Error ? cause.message : String(cause)}`,
-      );
-    }
-
-    if (!response.ok) {
-      const detail = await response.text().catch(() => "");
-      throw new Error(
-        `Gemini fingerprint analyst HTTP ${response.status}${detail ? `: ${detail.slice(0, 500)}` : ""}`,
-      );
-    }
-
-    const json = (await response.json()) as {
-      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
-    };
-    const text = json.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-    if (!text) {
-      throw new Error("Gemini fingerprint analyst returned empty content");
-    }
-
-    const match = text.match(/\{[\s\S]*\}/);
-    if (!match) {
-      throw new Error("Gemini fingerprint analyst response did not contain JSON object");
-    }
-
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(match[0]);
-    } catch {
-      throw new Error("Gemini fingerprint analyst returned invalid JSON");
-    }
+    const parsed = extractJsonObject(text, stageLabel);
 
     const payload = normalizeGeminiFingerprintPayload(parsed, input.extraction, input.sourceQuestionId);
     const evidence = buildEvidenceDraft(input.extraction);

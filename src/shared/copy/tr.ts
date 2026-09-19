@@ -21,6 +21,16 @@ export const tr = {
     body:
       "Deterministik örnek veriler kullanılıyor — canlı yapay zeka çıktısı değildir.",
   },
+  aiService: {
+    retrying: "Yapay zekâ servisi geçici olarak yoğun. Yeniden deneniyor…",
+    unavailable:
+      "Yapay zekâ servisine şu anda ulaşılamıyor. Birkaç dakika sonra tekrar deneyebilirsiniz.",
+    authError:
+      "Yapay zekâ servisi kimlik doğrulaması başarısız. Yapılandırmayı kontrol edin.",
+    invalidRequestError:
+      "Yapay zekâ isteği reddedildi. Teknik ayrıntılara bakın veya destekle iletişime geçin.",
+    genericFailure: "Yapay zekâ adımı tamamlanamadı. Tekrar deneyebilirsiniz.",
+  },
   providerMode: {
     MOCK: {
       badge: "MOCK · Yerel",
@@ -316,7 +326,7 @@ export const tr = {
     schemaShapeError:
       "Yapay zekâ soruyu okudu ancak sonuç beklenen biçime dönüştürülemedi. Tekrar deneyebilir veya teknik ayrıntıları inceleyebilirsiniz.",
     providerUnavailableError:
-      "Canlı yapay zekâ hizmetine şu anda ulaşılamadı. Biraz sonra tekrar deneyin veya teknik ayrıntıları inceleyin.",
+      "Yapay zekâ servisine şu anda ulaşılamıyor. Birkaç dakika sonra tekrar deneyebilirsiniz.",
     genericFailureError:
       "Çıkarma tamamlanamadı. Tekrar deneyebilir veya teknik ayrıntıları inceleyebilirsiniz.",
     page: {

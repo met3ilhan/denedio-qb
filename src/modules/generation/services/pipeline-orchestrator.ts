@@ -1,5 +1,6 @@
 import type { Prisma } from "@prisma/client";
 
+import { runWithGeminiRetryListener } from "@/shared/ai/gemini-retry-context";
 import { createDistractorAnalysisProvider } from "@/shared/ai/distractor";
 import { createGenerationProvider, generationProviderConfigHash } from "@/shared/ai/generation";
 import { createSolverProvider, solverProviderConfigHash, toSolverInput } from "@/shared/ai/solver";
@@ -9,6 +10,8 @@ import { generatedQuestionSchema } from "@/shared/validation/generated-question"
 import { pedagogicalFingerprintSchema } from "@/shared/validation/pedagogical-fingerprint";
 import { mutationPlanSchema } from "@/shared/validation/mutation-plan";
 import { solverResultSchema } from "@/shared/validation/solver-result";
+
+import { tr } from "@/shared/copy/tr";
 
 import { GenerationBlockedError } from "../repository/generation-repository";
 import { runVerificationEngine } from "@/modules/verification/services/rule-engine";
@@ -70,6 +73,9 @@ export class GenerationPipelineOrchestrator {
     const createdIds: string[] = [];
 
     try {
+      await runWithGeminiRetryListener((event) => {
+        appendLog("gemini", `${tr.aiService.retrying} (${event.attempt}/${event.maxAttempts})`);
+      }, async () => {
       for (const planRow of run.mutationPlans) {
         const plan = mutationPlanSchema.parse(planRow.payload);
         appendLog("generate", `Plan ${planRow.id} sibling ${planRow.siblingIndex}`);
@@ -157,6 +163,7 @@ export class GenerationPipelineOrchestrator {
 
         appendLog("verify", `Candidate ${candidate.id} → ${verification.quality_gate}`);
       }
+      });
 
       await this.db.generationRun.update({
         where: { id: generationRunId },

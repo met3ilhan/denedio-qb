@@ -1,3 +1,4 @@
+import { fetchGeminiWithRetry } from "./gemini-retry";
 import { resolveProviderMode } from "./provider-mode";
 
 export type GeminiGenerateOptions = {
@@ -43,25 +44,15 @@ export async function geminiGenerateTextJson(options: GeminiGenerateOptions): Pr
   const body = { contents: [{ parts }] };
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${options.modelId}:generateContent?key=${options.apiKey}`;
 
-  let response: Response;
-  try {
-    response = await fetch(url, {
+  const response = await fetchGeminiWithRetry(
+    url,
+    {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
-    });
-  } catch (cause) {
-    throw new Error(
-      `${options.stageLabel} network error: ${cause instanceof Error ? cause.message : String(cause)}`,
-    );
-  }
-
-  if (!response.ok) {
-    const detail = await response.text().catch(() => "");
-    throw new Error(
-      `${options.stageLabel} HTTP ${response.status}${detail ? `: ${detail.slice(0, 500)}` : ""}`,
-    );
-  }
+    },
+    options.stageLabel,
+  );
 
   const json = (await response.json()) as {
     candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
