@@ -12,6 +12,12 @@ import type { SourcePedagogicalClassification } from "@/shared/validation/source
 export type PedagogicalAnalysisBundle = {
   extractionChecksum: string;
   fingerprint: PedagogicalFingerprint;
+  evidenceRows: Array<{
+    dimensionKey: string;
+    evidenceType: string;
+    pointer: Record<string, unknown>;
+    excerpt: string;
+  }>;
   classification?: SourcePedagogicalClassification;
   gapWarnings: string[];
   qualityWarnings: string[];
@@ -42,6 +48,7 @@ export async function inferPedagogicalAnalysis(
   return {
     extractionChecksum: extractionChecksum(extraction),
     fingerprint: result.payload,
+    evidenceRows: result.evidenceRows,
     classification,
     gapWarnings: result.gapWarnings,
     qualityWarnings,

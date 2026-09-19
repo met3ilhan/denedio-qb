@@ -96,10 +96,11 @@ export function SourceExpertReviewWorkspace({ sourceId }: { sourceId: string }) 
       setLoading(false);
       return;
     }
-    const json = (await res.json()) as {
+    let json = (await res.json()) as {
       extraction: SourceExtraction;
       source?: SourceMeta & { missionId?: string };
       analystMeta?: { providerMode?: string };
+      jobStatus?: string;
       pedagogicalAnalysis?: {
         fingerprint?: Record<string, unknown>;
         gapWarnings?: string[];
@@ -108,6 +109,13 @@ export function SourceExpertReviewWorkspace({ sourceId }: { sourceId: string }) 
       classification?: SourcePedagogicalClassification | null;
       correctAnswerProvenance?: CorrectAnswerProvenance | null;
     };
+    for (let attempt = 0; attempt < 60; attempt += 1) {
+      if (json.pedagogicalAnalysis || json.jobStatus !== "SUCCEEDED") break;
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const pendingResponse = await fetch(`/api/sources/${sourceId}/structured`);
+      if (!pendingResponse.ok) break;
+      json = (await pendingResponse.json()) as typeof json;
+    }
     setExtraction(json.extraction);
     setSource(json.source ?? null);
     setProviderMode(json.analystMeta?.providerMode ?? "");
@@ -372,29 +380,41 @@ export function SourceExpertReviewWorkspace({ sourceId }: { sourceId: string }) 
             <h3 className="text-sm font-semibold">{tr.expertReview.classification}</h3>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
               <FieldInput
-                label={tr.upload.subjectLabel}
+                label="Ders"
                 value={subjectHint}
-                onChange={(v) => {
-                  setSubjectHint(v);
-                  void persistReviewMeta({ reviewSubject: v, reviewTopic: topicHint, reviewSubtopic: subtopicHint });
-                }}
+                onChange={setSubjectHint}
+                onBlur={(v) =>
+                  void persistReviewMeta({
+                    reviewSubject: v,
+                    reviewTopic: topicHint,
+                    reviewSubtopic: subtopicHint,
+                  })
+                }
               />
               <FieldInput
                 label="Konu"
                 value={topicHint}
-                onChange={(v) => {
-                  setTopicHint(v);
-                  void persistReviewMeta({ reviewSubject: subjectHint, reviewTopic: v, reviewSubtopic: subtopicHint });
-                }}
+                onChange={setTopicHint}
+                onBlur={(v) =>
+                  void persistReviewMeta({
+                    reviewSubject: subjectHint,
+                    reviewTopic: v,
+                    reviewSubtopic: subtopicHint,
+                  })
+                }
                 missing={tr.common.undetermined}
               />
               <FieldInput
                 label="Alt konu"
                 value={subtopicHint}
-                onChange={(v) => {
-                  setSubtopicHint(v);
-                  void persistReviewMeta({ reviewSubject: subjectHint, reviewTopic: topicHint, reviewSubtopic: v });
-                }}
+                onChange={setSubtopicHint}
+                onBlur={(v) =>
+                  void persistReviewMeta({
+                    reviewSubject: subjectHint,
+                    reviewTopic: topicHint,
+                    reviewSubtopic: v,
+                  })
+                }
                 missing={tr.common.undetermined}
               />
               <ReadOnlyField
@@ -531,6 +551,7 @@ function FieldInput(props: {
   label: string;
   value: string;
   onChange: (v: string) => void;
+  onBlur?: (v: string) => void;
   missing?: string;
 }) {
   return (
@@ -541,6 +562,7 @@ function FieldInput(props: {
         value={props.value}
         placeholder={props.missing}
         onChange={(e) => props.onChange(e.target.value)}
+        onBlur={(e) => props.onBlur?.(e.target.value)}
       />
     </label>
   );

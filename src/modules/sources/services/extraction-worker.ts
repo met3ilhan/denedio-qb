@@ -116,31 +116,43 @@ export class InProcessExtractionWorker {
         appendLogLine([], "info", "Extraction validated against SourceExtractionSchema"),
       );
 
-      await repo.appendJobLogs(
-        jobId,
-        appendLogLine([], "info", "Pedagogical analysis (classification + fingerprint) starting"),
-      );
-      const bundle = await ensurePedagogicalAnalysisCached(
-        this.db,
-        jobId,
-        parsed.extraction,
-        source.id,
-      );
-      await repo.mergeJobAnalystMeta(jobId, {
-        correctAnswerProvenance,
-        aiUsageSummary: {
-          extraction: { providerId: parsed.providerId, modelId: parsed.modelId },
-          analysis: {
-            providerId: bundle.providerId,
-            modelId: bundle.modelId,
-            usage: bundle.usage,
+      try {
+        await repo.appendJobLogs(
+          jobId,
+          appendLogLine([], "info", "Pedagogical analysis (classification + fingerprint) starting"),
+        );
+        const bundle = await ensurePedagogicalAnalysisCached(
+          this.db,
+          jobId,
+          parsed.extraction,
+          source.id,
+        );
+        await repo.mergeJobAnalystMeta(jobId, {
+          correctAnswerProvenance,
+          aiUsageSummary: {
+            extraction: {
+              providerId: parsed.providerId,
+              modelId: parsed.modelId,
+              usage: parsed.usage,
+            },
+            analysis: {
+              providerId: bundle.providerId,
+              modelId: bundle.modelId,
+              usage: bundle.usage,
+            },
           },
-        },
-      });
-      await repo.appendJobLogs(
-        jobId,
-        appendLogLine([], "info", "Pedagogical analysis cached for review (no reload re-billing)"),
-      );
+        });
+        await repo.appendJobLogs(
+          jobId,
+          appendLogLine([], "info", "Pedagogical analysis cached for review (no reload re-billing)"),
+        );
+      } catch (analysisError) {
+        const detail = analysisError instanceof Error ? analysisError.message : String(analysisError);
+        await repo.appendJobLogs(
+          jobId,
+          appendLogLine([], "error", `Pedagogical analysis failed after extraction: ${detail.slice(0, 500)}`),
+        );
+      }
     } catch (error) {
       const { userMessage, technicalMessage } = formatExtractionFailure(error);
       await repo.transitionJob(jobId, "FAILED", {

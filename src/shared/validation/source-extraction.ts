@@ -90,6 +90,7 @@ export const sourceAnalystEnvelopeSchema = z
     demoFixtureId: z.string().optional(),
     providerMode: z.enum(["LIVE", "DEMO", "MOCK", "MANUAL"]).optional(),
     inputBytesSha256: z.string().length(64).optional(),
+    usage: z.record(z.string(), z.unknown()).optional(),
   })
   .strict();
 
