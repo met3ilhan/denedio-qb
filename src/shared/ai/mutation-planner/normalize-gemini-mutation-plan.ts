@@ -86,7 +86,12 @@ function mergeInvariantAssertions(raw: unknown) {
 }
 
 function normalizeChoiceSlot(raw: unknown, fallback: string): string {
-  const label = asString(raw, fallback).toUpperCase().slice(0, 1);
+  const text = asString(raw, fallback).toUpperCase();
+  const letterMatch = text.match(/\b([A-E])\b/);
+  if (letterMatch?.[1]) {
+    return letterMatch[1];
+  }
+  const label = text.slice(0, 1);
   return /^[A-E]$/.test(label) ? label : fallback;
 }
 

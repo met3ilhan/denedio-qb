@@ -7,6 +7,7 @@ import {
 import { prisma } from "@/shared/db/client";
 import { generatedQuestionSchema } from "@/shared/validation/generated-question";
 import { distractorAnalysisSchema } from "@/shared/validation/distractor-analysis";
+import { solverResultSchema } from "@/shared/validation/solver-result";
 
 export const runtime = "nodejs";
 
@@ -17,6 +18,8 @@ export async function GET(_request: Request, { params }: Params) {
   const repo = createCandidateRepository(prisma);
   const bundle = await repo.getCandidateBundle(id);
   const verification = await repo.getLatestVerification(id);
+
+  const solverRun = bundle.solverRuns[0];
 
   return NextResponse.json({
     id: bundle.id,
@@ -29,6 +32,25 @@ export async function GET(_request: Request, { params }: Params) {
       : null,
     verificationStaleAt: bundle.verificationStaleAt,
     verification,
+    lineage: {
+      sourceQuestionId: bundle.generationRun.fingerprintVersion.fingerprint.sourceQuestionId,
+      sourceFileId:
+        bundle.generationRun.fingerprintVersion.fingerprint.sourceQuestion.sourceFileId,
+      fingerprintVersionId: bundle.generationRun.fingerprintVersionId,
+      mutationPlanId: bundle.mutationPlanId,
+    },
+    generation: {
+      providerId: bundle.generationRun.providerId,
+      modelId: bundle.generationRun.modelId,
+      status: bundle.generationRun.status,
+    },
+    solver: solverRun
+      ? {
+          providerId: solverRun.providerId,
+          modelId: solverRun.modelId,
+          result: solverResultSchema.parse(solverRun.result),
+        }
+      : null,
     siblings: bundle.generationRun.mutationPlans.map((p) => ({
       planId: p.id,
       siblingIndex: p.siblingIndex,

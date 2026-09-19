@@ -6,7 +6,7 @@ loadProjectEnv();
 
 export default defineConfig({
   testDir: "./e2e",
-  testIgnore: [/live-gemini-smoke\.spec\.ts/],
+  testIgnore: [/live-gemini-smoke\.spec\.ts/, /live-downstream-smoke\.spec\.ts/],
   globalSetup: "./e2e/global-setup.ts",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,

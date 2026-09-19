@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
+import { ZodError } from "zod";
 
 import { createGenerationRepository, GenerationBlockedError } from "@/modules/generation/repository/generation-repository";
 import { proposeMutationPlanForFingerprintVersion } from "@/modules/generation/services/mutation-plan-proposal";
 import { createFingerprintRepository } from "@/modules/fingerprints/repository/fingerprint-repository";
+import { formatGeminiTransportFailure } from "@/shared/ai/gemini-failure-messages";
+import { GeminiRequestError, GeminiRetryExhaustedError } from "@/shared/ai/gemini-retry";
 import { resolveProviderMode } from "@/shared/ai/provider-mode";
 import { mutationPlanSchema } from "@/shared/validation/mutation-plan";
 import { previewTrivialMutationFlags } from "@/shared/validation/trivial-mutation";
@@ -71,8 +74,34 @@ export async function POST(request: Request, { params }: Params) {
       );
       plan = proposed.plan;
     }
-  } catch {
-    return NextResponse.json({ error: "Mutasyon planı şema doğrulamasından geçemedi" }, { status: 400 });
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        {
+          error: "Mutasyon planı şema doğrulamasından geçemedi",
+          detail: error.message.slice(0, 500),
+        },
+        { status: 400 },
+      );
+    }
+    const isGeminiTransport =
+      error instanceof GeminiRetryExhaustedError ||
+      error instanceof GeminiRequestError ||
+      (error instanceof Error &&
+        (error.message.includes("Gemini mutation planner") ||
+          error.message.includes("RESOURCE_EXHAUSTED")));
+    if (isGeminiTransport) {
+      const { userMessage, technicalMessage } = formatGeminiTransportFailure(error);
+      return NextResponse.json(
+        { error: userMessage, detail: technicalMessage.slice(0, 500) },
+        { status: 502 },
+      );
+    }
+    const detail = error instanceof Error ? error.message : String(error);
+    return NextResponse.json(
+      { error: "Mutasyon planı şema doğrulamasından geçemedi", detail: detail.slice(0, 500) },
+      { status: 400 },
+    );
   }
 
   if (body.action === "preview") {

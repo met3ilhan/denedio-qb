@@ -63,6 +63,7 @@ Set `QUESTION_STUDIO_DEMO_MODE=1` (Playwright default) to run **deterministic mo
 | `pnpm test` | Vitest |
 | `pnpm test:e2e` | Playwright (requires DB + migrate; loads `.env.local`) |
 | `pnpm test:e2e:live` | One controlled live Gemini smoke (requires key in `.env.local`) |
+| `pnpm test:e2e:live:downstream` | Downstream-only live acceptance from seeded locked history fingerprint (no upstream Gemini) |
 | `pnpm db:up` / `pnpm db:migrate` | Docker Postgres + Prisma (migrate loads `.env.local` automatically) |
 
 Integration tests (opt-in, not part of default `pnpm test`): set `QUESTION_STUDIO_INTEGRATION=1` with `DATABASE_URL` — see `mission-repository.integration.test.ts`. Default CI/local runs skip this suite intentionally.

@@ -1,0 +1,109 @@
+{
+  "fixtureKey": "live-downstream-fixture-v1",
+  "missionTitle": "LIVE Downstream Acceptance Fixture",
+  "originalFilename": "live-downstream-tarih-fixture.png",
+  "subjectHint": "Tarih — downstream LIVE acceptance (seeded, no upstream Gemini)",
+  "extraction": {
+    "schemaVersion": "2026-09-18-gate1",
+    "sourceQuestionKey": "live-downstream-tarih-v1",
+    "language": "tr",
+    "stemText": "LIVE-SMOKE-8842 — Kurtuluş Savaşı sırasında aşağıdakilerden hangisi Mustafa Kemal Atatürk'ün doğrudan liderlik ettiği cephelerden biridir?",
+    "choices": [
+      { "label": "A", "text": "Çanakkale Cephesi (1915)" },
+      { "label": "B", "text": "Doğu Cephesi (1920)" },
+      { "label": "C", "text": "Güney Cephesi (1920-1921)", "isCorrect": true },
+      { "label": "D", "text": "Suriye-Filistin Cephesi (1918)" }
+    ],
+    "solutionText": "Kurtuluş Savaşı döneminde Doğu ve Güney cephelerinde doğrudan liderlik; Çanakkale I. Dünya Savaşı'na aittir.",
+    "blocks": [
+      {
+        "blockId": "stem-live-downstream",
+        "type": "stem",
+        "text": "LIVE-SMOKE-8842 — Kurtuluş Savaşı sırasında aşağıdakilerden hangisi Mustafa Kemal Atatürk'ün doğrudan liderlik ettiği cephelerden biridir?",
+        "confidence": 0.92,
+        "page": 1
+      }
+    ],
+    "extractionWarnings": []
+  },
+  "fingerprint": {
+    "schemaVersion": "2026-09-18-gate1",
+    "sourceQuestionId": "live-downstream-tarih-v1",
+    "measured_skill": "Kurtuluş Savaşı cephelerini dönem ve liderlik bağlamında ayırt etme",
+    "learning_objective": "Cephe-dönem eşlemesini hatırlayarak yanlış dönem tuzağını elemek",
+    "cognitive_operation": "recall_and_apply",
+    "reasoning_pattern": "stem_guided_elimination_by_period",
+    "solution_skeleton": [
+      {
+        "phase_id": "parse_stem",
+        "operation_type": "parse",
+        "depends_on": [],
+        "critical_substep": true,
+        "description": "Stemde dönem ipucu (Kurtuluş Savaşı) ve liderlik kriterini ayır."
+      },
+      {
+        "phase_id": "eliminate_wrong_era",
+        "operation_type": "eliminate",
+        "depends_on": ["parse_stem"],
+        "critical_substep": true,
+        "description": "I. Dünya Savaşı cephelerini ele."
+      },
+      {
+        "phase_id": "select_matching_front",
+        "operation_type": "infer",
+        "depends_on": ["eliminate_wrong_era"],
+        "critical_substep": true,
+        "description": "Doğu/Güney cephelerinden stemle uyumlu olanı seç."
+      }
+    ],
+    "critical_signal": {
+      "role": "Dönem sınırı: Kurtuluş Savaşı vs I. Dünya Savaşı",
+      "surface_form_notes": "Kurtuluş Savaşı ifadesi ve cephe adları"
+    },
+    "hidden_constraint": "NOT_APPLICABLE — Stem görünür gerçekleri dışında ek gizli kısıt yok; hatırlama/çıkarım stem üzerinden yapılır.",
+    "reasoning_steps": { "min": 2, "max": 4 },
+    "information_order": "Stem before options",
+    "calculation_burden": "none",
+    "language_burden": "medium",
+    "visual_reasoning_burden": "none",
+    "distractor_mechanisms": [
+      {
+        "slot": "A",
+        "mechanism_id": "MECH_CONCEPT_SWAP",
+        "trap_type_ids": ["TRAP_CONCEPT_SWAP"],
+        "misconception_id": "misc_a",
+        "summary": "Doğru cephe adını yanlış savaş dönemine taşıma"
+      },
+      {
+        "slot": "C",
+        "mechanism_id": "MECH_READ",
+        "trap_type_ids": ["TRAP_READ"],
+        "misconception_id": "misc_c",
+        "summary": "Dönem ipucunu atlayıp yakın cephe adını seçme"
+      },
+      {
+        "slot": "D",
+        "mechanism_id": "MECH_CONCEPT_SWAP",
+        "trap_type_ids": ["TRAP_RED_HERRING"],
+        "misconception_id": "misc_d",
+        "summary": "Aynı komutanı farklı savaş dönemine atfetme"
+      }
+    ],
+    "misconception_targets": [
+      "Cephe-dönem karışıklığı",
+      "Komutan-cephe zamansal hata"
+    ],
+    "trap_types": ["TRAP_CONCEPT_SWAP", "TRAP_READ", "TRAP_RED_HERRING"],
+    "elimination_opportunities": [
+      "1915/1918 gibi Kurtuluş Savaşı dışı tarihleri ele"
+    ],
+    "difficulty_factors": [{ "factor": "period_discrimination", "weight": "primary" }],
+    "expected_solve_time_seconds": { "min": 45, "max": 90 },
+    "question_archetype": {
+      "archetype_id": "AR_HISTORY_RECALL",
+      "version": "1",
+      "label": "Tarih hatırlama — cephe/dönem"
+    },
+    "mutable_surface_notes": "Cephe adları ve tarihler değişebilir; ölçülen beceri dönem ayırt etme kalır."
+  }
+}

@@ -12,6 +12,7 @@
     "test:watch": "vitest",
     "test:e2e": "pnpm build && node scripts/run-playwright.mjs test",
     "test:e2e:live": "pnpm build && node scripts/run-playwright-live.mjs",
+    "test:e2e:live:downstream": "pnpm build && node scripts/run-playwright-live-downstream.mjs",
     "test:live-gemini-smoke": "pnpm test:e2e:live",
     "db:up": "docker compose up -d question-studio-db",
     "db:down": "docker compose down",

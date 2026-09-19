@@ -16,6 +16,7 @@
 /playwright/.cache/
 .tmp/
 .tmp-playwright/
+e2e/fixtures/live-downstream-manifest.json
 
 # next.js
 /.next/
